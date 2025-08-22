@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
+import { SKUs } from '@/pages/SKUs';
 import { Layout } from '@/components/Layout';
 
 // Root route - just renders the outlet
@@ -71,20 +72,7 @@ const skusRoute = createRoute({
       throw redirect({ to: '/login' });
     }
   },
-  component: () => (
-    <Layout>
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-bold text-gray-900'>SKUs</h1>
-        <div className='bg-white shadow rounded-lg p-6'>
-          <p className='text-gray-600'>Coming in Phase 2: SKU Management</p>
-          <p className='text-sm text-gray-500 mt-2'>
-            This will include SKU CRUD operations, product catalog management,
-            and organization scoping.
-          </p>
-        </div>
-      </div>
-    </Layout>
-  ),
+  component: SKUs,
 });
 
 const inventoryRoute = createRoute({

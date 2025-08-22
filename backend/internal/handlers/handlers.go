@@ -57,20 +57,43 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For POC, accept any email and return mock user
-	user := &database.User{
-		ID:             1,
-		OrganizationID: 1,
-		Email:          loginReq.Email,
-		Name:           "Test User",
-		Role:           "admin",
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
+	// For POC, get the actual user from database or return mock user with correct org ID
+	realUser, err := h.DB.GetUserByEmail(loginReq.Email)
+	var user *database.User
+	var organization *database.Organization
+
+	if err == nil && realUser != nil {
+		// Use real user
+		user = realUser
+	} else {
+		// Mock user with actual organization ID from database
+		var orgId int
+		err = h.DB.DB.QueryRow("SELECT id FROM organizations LIMIT 1").Scan(&orgId)
+		if err != nil {
+			orgId = 1100401179193344001 // fallback
+		}
+
+		user = &database.User{
+			ID:             1,
+			OrganizationID: orgId,
+			Email:          loginReq.Email,
+			Name:           "Test User",
+			Role:           "admin",
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
+		}
 	}
 
-	organization := &database.Organization{
-		ID:        1,
-		Name:      "Test Organization",
+	// Get organization details
+	var orgName string
+	err = h.DB.DB.QueryRow("SELECT name FROM organizations WHERE id = $1", user.OrganizationID).Scan(&orgName)
+	if err != nil {
+		orgName = "Test Organization"
+	}
+
+	organization = &database.Organization{
+		ID:        user.OrganizationID,
+		Name:      orgName,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

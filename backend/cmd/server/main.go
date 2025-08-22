@@ -54,9 +54,16 @@ func main() {
 	// Auth routes
 	r.HandleFunc("/auth/login", h.Login).Methods("POST")
 	
-	// Protected routes (will be added in later phases)
+	// Protected routes
 	api := r.PathPrefix("/api/v1").Subrouter()
 	api.Use(middleware.AuthMiddleware)
+
+	// SKU routes
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus", h.GetSKUs).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus", h.CreateSKU).Methods("POST")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}", h.GetSKU).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}", h.UpdateSKU).Methods("PATCH")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}/status", h.UpdateSKUStatus).Methods("PATCH")
 
 	// CORS setup
 	c := cors.New(cors.Options{

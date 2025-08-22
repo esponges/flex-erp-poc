@@ -15,10 +15,13 @@ This is a Proof of Concept for an ERP inventory management system built with:
 - [x] React frontend with routing
 - [x] Development environment setup
 
-### Phase 2: Core Entities (SKUs)
-- [ ] SKU CRUD operations
-- [ ] SKU management interface
-- [ ] Organization scoping
+### Phase 2: Core Entities (SKUs) ✅
+- [x] SKU CRUD operations
+- [x] SKU management interface  
+- [x] Organization scoping
+- [x] Search and filtering functionality
+- [x] Add/Edit modal forms
+- [x] Activate/deactivate SKUs
 
 ### Phase 3: Inventory & Calculated Fields
 - [ ] Inventory tracking
@@ -52,14 +55,24 @@ This is a Proof of Concept for an ERP inventory management system built with:
 
 ## API Endpoints
 
-### Authentication
+
+### Current Endpoints
+
+#### Authentication
 - `POST /auth/login` - Mock login
 
-### Health
+#### Health
 - `GET /health` - Health check
 
+#### SKU Management
+- `GET /api/v1/orgs/{orgId}/skus` - List SKUs (with filtering, search, pagination)
+- `POST /api/v1/orgs/{orgId}/skus` - Create new SKU
+- `GET /api/v1/orgs/{orgId}/skus/{skuId}` - Get SKU by ID
+- `PATCH /api/v1/orgs/{orgId}/skus/{skuId}` - Update SKU details
+- `PATCH /api/v1/orgs/{orgId}/skus/{skuId}/status` - Activate/deactivate SKU
+
 ### Future Endpoints
-- Organization-scoped CRUD for SKUs, inventory, transactions
+- Organization-scoped CRUD for inventory, transactions
 - User management
 - Import/export functionality
 
