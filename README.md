@@ -1,40 +1,133 @@
-# Vitamin 2.0
+# Flex ERP PoC - Inventory Management System
 
-![Test workflow](https://github.com/wtchnm/Vitamin/actions/workflows/test.yml/badge.svg) [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/wtchnm/Vitamin/blob/main/LICENSE)
+A proof-of-concept ERP inventory management system built with React, Go, and PostgreSQL.
 
-Opinionated Vite starter template. Previous version available on v1 branch.
+## 🚀 Quick Start
 
-## Features
+```bash
+# Setup everything
+npm run setup
 
-- [Vite 6](https://vitejs.dev) with [React 19](https://reactjs.org), [TypeScript 5](https://www.typescriptlang.org) and [absolute imports](https://github.com/aleclarson/vite-tsconfig-paths).
-- [Tailwind CSS v4](https://tailwindcss.com) for easy stylization.
-- [Biome V2](https://next.biomejs.dev) for linting, formatting and automatic import sorting.
-- Write unit and integration tests with [Vitest 3](https://vitest.dev/) and [Testing Library 16](https://testing-library.com/).
-- Write e2e tests with [Playwright 1.52](https://www.cypress.io).
-
-## Getting started
-
-Use this repository as a [GitHub template](https://github.com/wtchnm/Vitamin/generate) or use [degit](https://github.com/Rich-Harris/degit) to clone to your machine with an empty git history:
-
-```
-npx degit wtchnm/Vitamin#main my-app
+# Start development servers
+npm run dev
 ```
 
-Then, install the dependencies:
+Visit:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8080
+- **Health Check**: http://localhost:8080/health
+
+## 📋 Features
+
+### ✅ Phase 1: Foundation (Complete)
+- PostgreSQL database with Docker
+- Go backend with JWT authentication
+- React frontend with TypeScript
+- Development environment setup
+
+### 🚧 Upcoming Phases
+- **Phase 2**: SKU Management
+- **Phase 3**: Inventory Tracking
+- **Phase 4**: Transaction System
+- **Phase 5**: User Management
+- **Phase 6**: Field Customization
+- **Phase 7**: Change Logging
+- **Phase 8**: File Import System
+
+## 🏗️ Tech Stack
+
+### Frontend
+- **React 19** with TypeScript
+- **Vite** for development and building
+- **TailwindCSS** for styling
+- **TanStack Router** for routing
+- **TanStack Query** for data fetching
+
+### Backend
+- **Go 1.21+** with Gorilla Mux
+- **PostgreSQL 15** database
+- **JWT** authentication
+- **Docker** for database
+
+## 📁 Project Structure
 
 ```
-pnpm install
+flex-erp-poc/
+├── backend/           # Go backend
+│   ├── cmd/server/    # Main application
+│   ├── internal/      # Private application code
+│   └── go.mod         # Go modules
+├── frontend/          # React frontend
+│   ├── src/           # Source code
+│   └── package.json   # Dependencies
+├── database/          # Database files
+│   ├── migrations/    # SQL migrations
+│   └── seeds/         # Seed data
+├── scripts/           # Development scripts
+├── docs/              # Documentation
+└── docker-compose.yml # Database setup
 ```
 
-## Scripts
+## 🛠️ Development
 
-- `pnpm dev` - start a development server with hot reload.
-- `pnpm build` - build for production. The generated files will be on the `dist` folder.
-- `pnpm preview` - locally preview the production build.
-- `pnpm test` - run unit and integration tests related to changed files based on git.
-- `pnpm test:ci` - run all unit and integration tests in CI mode.
-- `pnpm test:e2e` - run all e2e tests with Playwright.
-- `pnpm test:e2e:ci` - run all e2e tests headlessly.
-- `pnpm format` - format all files with Biome Formatter.
-- `pnpm lint` - runs TypeScript and Biome.
-- `pnpm validate` - runs `lint`, `test:ci` and `test:e2e:ci`.
+### Prerequisites
+- Go 1.21+
+- Node.js 18+
+- pnpm (recommended)
+- Docker
+
+### Available Scripts
+
+```bash
+# Setup and development
+npm run setup          # Full environment setup
+npm run dev            # Start both backend and frontend
+npm run build          # Build for production
+
+# Individual services
+npm run backend:dev    # Start Go backend only
+npm run frontend:dev   # Start React frontend only
+
+# Database
+npm run db:up          # Start PostgreSQL
+npm run db:down        # Stop PostgreSQL
+npm run db:reset       # Reset database with fresh data
+```
+
+## 📚 Documentation
+
+- [Technical Specification](./docs/spec.md)
+- [Development Setup](./docs/setup.md)
+
+## 🔧 Environment Configuration
+
+### Backend (.env)
+```env
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/flex_erp_poc?sslmode=disable
+PORT=8080
+JWT_SECRET=your-secret-key-here
+```
+
+## 🧪 Testing the Setup
+
+1. **Database**: `curl http://localhost:8080/health`
+2. **Authentication**: POST to `/auth/login` with any email
+3. **Frontend**: Access the React app at `http://localhost:5173`
+
+## 📝 API Endpoints
+
+### Authentication
+- `POST /auth/login` - Mock authentication (accepts any email)
+
+### Health
+- `GET /health` - Server health check
+
+*More endpoints will be added in upcoming phases*
+
+## 🤝 Contributing
+
+This is a proof-of-concept project. Each phase should be implemented and tested before moving to the next.
+
+## 📄 License
+
+MIT License
