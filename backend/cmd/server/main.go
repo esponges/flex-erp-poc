@@ -65,6 +65,12 @@ func main() {
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}", h.UpdateSKU).Methods("PATCH")
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}/status", h.UpdateSKUStatus).Methods("PATCH")
 
+	// Inventory routes
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory", h.GetInventory).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory", h.CreateInventory).Methods("POST")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory/sku/{skuId:[0-9]+}", h.GetInventoryBySKU).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory/sku/{skuId:[0-9]+}/cost", h.UpdateManualCost).Methods("PATCH")
+
 	// CORS setup
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},

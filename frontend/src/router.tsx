@@ -8,6 +8,7 @@ import {
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { SKUs } from '@/pages/SKUs';
+import { Inventory } from '@/pages/Inventory';
 import { Layout } from '@/components/Layout';
 
 // Root route - just renders the outlet
@@ -86,18 +87,7 @@ const inventoryRoute = createRoute({
   },
   component: () => (
     <Layout>
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-bold text-gray-900'>Inventory</h1>
-        <div className='bg-white shadow rounded-lg p-6'>
-          <p className='text-gray-600'>
-            Coming in Phase 3: Inventory & Calculated Fields
-          </p>
-          <p className='text-sm text-gray-500 mt-2'>
-            This will include inventory tracking, weighted cost calculations,
-            and manual adjustments.
-          </p>
-        </div>
-      </div>
+      <Inventory />
     </Layout>
   ),
 });
