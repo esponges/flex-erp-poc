@@ -9,6 +9,7 @@ import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { SKUs } from '@/pages/SKUs';
 import { Inventory } from '@/pages/Inventory';
+import { Transactions } from '@/pages/Transactions';
 import { Layout } from '@/components/Layout';
 
 // Root route - just renders the outlet
@@ -103,16 +104,7 @@ const transactionsRoute = createRoute({
   },
   component: () => (
     <Layout>
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-bold text-gray-900'>Transactions</h1>
-        <div className='bg-white shadow rounded-lg p-6'>
-          <p className='text-gray-600'>Coming in Phase 4: Transaction System</p>
-          <p className='text-sm text-gray-500 mt-2'>
-            This will include in/out transactions, automatic inventory updates,
-            and business rule enforcement.
-          </p>
-        </div>
-      </div>
+      <Transactions />
     </Layout>
   ),
 });

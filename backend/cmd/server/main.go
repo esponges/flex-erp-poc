@@ -71,6 +71,11 @@ func main() {
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory/sku/{skuId:[0-9]+}", h.GetInventoryBySKU).Methods("GET")
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory/sku/{skuId:[0-9]+}/cost", h.UpdateManualCost).Methods("PATCH")
 
+	// Transaction routes
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions", h.GetTransactions).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions", h.CreateTransaction).Methods("POST")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions/summary", h.GetTransactionSummary).Methods("GET")
+
 	// CORS setup
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
