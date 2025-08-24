@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserWithDetails {
   id: number;
@@ -54,13 +55,15 @@ export function Users() {
   });
 
   const queryClient = useQueryClient();
+  const { state } = useAuth();
 
   const fetchUsers = async (): Promise<{
     users: UserWithDetails[];
     pagination: any;
   }> => {
-    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
-    if (!auth.token || !auth.organization) return { users: [], pagination: {} };
+    if (!state.token || !state.organization) {
+      return { users: [], pagination: {} };
+    }
 
     const params = new URLSearchParams();
     if (selectedRole) params.append('role', selectedRole);
@@ -69,11 +72,11 @@ export function Users() {
 
     const response = await fetch(
       `http://localhost:8080/api/v1/orgs/${
-        auth.organization.id
+        state.organization.id
       }/users?${params.toString()}`,
       {
         headers: {
-          Authorization: `Bearer ${auth.token}`,
+          Authorization: `Bearer ${state.token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -87,14 +90,15 @@ export function Users() {
   };
 
   const fetchUserRoles = async (): Promise<{ roles: UserRole[] }> => {
-    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
-    if (!auth.token || !auth.organization) return { roles: [] };
+    if (!state.token || !state.organization) {
+      return { roles: [] };
+    }
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${auth.organization.id}/users/roles`,
+      `http://localhost:8080/api/v1/orgs/${state.organization.id}/users/roles`,
       {
         headers: {
-          Authorization: `Bearer ${auth.token}`,
+          Authorization: `Bearer ${state.token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -120,13 +124,16 @@ export function Users() {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: CreateUserRequest) => {
-      const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+      if (!state.token || !state.organization) {
+        throw new Error('Not authenticated');
+      }
+      
       const response = await fetch(
-        `http://localhost:8080/api/v1/orgs/${auth.organization.id}/users`,
+        `http://localhost:8080/api/v1/orgs/${state.organization.id}/users`,
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${auth.token}`,
+            Authorization: `Bearer ${state.token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(userData),
@@ -155,13 +162,16 @@ export function Users() {
       userId: number;
       userData: UpdateUserRequest;
     }) => {
-      const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+      if (!state.token || !state.organization) {
+        throw new Error('Not authenticated');
+      }
+      
       const response = await fetch(
-        `http://localhost:8080/api/v1/orgs/${auth.organization.id}/users/${userId}`,
+        `http://localhost:8080/api/v1/orgs/${state.organization.id}/users/${userId}`,
         {
           method: 'PUT',
           headers: {
-            Authorization: `Bearer ${auth.token}`,
+            Authorization: `Bearer ${state.token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(userData),
@@ -184,13 +194,16 @@ export function Users() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+      if (!state.token || !state.organization) {
+        throw new Error('Not authenticated');
+      }
+      
       const response = await fetch(
-        `http://localhost:8080/api/v1/orgs/${auth.organization.id}/users/${userId}`,
+        `http://localhost:8080/api/v1/orgs/${state.organization.id}/users/${userId}`,
         {
           method: 'DELETE',
           headers: {
-            Authorization: `Bearer ${auth.token}`,
+            Authorization: `Bearer ${state.token}`,
           },
         }
       );
