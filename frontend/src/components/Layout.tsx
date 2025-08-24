@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react'
+import { Link } from '@tanstack/react-router'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface LayoutProps {
@@ -31,13 +32,13 @@ export function Layout({ children }: LayoutProps) {
             {/* Navigation */}
             <nav className="flex-1 px-2 py-4 space-y-1">
               {navigationItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className="block px-2 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </nav>
 
