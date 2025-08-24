@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -16,8 +15,6 @@ type Claims struct {
 	Role           string `json:"role"`
 	jwt.RegisteredClaims
 }
-
-type contextKey string
 
 const (
 	UserContextKey         = contextKey("user")
@@ -60,18 +57,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func GetUserIDFromContext(ctx context.Context) (int, bool) {
-	userID, ok := ctx.Value(UserContextKey).(int)
-	return userID, ok
-}
-
 func GetOrganizationIDFromContext(ctx context.Context) (int, bool) {
 	orgID, ok := ctx.Value(OrganizationContextKey).(int)
 	return orgID, ok
-}
-
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }

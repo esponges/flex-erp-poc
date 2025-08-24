@@ -24,19 +24,19 @@ This is a Proof of Concept for an ERP inventory management system built with:
 - [x] Activate/deactivate SKUs
 
 ### Phase 3: Inventory & Calculated Fields
-- [ ] Inventory tracking
-- [ ] Weighted cost calculations
-- [ ] Manual cost adjustments
+- [x] Inventory tracking
+- [x] Weighted cost calculations
+- [x] Manual cost adjustments
 
 ### Phase 4: Transactions System
-- [ ] In/Out transactions
-- [ ] Automatic inventory updates
-- [ ] Business rule enforcement
+- [x] In/Out transactions
+- [x] Automatic inventory updates
+- [x] Business rule enforcement
 
-### Phase 5: User Management & Permissions
-- [ ] User CRUD operations
-- [ ] Role-based access control
-- [ ] Field-level permissions
+### Phase 5: User Management & Permissions ✅
+- [x] User CRUD operations
+- [x] Role-based access control
+- [x] Field-level permissions
 
 ### Phase 6: Field Aliases & Customization
 - [ ] Custom field names

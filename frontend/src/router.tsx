@@ -10,6 +10,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import { SKUs } from '@/pages/SKUs';
 import { Inventory } from '@/pages/Inventory';
 import { Transactions } from '@/pages/Transactions';
+import { Users } from '@/pages/Users';
 import { Layout } from '@/components/Layout';
 
 // Root route - just renders the outlet
@@ -118,22 +119,7 @@ const usersRoute = createRoute({
       throw redirect({ to: '/login' });
     }
   },
-  component: () => (
-    <Layout>
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-bold text-gray-900'>Users</h1>
-        <div className='bg-white shadow rounded-lg p-6'>
-          <p className='text-gray-600'>
-            Coming in Phase 5: User Management & Permissions
-          </p>
-          <p className='text-sm text-gray-500 mt-2'>
-            This will include user CRUD operations, role-based access control,
-            and field-level permissions.
-          </p>
-        </div>
-      </div>
-    </Layout>
-  ),
+  component: Users,
 });
 
 const settingsRoute = createRoute({

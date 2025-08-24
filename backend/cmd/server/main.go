@@ -41,9 +41,10 @@ func main() {
 
 	log.Println("Successfully connected to database")
 
-	// Initialize handlers
+	// Initialize handlers and middleware
 	dbService := &database.PostgresService{DB: db}
 	h := &handlers.Handler{DB: dbService}
+	permMiddleware := middleware.NewPermissionMiddleware(dbService)
 
 	// Setup routes
 	r := mux.NewRouter()
@@ -75,6 +76,21 @@ func main() {
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions", h.GetTransactions).Methods("GET")
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions", h.CreateTransaction).Methods("POST")
 	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions/summary", h.GetTransactionSummary).Methods("GET")
+
+	// User management routes (with role-based access control)
+	api.Handle("/orgs/{orgId:[0-9]+}/users", 
+		permMiddleware.RequirePermission("users", "read")(http.HandlerFunc(h.GetUsers))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9]+}/users", 
+		permMiddleware.RequirePermission("users", "create")(http.HandlerFunc(h.CreateUser))).Methods("POST")
+	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}", 
+		permMiddleware.RequirePermission("users", "update")(http.HandlerFunc(h.UpdateUser))).Methods("PUT")
+	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}", 
+		permMiddleware.RequirePermission("users", "delete")(http.HandlerFunc(h.DeleteUser))).Methods("DELETE")
+	api.HandleFunc("/orgs/{orgId:[0-9]+}/users/roles", h.GetUserRoles).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}/permissions", 
+		permMiddleware.RequireSelfOrPermission("users", "read")(http.HandlerFunc(h.GetUserPermissions))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}/check-permission", 
+		permMiddleware.RequireSelfOrPermission("users", "read")(http.HandlerFunc(h.CheckUserPermission))).Methods("POST")
 
 	// CORS setup
 	c := cors.New(cors.Options{

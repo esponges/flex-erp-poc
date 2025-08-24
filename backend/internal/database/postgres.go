@@ -760,3 +760,254 @@ func (p *PostgresService) GetTransactionSummary(organizationID int, params model
 
 	return summaries, nil
 }
+
+// User Management Methods
+
+func (p *PostgresService) GetUsersWithDetails(organizationID int, params models.UserListParams) ([]*models.UserWithDetails, error) {
+	query := `
+		SELECT 
+			u.id, u.organization_id, u.email, u.name, u.role, u.is_active, 
+			u.last_login_at, u.created_at, u.updated_at,
+			o.name as organization_name
+		FROM users u
+		JOIN organizations o ON u.organization_id = o.id
+		WHERE u.organization_id = $1
+	`
+	args := []interface{}{organizationID}
+	argIndex := 2
+
+	// Add role filter
+	if params.Role != nil && *params.Role != "" {
+		query += fmt.Sprintf(" AND u.role = $%d", argIndex)
+		args = append(args, *params.Role)
+		argIndex++
+	}
+
+	// Add active status filter
+	if params.IsActive != nil {
+		query += fmt.Sprintf(" AND u.is_active = $%d", argIndex)
+		args = append(args, *params.IsActive)
+		argIndex++
+	}
+
+	// Add search filter
+	if params.Search != nil && *params.Search != "" {
+		searchTerm := "%" + strings.ToLower(*params.Search) + "%"
+		query += fmt.Sprintf(" AND (LOWER(u.name) LIKE $%d OR LOWER(u.email) LIKE $%d)", argIndex, argIndex)
+		args = append(args, searchTerm)
+		argIndex++
+	}
+
+	query += " ORDER BY u.created_at DESC"
+
+	// Add pagination
+	if params.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", argIndex)
+		args = append(args, params.Limit)
+		argIndex++
+
+		if params.Page > 0 {
+			offset := (params.Page - 1) * params.Limit
+			query += fmt.Sprintf(" OFFSET $%d", argIndex)
+			args = append(args, offset)
+		}
+	}
+
+	rows, err := p.DB.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*models.UserWithDetails
+	for rows.Next() {
+		user := &models.UserWithDetails{}
+		err := rows.Scan(
+			&user.ID,
+			&user.OrganizationID,
+			&user.Email,
+			&user.Name,
+			&user.Role,
+			&user.IsActive,
+			&user.LastLoginAt,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+			&user.OrganizationName,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (p *PostgresService) GetUserWithDetails(organizationID, userID int) (*models.UserWithDetails, error) {
+	user := &models.UserWithDetails{}
+	query := `
+		SELECT 
+			u.id, u.organization_id, u.email, u.name, u.role, u.is_active, 
+			u.last_login_at, u.created_at, u.updated_at,
+			o.name as organization_name
+		FROM users u
+		JOIN organizations o ON u.organization_id = o.id
+		WHERE u.organization_id = $1 AND u.id = $2
+	`
+	err := p.DB.QueryRow(query, organizationID, userID).Scan(
+		&user.ID,
+		&user.OrganizationID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.IsActive,
+		&user.LastLoginAt,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.OrganizationName,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (p *PostgresService) CreateUser(organizationID int, req models.CreateUserRequest) (*models.UserWithDetails, error) {
+	user := &models.UserWithDetails{}
+	query := `
+		INSERT INTO users (organization_id, email, name, role, is_active, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, organization_id, email, name, role, is_active, last_login_at, created_at, updated_at
+	`
+	now := time.Now()
+	err := p.DB.QueryRow(
+		query,
+		organizationID,
+		req.Email,
+		req.Name,
+		req.Role,
+		true, // default to active
+		now,
+		now,
+	).Scan(
+		&user.ID,
+		&user.OrganizationID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.IsActive,
+		&user.LastLoginAt,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the organization name
+	orgQuery := `SELECT name FROM organizations WHERE id = $1`
+	err = p.DB.QueryRow(orgQuery, organizationID).Scan(&user.OrganizationName)
+	if err != nil {
+		user.OrganizationName = ""
+	}
+
+	return user, nil
+}
+
+func (p *PostgresService) UpdateUser(organizationID, userID int, req models.UpdateUserRequest) (*models.UserWithDetails, error) {
+	user := &models.UserWithDetails{}
+	
+	// Build dynamic query based on provided fields
+	setParts := []string{"updated_at = $3"}
+	args := []interface{}{organizationID, userID, time.Now()}
+	argIndex := 4
+
+	setParts = append(setParts, fmt.Sprintf("name = $%d", argIndex))
+	args = append(args, req.Name)
+	argIndex++
+
+	setParts = append(setParts, fmt.Sprintf("role = $%d", argIndex))
+	args = append(args, req.Role)
+	argIndex++
+
+	if req.IsActive != nil {
+		setParts = append(setParts, fmt.Sprintf("is_active = $%d", argIndex))
+		args = append(args, *req.IsActive)
+		argIndex++
+	}
+
+	query := fmt.Sprintf(`
+		UPDATE users 
+		SET %s
+		WHERE organization_id = $1 AND id = $2
+		RETURNING id, organization_id, email, name, role, is_active, last_login_at, created_at, updated_at
+	`, strings.Join(setParts, ", "))
+
+	err := p.DB.QueryRow(query, args...).Scan(
+		&user.ID,
+		&user.OrganizationID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.IsActive,
+		&user.LastLoginAt,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the organization name
+	orgQuery := `SELECT name FROM organizations WHERE id = $1`
+	err = p.DB.QueryRow(orgQuery, organizationID).Scan(&user.OrganizationName)
+	if err != nil {
+		user.OrganizationName = ""
+	}
+
+	return user, nil
+}
+
+func (p *PostgresService) DeleteUser(organizationID, userID int) error {
+	query := `DELETE FROM users WHERE organization_id = $1 AND id = $2`
+	result, err := p.DB.Exec(query, organizationID, userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (p *PostgresService) UpdateUserLoginTime(userID int) error {
+	query := `UPDATE users SET last_login_at = $1 WHERE id = $2`
+	_, err := p.DB.Exec(query, time.Now(), userID)
+	return err
+}
+
+// Helper function to check user permissions
+func (p *PostgresService) CheckUserPermission(userID int, resource, action string) (bool, error) {
+	// Get user role
+	var role string
+	query := `SELECT role FROM users WHERE id = $1`
+	err := p.DB.QueryRow(query, userID).Scan(&role)
+	if err != nil {
+		return false, err
+	}
+
+	// Check permission using the role-based system
+	userRole := models.GetRoleByName(role)
+	if userRole == nil {
+		return false, nil
+	}
+
+	return userRole.HasPermission(resource, action), nil
+}
