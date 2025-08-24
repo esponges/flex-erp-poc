@@ -1,12 +1,26 @@
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 
 export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
+  const router = useRouter()
+
+  const loginMutation = useMutation({
+    mutationFn: async () => {
+      await login(email, password)
+    },
+    onSuccess: () => {
+      router.navigate({ to: '/dashboard' })
+    },
+    onError: () => {
+      setError('Login failed. Please try again.')
+    },
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -15,17 +29,8 @@ export function Login() {
       return
     }
 
-    setIsLoading(true)
     setError('')
-
-    try {
-      await login(email, password)
-      // Navigation will be handled by the router based on auth state
-    } catch (err) {
-      setError('Login failed. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
+    loginMutation.mutate()
   }
 
   return (
@@ -82,10 +87,10 @@ export function Login() {
           <div>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loginMutation.isPending}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
 
