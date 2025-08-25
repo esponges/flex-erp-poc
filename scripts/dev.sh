@@ -15,14 +15,18 @@ if ! docker-compose ps postgres | grep -q "Up"; then
 fi
 
 # Start backend and frontend in parallel
-echo "🏃 Starting backend and frontend..."
+echo "🏃 Rebuilding and starting backend and frontend..."
 
-# Kill any existing processes on these ports
-pkill -f "go run.*main.go" 2>/dev/null || true
+# Kill any existing backend and frontend processes
+pkill -f "backend/bin/server" 2>/dev/null || true
 pkill -f "vite" 2>/dev/null || true
 
-# Start backend
-cd backend && go run cmd/server/main.go &
+# Rebuild backend binary
+echo "🔨 Building backend binary..."
+./scripts/build.sh
+
+# Start backend binary
+backend/bin/server &
 BACKEND_PID=$!
 
 # Start frontend
