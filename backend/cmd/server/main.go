@@ -55,7 +55,12 @@ func main() {
 	// Auth routes
 	r.HandleFunc("/auth/login", h.Login).Methods("POST")
 	
-	// Protected routes
+	// Protected auth routes
+	authRoutes := r.PathPrefix("/auth").Subrouter()
+	authRoutes.Use(middleware.AuthMiddleware)
+	authRoutes.HandleFunc("/me", h.Me).Methods("GET")
+	
+	// Protected API routes
 	api := r.PathPrefix("/api/v1").Subrouter()
 	api.Use(middleware.AuthMiddleware)
 

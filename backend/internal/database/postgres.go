@@ -74,6 +74,25 @@ func (p *PostgresService) GetUserByID(id int) (*User, error) {
 	return user, nil
 }
 
+func (p *PostgresService) GetOrganizationByID(id int) (*Organization, error) {
+	org := &Organization{}
+	query := `
+		SELECT id, name, created_at, updated_at 
+		FROM organizations 
+		WHERE id = $1
+	`
+	err := p.DB.QueryRow(query, id).Scan(
+		&org.ID,
+		&org.Name,
+		&org.CreatedAt,
+		&org.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return org, nil
+}
+
 // SKU Methods
 
 func (p *PostgresService) GetSKUs(organizationID int, params models.SKUListParams) ([]*models.SKU, error) {

@@ -12,8 +12,9 @@ import { Inventory } from '@/pages/Inventory';
 import { Transactions } from '@/pages/Transactions';
 import { Users } from '@/pages/Users';
 import { Layout } from '@/components/Layout';
+import { AuthGuard } from '@/components/AuthGuard';
 
-// Root route - just renders the outlet
+// Root route - just renders the outlet  
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
 });
@@ -47,7 +48,11 @@ const dashboardRoute = createRoute({
       throw redirect({ to: '/login' });
     }
   },
-  component: Dashboard,
+  component: () => (
+    <AuthGuard>
+      <Dashboard />
+    </AuthGuard>
+  ),
 });
 
 // Default route (redirect based on auth status)
@@ -75,7 +80,11 @@ const skusRoute = createRoute({
       throw redirect({ to: '/login' });
     }
   },
-  component: SKUs,
+  component: () => (
+    <AuthGuard>
+      <SKUs />
+    </AuthGuard>
+  ),
 });
 
 const inventoryRoute = createRoute({
@@ -88,9 +97,11 @@ const inventoryRoute = createRoute({
     }
   },
   component: () => (
-    <Layout>
-      <Inventory />
-    </Layout>
+    <AuthGuard>
+      <Layout>
+        <Inventory />
+      </Layout>
+    </AuthGuard>
   ),
 });
 
@@ -104,9 +115,11 @@ const transactionsRoute = createRoute({
     }
   },
   component: () => (
-    <Layout>
-      <Transactions />
-    </Layout>
+    <AuthGuard>
+      <Layout>
+        <Transactions />
+      </Layout>
+    </AuthGuard>
   ),
 });
 
@@ -119,7 +132,11 @@ const usersRoute = createRoute({
       throw redirect({ to: '/login' });
     }
   },
-  component: Users,
+  component: () => (
+    <AuthGuard>
+      <Users />
+    </AuthGuard>
+  ),
 });
 
 const settingsRoute = createRoute({
@@ -132,20 +149,22 @@ const settingsRoute = createRoute({
     }
   },
   component: () => (
-    <Layout>
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-bold text-gray-900'>Settings</h1>
-        <div className='bg-white shadow rounded-lg p-6'>
-          <p className='text-gray-600'>
-            Coming in Phase 6: Field Aliases & Customization
-          </p>
-          <p className='text-sm text-gray-500 mt-2'>
-            This will include custom field names, organization-specific aliases,
-            and settings interface.
-          </p>
+    <AuthGuard>
+      <Layout>
+        <div className='space-y-6'>
+          <h1 className='text-2xl font-bold text-gray-900'>Settings</h1>
+          <div className='bg-white shadow rounded-lg p-6'>
+            <p className='text-gray-600'>
+              Coming in Phase 6: Field Aliases & Customization
+            </p>
+            <p className='text-sm text-gray-500 mt-2'>
+              This will include custom field names, organization-specific aliases,
+              and settings interface.
+            </p>
+          </div>
         </div>
-      </div>
-    </Layout>
+      </Layout>
+    </AuthGuard>
   ),
 });
 

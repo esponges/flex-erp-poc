@@ -25,12 +25,13 @@ pkill -f "vite" 2>/dev/null || true
 echo "🔨 Building backend binary..."
 ./scripts/build.sh
 
-# Start backend binary
-backend/bin/server &
+
+# Start backend in debug mode with Delve
+dlv exec backend/bin/server --headless --listen=:2345 --api-version=2 &
 BACKEND_PID=$!
 
 # Start frontend
-cd ../frontend && pnpm dev &
+cd ./frontend && pnpm dev &
 FRONTEND_PID=$!
 
 echo "✅ Backend started on http://localhost:8080"

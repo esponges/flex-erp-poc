@@ -19,6 +19,7 @@ type Claims struct {
 const (
 	UserContextKey         = contextKey("user")
 	OrganizationContextKey = contextKey("organization")
+	ClaimsContextKey       = contextKey("claims")
 )
 
 var jwtSecret = []byte("your-secret-key") // Should match the one in handlers
@@ -52,6 +53,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		// Add user info to request context
 		ctx := context.WithValue(r.Context(), UserContextKey, claims.UserID)
 		ctx = context.WithValue(ctx, OrganizationContextKey, claims.OrganizationID)
+		ctx = context.WithValue(ctx, ClaimsContextKey, claims)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

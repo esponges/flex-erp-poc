@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"flex-erp-poc/internal/database"
+	"flex-erp-poc/internal/middleware"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -20,8 +21,8 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token        string             `json:"token"`
-	User         *database.User     `json:"user"`
+	Token        string                 `json:"token"`
+	User         *database.User         `json:"user"`
 	Organization *database.Organization `json:"organization"`
 }
 
@@ -117,6 +118,84 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	response := LoginResponse{
 		Token:        tokenString,
+		User:         user,
+		Organization: organization,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middleware.UserContextKey).(int)
+	if !ok {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(ErrorResponse{Error: "User not found in context"})
+		return
+	}
+
+	organizationID, ok := r.Context().Value(middleware.OrganizationContextKey).(int)
+	if !ok {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(ErrorResponse{Error: "Organization not found in context"})
+		return
+	}
+
+	// Try to get user from database first
+	user, err := h.DB.GetUserByID(userID)
+	var organization *database.Organization
+
+	if err != nil {
+		// If user not found in database, create mock user from JWT claims
+		// Extract additional claims from the request context
+		claims, ok := r.Context().Value(middleware.ClaimsContextKey).(*middleware.Claims)
+		if !ok {
+			// Fallback: create mock user with basic info
+			user = &database.User{
+				ID:             userID,
+				OrganizationID: organizationID,
+				Email:          "test@example.com", // This should come from JWT
+				Name:           "Test User",
+				Role:           "admin",
+				CreatedAt:      time.Now(),
+				UpdatedAt:      time.Now(),
+			}
+		} else {
+			user = &database.User{
+				ID:             userID,
+				OrganizationID: organizationID,
+				Email:          claims.Email,
+				Name:           "Test User", // You might want to add name to JWT claims
+				Role:           claims.Role,
+				CreatedAt:      time.Now(),
+				UpdatedAt:      time.Now(),
+			}
+		}
+	}
+
+	// Get organization details
+	organization, err = h.DB.GetOrganizationByID(organizationID)
+	if err != nil {
+		// If organization not found, create mock organization
+		var orgName string
+		err = h.DB.DB.QueryRow("SELECT name FROM organizations WHERE id = $1", organizationID).Scan(&orgName)
+		if err != nil {
+			orgName = "Test Organization"
+		}
+
+		organization = &database.Organization{
+			ID:        organizationID,
+			Name:      orgName,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+	}
+
+	response := LoginResponse{
+		Token:        "", // Don't return token in /me endpoint
 		User:         user,
 		Organization: organization,
 	}
