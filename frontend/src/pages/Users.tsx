@@ -54,7 +54,7 @@ export function Users() {
     role: 'user',
   });
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(); // add this to context
   const { state } = useAuth();
 
   const fetchUsers = async (): Promise<{
@@ -127,7 +127,7 @@ export function Users() {
       if (!state.token || !state.organization) {
         throw new Error('Not authenticated');
       }
-      
+
       const response = await fetch(
         `http://localhost:8080/api/v1/orgs/${state.organization.id}/users`,
         {
@@ -165,7 +165,7 @@ export function Users() {
       if (!state.token || !state.organization) {
         throw new Error('Not authenticated');
       }
-      
+
       const response = await fetch(
         `http://localhost:8080/api/v1/orgs/${state.organization.id}/users/${userId}`,
         {
@@ -197,7 +197,7 @@ export function Users() {
       if (!state.token || !state.organization) {
         throw new Error('Not authenticated');
       }
-      
+
       const response = await fetch(
         `http://localhost:8080/api/v1/orgs/${state.organization.id}/users/${userId}`,
         {

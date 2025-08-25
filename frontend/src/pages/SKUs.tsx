@@ -73,14 +73,17 @@ const skuAPI = {
 
   create: async (data: CreateSKURequest): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch('http://localhost:8080/api/v1/orgs/1100401179193344001/skus', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      'http://localhost:8080/api/v1/orgs/1100401179193344001/skus',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json();
@@ -142,7 +145,7 @@ export function SKUs() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSKU, setEditingSKU] = useState<SKU | null>(null);
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(); // add this to context
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['skus', filters],

@@ -38,10 +38,10 @@ This is a Proof of Concept for an ERP inventory management system built with:
 - [x] Role-based access control
 - [x] Field-level permissions
 
-### Phase 6: Field Aliases & Customization
-- [ ] Custom field names
-- [ ] Organization-specific aliases
-- [ ] Settings interface
+### Phase 6: Field Aliases & Customization ✅
+- [x] Custom field names
+- [x] Organization-specific aliases
+- [x] Settings interface
 
 ### Phase 7: Change Logging System
 - [ ] Audit trail

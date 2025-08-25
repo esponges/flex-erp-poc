@@ -97,6 +97,26 @@ func main() {
 	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}/check-permission", 
 		permMiddleware.RequireSelfOrPermission("users", "read")(http.HandlerFunc(h.CheckUserPermission))).Methods("POST")
 
+	// Field Aliases routes (settings/customization feature)
+	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases", 
+		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetFieldAliases))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases", 
+		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.CreateFieldAlias))).Methods("POST")
+	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases/{aliasId:[0-9]+}", 
+		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.UpdateFieldAlias))).Methods("PATCH")
+	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases/{aliasId:[0-9]+}", 
+		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.DeleteFieldAlias))).Methods("DELETE")
+	
+	// Table fields management - get customized fields for a specific table
+	api.Handle("/orgs/{orgId:[0-9]+}/tables/{tableName}/fields", 
+		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetTableFields))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9]+}/tables/{tableName}/fields/initialize", 
+		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.InitializeTableFields))).Methods("POST")
+	
+	// Supported tables endpoint - useful for frontend dropdown
+	api.Handle("/supported-tables", 
+		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetSupportedTables))).Methods("GET")
+
 	// CORS setup
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},

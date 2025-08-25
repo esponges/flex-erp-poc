@@ -23,6 +23,7 @@
 		"@tanstack/react-query-devtools": "5.84.1",
 		"@tanstack/react-router": "^1.108.0",
 		"@tanstack/router-devtools": "^1.108.0",
+		"lucide-react": "^0.541.0",
 		"react": "19.1.1",
 		"react-dom": "19.1.1",
 		"react-error-boundary": "6.0.0",

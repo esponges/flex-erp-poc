@@ -89,7 +89,7 @@ const inventoryAPI = {
 };
 
 export function Inventory() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(); // add this to context
   const [filters, setFilters] = useState<InventoryListParams>({
     page: 1,
     limit: 50,

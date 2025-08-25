@@ -66,6 +66,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "inventory", Actions: []string{"read", "create", "update", "delete"}},
 			{Resource: "transactions", Actions: []string{"read", "create", "update", "delete"}},
 			{Resource: "users", Actions: []string{"read", "create", "update", "delete"}},
+			{Resource: "settings", Actions: []string{"read", "update"}},
 		},
 	},
 	{
@@ -76,6 +77,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "inventory", Actions: []string{"read", "create", "update"}},
 			{Resource: "transactions", Actions: []string{"read", "create", "update"}},
 			{Resource: "users", Actions: []string{"read"}},
+			{Resource: "settings", Actions: []string{"read", "update"}},
 		},
 	},
 	{

@@ -11,6 +11,7 @@ import { SKUs } from '@/pages/SKUs';
 import { Inventory } from '@/pages/Inventory';
 import { Transactions } from '@/pages/Transactions';
 import { Users } from '@/pages/Users';
+import Settings from '@/pages/Settings';
 import { Layout } from '@/components/Layout';
 import { AuthGuard } from '@/components/AuthGuard';
 
@@ -151,18 +152,7 @@ const settingsRoute = createRoute({
   component: () => (
     <AuthGuard>
       <Layout>
-        <div className='space-y-6'>
-          <h1 className='text-2xl font-bold text-gray-900'>Settings</h1>
-          <div className='bg-white shadow rounded-lg p-6'>
-            <p className='text-gray-600'>
-              Coming in Phase 6: Field Aliases & Customization
-            </p>
-            <p className='text-sm text-gray-500 mt-2'>
-              This will include custom field names, organization-specific aliases,
-              and settings interface.
-            </p>
-          </div>
-        </div>
+        <Settings />
       </Layout>
     </AuthGuard>
   ),

@@ -1030,3 +1030,285 @@ func (p *PostgresService) CheckUserPermission(userID int, resource, action strin
 
 	return userRole.HasPermission(resource, action), nil
 }
+
+// Field Aliases Methods
+
+func (p *PostgresService) GetFieldAliases(organizationID int, params models.FieldAliasListParams) ([]*models.FieldAlias, error) {
+	var conditions []string
+	var args []interface{}
+	argIndex := 2
+
+	conditions = append(conditions, "organization_id = $1")
+	args = append(args, organizationID)
+
+	if params.TableName != nil {
+		conditions = append(conditions, fmt.Sprintf("table_name = $%d", argIndex))
+		args = append(args, *params.TableName)
+		argIndex++
+	}
+
+	if params.IsHidden != nil {
+		conditions = append(conditions, fmt.Sprintf("is_hidden = $%d", argIndex))
+		args = append(args, *params.IsHidden)
+		argIndex++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT id, organization_id, table_name, field_name, display_name, 
+		       description, is_hidden, sort_order, created_at, updated_at
+		FROM field_aliases
+		WHERE %s
+		ORDER BY table_name, sort_order, field_name
+	`, strings.Join(conditions, " AND "))
+
+	if params.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT %d", params.Limit)
+	}
+	if params.Offset > 0 {
+		query += fmt.Sprintf(" OFFSET %d", params.Offset)
+	}
+
+	rows, err := p.DB.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var aliases []*models.FieldAlias
+	for rows.Next() {
+		alias := &models.FieldAlias{}
+		err := rows.Scan(
+			&alias.ID,
+			&alias.OrganizationID,
+			&alias.TableName,
+			&alias.FieldName,
+			&alias.DisplayName,
+			&alias.Description,
+			&alias.IsHidden,
+			&alias.SortOrder,
+			&alias.CreatedAt,
+			&alias.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		aliases = append(aliases, alias)
+	}
+
+	return aliases, nil
+}
+
+func (p *PostgresService) CreateFieldAlias(organizationID int, req models.CreateFieldAliasRequest) (*models.FieldAlias, error) {
+	alias := &models.FieldAlias{}
+	
+	// Set defaults
+	isHidden := false
+	if req.IsHidden != nil {
+		isHidden = *req.IsHidden
+	}
+	
+	sortOrder := 0
+	if req.SortOrder != nil {
+		sortOrder = *req.SortOrder
+	}
+
+	query := `
+		INSERT INTO field_aliases (organization_id, table_name, field_name, display_name, description, is_hidden, sort_order, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+		RETURNING id, organization_id, table_name, field_name, display_name, description, is_hidden, sort_order, created_at, updated_at
+	`
+	
+	now := time.Now()
+	err := p.DB.QueryRow(
+		query,
+		organizationID,
+		req.TableName,
+		req.FieldName,
+		req.DisplayName,
+		req.Description,
+		isHidden,
+		sortOrder,
+		now,
+	).Scan(
+		&alias.ID,
+		&alias.OrganizationID,
+		&alias.TableName,
+		&alias.FieldName,
+		&alias.DisplayName,
+		&alias.Description,
+		&alias.IsHidden,
+		&alias.SortOrder,
+		&alias.CreatedAt,
+		&alias.UpdatedAt,
+	)
+	
+	if err != nil {
+		return nil, err
+	}
+
+	return alias, nil
+}
+
+func (p *PostgresService) UpdateFieldAlias(organizationID, aliasID int, req models.UpdateFieldAliasRequest) (*models.FieldAlias, error) {
+	alias := &models.FieldAlias{}
+	
+	// Build dynamic query based on provided fields
+	setParts := []string{"updated_at = $3"}
+	args := []interface{}{organizationID, aliasID, time.Now()}
+	argIndex := 4
+
+	if req.DisplayName != nil {
+		setParts = append(setParts, fmt.Sprintf("display_name = $%d", argIndex))
+		args = append(args, *req.DisplayName)
+		argIndex++
+	}
+
+	if req.Description != nil {
+		setParts = append(setParts, fmt.Sprintf("description = $%d", argIndex))
+		args = append(args, *req.Description)
+		argIndex++
+	}
+
+	if req.IsHidden != nil {
+		setParts = append(setParts, fmt.Sprintf("is_hidden = $%d", argIndex))
+		args = append(args, *req.IsHidden)
+		argIndex++
+	}
+
+	if req.SortOrder != nil {
+		setParts = append(setParts, fmt.Sprintf("sort_order = $%d", argIndex))
+		args = append(args, *req.SortOrder)
+		argIndex++
+	}
+
+	query := fmt.Sprintf(`
+		UPDATE field_aliases 
+		SET %s
+		WHERE organization_id = $1 AND id = $2
+		RETURNING id, organization_id, table_name, field_name, display_name, description, is_hidden, sort_order, created_at, updated_at
+	`, strings.Join(setParts, ", "))
+
+	err := p.DB.QueryRow(query, args...).Scan(
+		&alias.ID,
+		&alias.OrganizationID,
+		&alias.TableName,
+		&alias.FieldName,
+		&alias.DisplayName,
+		&alias.Description,
+		&alias.IsHidden,
+		&alias.SortOrder,
+		&alias.CreatedAt,
+		&alias.UpdatedAt,
+	)
+	
+	if err != nil {
+		return nil, err
+	}
+
+	return alias, nil
+}
+
+func (p *PostgresService) DeleteFieldAlias(organizationID, aliasID int) error {
+	query := `DELETE FROM field_aliases WHERE organization_id = $1 AND id = $2`
+	result, err := p.DB.Exec(query, organizationID, aliasID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("field alias not found")
+	}
+
+	return nil
+}
+
+func (p *PostgresService) GetTableFields(organizationID int, tableName string) (*models.TableFieldsResponse, error) {
+	// Get aliases for this table
+	params := models.FieldAliasListParams{
+		TableName: &tableName,
+	}
+	aliases, err := p.GetFieldAliases(organizationID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate metadata
+	totalFields := len(aliases)
+	hiddenFields := 0
+	customAliases := 0
+	var lastUpdated *time.Time
+
+	for _, alias := range aliases {
+		if alias.IsHidden {
+			hiddenFields++
+		}
+		// Check if this is a custom alias (non-default display name)
+		if defaultFields, exists := models.DefaultTableFields[tableName]; exists {
+			for _, defaultField := range defaultFields {
+				if defaultField.FieldName == alias.FieldName && defaultField.DisplayName != alias.DisplayName {
+					customAliases++
+					break
+				}
+			}
+		}
+		if lastUpdated == nil || alias.UpdatedAt.After(*lastUpdated) {
+			lastUpdated = &alias.UpdatedAt
+		}
+	}
+
+	return &models.TableFieldsResponse{
+		TableName: tableName,
+		Fields:    aliases,
+		Metadata: &models.TableFieldsMetadata{
+			TotalFields:   totalFields,
+			HiddenFields:  hiddenFields,
+			CustomAliases: customAliases,
+			LastUpdated:   lastUpdated,
+		},
+	}, nil
+}
+
+func (p *PostgresService) InitializeDefaultFieldAliases(organizationID int, tableName string) error {
+	// Check if aliases already exist for this table
+	params := models.FieldAliasListParams{
+		TableName: &tableName,
+		Limit:     1,
+	}
+	existing, err := p.GetFieldAliases(organizationID, params)
+	if err != nil {
+		return err
+	}
+	
+	if len(existing) > 0 {
+		return nil // Already initialized
+	}
+
+	// Get default fields for this table
+	defaultFields, exists := models.DefaultTableFields[tableName]
+	if !exists {
+		return fmt.Errorf("no default fields defined for table: %s", tableName)
+	}
+
+	// Insert default aliases
+	for _, field := range defaultFields {
+		req := models.CreateFieldAliasRequest{
+			TableName:   tableName,
+			FieldName:   field.FieldName,
+			DisplayName: field.DisplayName,
+			Description: &field.Description,
+			SortOrder:   &field.SortOrder,
+		}
+		
+		_, err := p.CreateFieldAlias(organizationID, req)
+		if err != nil {
+			return fmt.Errorf("failed to create default alias for %s.%s: %w", tableName, field.FieldName, err)
+		}
+	}
+
+	return nil
+}
