@@ -147,7 +147,7 @@ func (p *PostgresService) GetSKUs(organizationID string, params models.SKUListPa
 	}
 	defer rows.Close()
 
-	var skus []*models.SKU
+	skus := make([]*models.SKU, 0)
 	for rows.Next() {
 		sku := &models.SKU{}
 		err := rows.Scan(
@@ -353,7 +353,7 @@ func (p *PostgresService) GetInventoryWithSKUs(organizationID string, params mod
 	}
 	defer rows.Close()
 
-	var inventory []*models.InventoryWithSKU
+	inventory := make([]*models.InventoryWithSKU, 0)
 	for rows.Next() {
 		item := &models.InventoryWithSKU{}
 		err := rows.Scan(
@@ -569,7 +569,7 @@ func (p *PostgresService) GetTransactionsWithDetails(organizationID string, para
 	}
 	defer rows.Close()
 
-	var transactions []*models.TransactionWithSKU
+	transactions := make([]*models.TransactionWithSKU, 0)
 	for rows.Next() {
 		tx := &models.TransactionWithSKU{}
 		err := rows.Scan(
@@ -762,7 +762,7 @@ func (p *PostgresService) GetTransactionSummary(organizationID string, params mo
 	}
 	defer rows.Close()
 
-	var summaries []*models.TransactionSummary
+	summaries := make([]*models.TransactionSummary, 0)
 	for rows.Next() {
 		summary := &models.TransactionSummary{}
 		err := rows.Scan(
@@ -838,7 +838,7 @@ func (p *PostgresService) GetUsersWithDetails(organizationID string, params mode
 	}
 	defer rows.Close()
 
-	var users []*models.UserWithDetails
+	users := make([]*models.UserWithDetails, 0)
 	for rows.Next() {
 		user := &models.UserWithDetails{}
 		err := rows.Scan(
@@ -1074,7 +1074,7 @@ func (p *PostgresService) GetFieldAliases(organizationID string, params models.F
 	}
 	defer rows.Close()
 
-	var aliases []*models.FieldAlias
+	aliases := make([]*models.FieldAlias, 0)
 	for rows.Next() {
 		alias := &models.FieldAlias{}
 		err := rows.Scan(
