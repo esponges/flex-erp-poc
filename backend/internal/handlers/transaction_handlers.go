@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"flex-erp-poc/internal/middleware"
 	"flex-erp-poc/internal/models"
@@ -100,14 +102,23 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	transaction, err := h.DB.CreateTransaction(organizationID, userID, req)
 	if err != nil {
-		if err.Error() == "insufficient inventory: no inventory record found" || 
-		   err.Error()[:21] == "insufficient inventory" {
+		if err.Error() == "insufficient inventory: no inventory record found" ||
+			err.Error()[:21] == "insufficient inventory" {
 			h.respondWithError(w, http.StatusBadRequest, err.Error())
 		} else {
 			h.respondWithError(w, http.StatusInternalServerError, "Failed to create transaction")
 		}
 		return
 	}
+
+	// Log the transaction creation
+	logReq := models.NewTransactionChangeLog(organizationID, userID, transaction.ID, req.SKUID)
+	reason := fmt.Sprintf("%s transaction - %d units", strings.ToUpper(req.TransactionType), req.Quantity)
+	if req.Notes != nil {
+		reason = fmt.Sprintf("%s: %s", reason, *req.Notes)
+	}
+	logReq.Reason = &reason
+	h.DB.LogChange(organizationID, userID, *logReq)
 
 	h.respondWithJSON(w, http.StatusCreated, transaction)
 }

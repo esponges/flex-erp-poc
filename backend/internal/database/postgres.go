@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -409,16 +410,16 @@ func (p *PostgresService) GetInventoryBySKUID(organizationID, skuID string) (*mo
 
 func (p *PostgresService) UpdateManualCost(organizationID, skuID string, req models.UpdateManualCostRequest) (*models.Inventory, error) {
 	inventory := &models.Inventory{}
-	
+
 	// First get current inventory data
 	currentInventory, err := p.GetInventoryBySKUID(organizationID, skuID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Calculate new total value
 	newTotalValue := float64(currentInventory.Quantity) * req.WeightedCost
-	
+
 	query := `
 		UPDATE inventory 
 		SET weighted_cost = $3, total_value = $4, is_manual_cost = $5, updated_at = $6
@@ -454,7 +455,7 @@ func (p *PostgresService) UpdateManualCost(organizationID, skuID string, req mod
 func (p *PostgresService) CreateInventoryForSKU(organizationID, skuID string, quantity int, weightedCost float64) (*models.Inventory, error) {
 	inventory := &models.Inventory{}
 	totalValue := float64(quantity) * weightedCost
-	
+
 	query := `
 		INSERT INTO inventory (organization_id, sku_id, quantity, weighted_cost, total_value, is_manual_cost, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -617,7 +618,7 @@ func (p *PostgresService) CreateTransaction(organizationID, userID string, req m
 			// If no inventory record exists, we can't do an 'out' transaction
 			return nil, fmt.Errorf("insufficient inventory: no inventory record found")
 		}
-		
+
 		if inventory.Quantity < req.Quantity {
 			return nil, fmt.Errorf("insufficient inventory: have %d, requested %d", inventory.Quantity, req.Quantity)
 		}
@@ -935,7 +936,7 @@ func (p *PostgresService) CreateUser(organizationID string, req models.CreateUse
 
 func (p *PostgresService) UpdateUser(organizationID, userID string, req models.UpdateUserRequest) (*models.UserWithDetails, error) {
 	user := &models.UserWithDetails{}
-	
+
 	// Build dynamic query based on provided fields
 	setParts := []string{"updated_at = $3"}
 	args := []interface{}{organizationID, userID, time.Now()}
@@ -1100,13 +1101,13 @@ func (p *PostgresService) GetFieldAliases(organizationID string, params models.F
 
 func (p *PostgresService) CreateFieldAlias(organizationID string, req models.CreateFieldAliasRequest) (*models.FieldAlias, error) {
 	alias := &models.FieldAlias{}
-	
+
 	// Set defaults
 	isHidden := false
 	if req.IsHidden != nil {
 		isHidden = *req.IsHidden
 	}
-	
+
 	sortOrder := 0
 	if req.SortOrder != nil {
 		sortOrder = *req.SortOrder
@@ -1117,7 +1118,7 @@ func (p *PostgresService) CreateFieldAlias(organizationID string, req models.Cre
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
 		RETURNING id, organization_id, table_name, field_name, display_name, description, is_hidden, sort_order, created_at, updated_at
 	`
-	
+
 	now := time.Now()
 	err := p.DB.QueryRow(
 		query,
@@ -1141,7 +1142,7 @@ func (p *PostgresService) CreateFieldAlias(organizationID string, req models.Cre
 		&alias.CreatedAt,
 		&alias.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -1151,7 +1152,7 @@ func (p *PostgresService) CreateFieldAlias(organizationID string, req models.Cre
 
 func (p *PostgresService) UpdateFieldAlias(organizationID, aliasID string, req models.UpdateFieldAliasRequest) (*models.FieldAlias, error) {
 	alias := &models.FieldAlias{}
-	
+
 	// Build dynamic query based on provided fields
 	setParts := []string{"updated_at = $3"}
 	args := []interface{}{organizationID, aliasID, time.Now()}
@@ -1200,7 +1201,7 @@ func (p *PostgresService) UpdateFieldAlias(organizationID, aliasID string, req m
 		&alias.CreatedAt,
 		&alias.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -1283,7 +1284,7 @@ func (p *PostgresService) InitializeDefaultFieldAliases(organizationID string, t
 	if err != nil {
 		return err
 	}
-	
+
 	if len(existing) > 0 {
 		return nil // Already initialized
 	}
@@ -1303,7 +1304,7 @@ func (p *PostgresService) InitializeDefaultFieldAliases(organizationID string, t
 			Description: &field.Description,
 			SortOrder:   &field.SortOrder,
 		}
-		
+
 		_, err := p.CreateFieldAlias(organizationID, req)
 		if err != nil {
 			return fmt.Errorf("failed to create default alias for %s.%s: %w", tableName, field.FieldName, err)
@@ -1311,4 +1312,342 @@ func (p *PostgresService) InitializeDefaultFieldAliases(organizationID string, t
 	}
 
 	return nil
+}
+
+// Change Log Methods
+
+func (p *PostgresService) CreateChangeLog(organizationID string, userID string, req models.CreateChangeLogRequest) (*models.ChangeLog, error) {
+	var metadataBytes []byte
+
+	if req.Metadata != nil {
+		metadataBytes = req.Metadata
+	}
+
+	query := `
+		INSERT INTO change_logs (organization_id, user_id, entity_type, entity_id, sku_id, change_type, field_name, old_value, new_value, reason, metadata, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		RETURNING id, organization_id, user_id, entity_type, entity_id, sku_id, change_type, field_name, old_value, new_value, reason, metadata, created_at
+	`
+
+	changeLog := &models.ChangeLog{}
+	err := p.DB.QueryRow(
+		query,
+		organizationID,
+		userID,
+		req.EntityType,
+		req.EntityID,
+		req.SkuID,
+		req.ChangeType,
+		req.FieldName,
+		req.OldValue,
+		req.NewValue,
+		req.Reason,
+		metadataBytes,
+		time.Now(),
+	).Scan(
+		&changeLog.ID,
+		&changeLog.OrganizationID,
+		&changeLog.UserID,
+		&changeLog.EntityType,
+		&changeLog.EntityID,
+		&changeLog.SkuID,
+		&changeLog.ChangeType,
+		&changeLog.FieldName,
+		&changeLog.OldValue,
+		&changeLog.NewValue,
+		&changeLog.Reason,
+		&changeLog.Metadata,
+		&changeLog.CreatedAt,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create change log: %w", err)
+	}
+
+	return changeLog, nil
+}
+
+func (p *PostgresService) GetChangeLogs(organizationID string, params models.ChangeLogListParams) ([]*models.ChangeLog, error) {
+	query := `
+		SELECT cl.id, cl.organization_id, cl.user_id, cl.entity_type, cl.entity_id, cl.sku_id, 
+			   cl.change_type, cl.field_name, cl.old_value, cl.new_value, cl.reason, cl.metadata, cl.created_at,
+			   u.name as user_name, s.sku_code, s.product_name as sku_name
+		FROM change_logs cl
+		LEFT JOIN users u ON cl.user_id = u.id
+		LEFT JOIN skus s ON cl.sku_id = s.id
+		WHERE cl.organization_id = $1
+	`
+
+	args := []interface{}{organizationID}
+	argIndex := 2
+
+	// Add filters
+	if params.EntityType != nil {
+		query += fmt.Sprintf(" AND cl.entity_type = $%d", argIndex)
+		args = append(args, *params.EntityType)
+		argIndex++
+	}
+
+	if params.EntityID != nil {
+		query += fmt.Sprintf(" AND cl.entity_id = $%d", argIndex)
+		args = append(args, *params.EntityID)
+		argIndex++
+	}
+
+	if params.SkuID != nil {
+		query += fmt.Sprintf(" AND cl.sku_id = $%d", argIndex)
+		args = append(args, *params.SkuID)
+		argIndex++
+	}
+
+	if params.UserID != nil {
+		query += fmt.Sprintf(" AND cl.user_id = $%d", argIndex)
+		args = append(args, *params.UserID)
+		argIndex++
+	}
+
+	if params.ChangeType != nil {
+		query += fmt.Sprintf(" AND cl.change_type = $%d", argIndex)
+		args = append(args, *params.ChangeType)
+		argIndex++
+	}
+
+	if params.LastDays != nil {
+		query += fmt.Sprintf(" AND cl.created_at >= NOW() - INTERVAL '%d days'", *params.LastDays)
+	}
+
+	if params.DateFrom != nil {
+		query += fmt.Sprintf(" AND cl.created_at >= $%d", argIndex)
+		args = append(args, *params.DateFrom)
+		argIndex++
+	}
+
+	if params.DateTo != nil {
+		query += fmt.Sprintf(" AND cl.created_at <= $%d", argIndex)
+		args = append(args, *params.DateTo)
+		argIndex++
+	}
+
+	// Order by most recent first
+	query += " ORDER BY cl.created_at DESC"
+
+	// Add pagination
+	if params.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", argIndex)
+		args = append(args, params.Limit)
+		argIndex++
+
+		if params.Offset > 0 {
+			query += fmt.Sprintf(" OFFSET $%d", argIndex)
+			args = append(args, params.Offset)
+		}
+	}
+
+	rows, err := p.DB.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query change logs: %w", err)
+	}
+	defer rows.Close()
+
+	var changeLogs []*models.ChangeLog
+
+	for rows.Next() {
+		cl := &models.ChangeLog{}
+		var metadata sql.NullString
+		err := rows.Scan(
+			&cl.ID,
+			&cl.OrganizationID,
+			&cl.UserID,
+			&cl.EntityType,
+			&cl.EntityID,
+			&cl.SkuID,
+			&cl.ChangeType,
+			&cl.FieldName,
+			&cl.OldValue,
+			&cl.NewValue,
+			&cl.Reason,
+			&metadata,
+			&cl.CreatedAt,
+			&cl.UserName,
+			&cl.SkuCode,
+			&cl.SkuName,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan change log: %w", err)
+		}
+
+		// Handle nullable metadata
+		if metadata.Valid {
+			cl.Metadata = json.RawMessage(metadata.String)
+		}
+
+		changeLogs = append(changeLogs, cl)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating change logs: %w", err)
+	}
+
+	return changeLogs, nil
+}
+
+func (p *PostgresService) GetSKUChangeLogs(organizationID string, skuID string, lastDays int) ([]*models.ChangeLog, error) {
+	// For SKU change logs, we need to find logs where:
+	// 1. sku_id matches the SKU ID (for transaction/inventory logs that reference the SKU)
+	// 2. entity_id matches the SKU ID AND entity_type is "sku" (for direct SKU changes)
+	query := `
+		SELECT cl.id, cl.organization_id, cl.user_id, cl.entity_type, cl.entity_id, cl.sku_id, 
+			   cl.change_type, cl.field_name, cl.old_value, cl.new_value, cl.reason, cl.metadata, cl.created_at,
+			   u.name as user_name, s.sku_code, s.product_name as sku_name
+		FROM change_logs cl
+		LEFT JOIN users u ON cl.user_id = u.id
+		LEFT JOIN skus s ON cl.sku_id = s.id
+		WHERE cl.organization_id = $1 
+		  AND (cl.sku_id = $2 OR (cl.entity_id = $2 AND cl.entity_type = 'sku'))
+		  AND cl.created_at >= NOW() - INTERVAL '%d days'
+		ORDER BY cl.created_at DESC
+		LIMIT 100
+	`
+	
+	rows, err := p.DB.Query(fmt.Sprintf(query, lastDays), organizationID, skuID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query SKU change logs: %w", err)
+	}
+	defer rows.Close()
+
+	var changeLogs []*models.ChangeLog
+
+	for rows.Next() {
+		cl := &models.ChangeLog{}
+		var metadata sql.NullString
+		err := rows.Scan(
+			&cl.ID,
+			&cl.OrganizationID,
+			&cl.UserID,
+			&cl.EntityType,
+			&cl.EntityID,
+			&cl.SkuID,
+			&cl.ChangeType,
+			&cl.FieldName,
+			&cl.OldValue,
+			&cl.NewValue,
+			&cl.Reason,
+			&metadata,
+			&cl.CreatedAt,
+			&cl.UserName,
+			&cl.SkuCode,
+			&cl.SkuName,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan SKU change log: %w", err)
+		}
+
+		// Handle nullable metadata
+		if metadata.Valid {
+			cl.Metadata = json.RawMessage(metadata.String)
+		}
+
+		changeLogs = append(changeLogs, cl)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating SKU change logs: %w", err)
+	}
+
+	return changeLogs, nil
+}
+
+func (p *PostgresService) GetActivitySummary(organizationID string, lastDays int) (*models.ActivitySummary, error) {
+	// Get total changes
+	totalQuery := `SELECT COUNT(*) FROM change_logs WHERE organization_id = $1`
+	var totalChanges int
+	err := p.DB.QueryRow(totalQuery, organizationID).Scan(&totalChanges)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get total changes: %w", err)
+	}
+
+	// Get recent changes (last 24h)
+	recentQuery := `SELECT COUNT(*) FROM change_logs WHERE organization_id = $1 AND created_at >= NOW() - INTERVAL '1 day'`
+	var recentChanges int
+	err = p.DB.QueryRow(recentQuery, organizationID).Scan(&recentChanges)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get recent changes: %w", err)
+	}
+
+	// Get changes by type
+	typeQuery := `
+		SELECT change_type, COUNT(*) 
+		FROM change_logs 
+		WHERE organization_id = $1 AND created_at >= NOW() - INTERVAL '%d days'
+		GROUP BY change_type
+	`
+	typeRows, err := p.DB.Query(fmt.Sprintf(typeQuery, lastDays), organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get changes by type: %w", err)
+	}
+	defer typeRows.Close()
+
+	changesByType := make(map[string]int)
+	for typeRows.Next() {
+		var changeType string
+		var count int
+		err := typeRows.Scan(&changeType, &count)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan change type: %w", err)
+		}
+		changesByType[changeType] = count
+	}
+
+	// Get top users
+	userQuery := `
+		SELECT cl.user_id, u.name, COUNT(*) as changes
+		FROM change_logs cl
+		LEFT JOIN users u ON cl.user_id = u.id
+		WHERE cl.organization_id = $1 AND cl.created_at >= NOW() - INTERVAL '%d days'
+		GROUP BY cl.user_id, u.name
+		ORDER BY changes DESC
+		LIMIT 5
+	`
+	userRows, err := p.DB.Query(fmt.Sprintf(userQuery, lastDays), organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get top users: %w", err)
+	}
+	defer userRows.Close()
+
+	var topUsers []models.UserActivitySummary
+	for userRows.Next() {
+		var user models.UserActivitySummary
+		var userName sql.NullString
+		err := userRows.Scan(&user.UserID, &userName, &user.Changes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan user activity: %w", err)
+		}
+		if userName.Valid {
+			user.UserName = userName.String
+		}
+		topUsers = append(topUsers, user)
+	}
+
+	// Get recent activity
+	recentActivity, err := p.GetChangeLogs(organizationID, models.ChangeLogListParams{
+		LastDays: &lastDays,
+		Limit:    20,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get recent activity: %w", err)
+	}
+
+	return &models.ActivitySummary{
+		TotalChanges:   totalChanges,
+		RecentChanges:  recentChanges,
+		TopUsers:       topUsers,
+		ChangesByType:  changesByType,
+		RecentActivity: recentActivity,
+	}, nil
+}
+
+// Helper function to log changes - used by other handlers
+func (p *PostgresService) LogChange(organizationID string, userID string, req models.CreateChangeLogRequest) error {
+	_, err := p.CreateChangeLog(organizationID, userID, req)
+	return err
 }

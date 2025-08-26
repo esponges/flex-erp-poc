@@ -117,6 +117,16 @@ func main() {
 	api.Handle("/supported-tables",
 		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetSupportedTables))).Methods("GET")
 
+	// Change Logs routes (audit trail)
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/change-logs",
+		permMiddleware.RequirePermission("logs", "read")(http.HandlerFunc(h.GetChangeLogs))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/change-logs",
+		permMiddleware.RequirePermission("logs", "create")(http.HandlerFunc(h.CreateChangeLog))).Methods("POST")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/skus/{skuId:[0-9a-f-]+}/change-logs",
+		permMiddleware.RequirePermission("logs", "read")(http.HandlerFunc(h.GetSKUChangeLogs))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/activity-summary",
+		permMiddleware.RequirePermission("logs", "read")(http.HandlerFunc(h.GetActivitySummary))).Methods("GET")
+
 	// CORS setup
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"},

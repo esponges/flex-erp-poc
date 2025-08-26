@@ -15,6 +15,7 @@ export function Layout({ children }: LayoutProps) {
     { name: 'Inventory', href: '/inventory' },
     { name: 'Transactions', href: '/transactions' },
     { name: 'Users', href: '/users' },
+    { name: 'Activity Logs', href: '/logs' },
     { name: 'Settings', href: '/settings' },
   ]
 

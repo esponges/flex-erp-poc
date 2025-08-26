@@ -12,6 +12,7 @@ import { Inventory } from '@/pages/Inventory';
 import { Transactions } from '@/pages/Transactions';
 import { Users } from '@/pages/Users';
 import Settings from '@/pages/Settings';
+import Logs from '@/pages/Logs';
 import { Layout } from '@/components/Layout';
 import { AuthGuard } from '@/components/AuthGuard';
 
@@ -158,6 +159,24 @@ const settingsRoute = createRoute({
   ),
 });
 
+const logsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/logs',
+  beforeLoad: () => {
+    const { isAuthenticated } = getAuthState();
+    if (!isAuthenticated) {
+      throw redirect({ to: '/login' });
+    }
+  },
+  component: () => (
+    <AuthGuard>
+      <Layout>
+        <Logs />
+      </Layout>
+    </AuthGuard>
+  ),
+});
+
 // Create the route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -168,6 +187,7 @@ const routeTree = rootRoute.addChildren([
   transactionsRoute,
   usersRoute,
   settingsRoute,
+  logsRoute,
 ]);
 
 // Create the router

@@ -55,3 +55,16 @@
 | users         | last_login_at    | timestamp with time zone    | YES         | 
 | users         | created_at       | timestamp with time zone    | NO          | now()
 | users         | updated_at       | timestamp with time zone    | NO          | now()
+| change_logs   | id               | bigint                      | NO          | nextval('change_logs_id_seq'::regclass)
+| change_logs   | organization_id  | bigint                      | NO          | 
+| change_logs   | user_id          | bigint                      | NO          | 
+| change_logs   | entity_type      | character varying           | NO          | 
+| change_logs   | entity_id        | bigint                      | YES         | 
+| change_logs   | sku_id           | bigint                      | YES         | 
+| change_logs   | change_type      | character varying           | NO          | 
+| change_logs   | field_name       | character varying           | YES         | 
+| change_logs   | old_value        | text                        | YES         | 
+| change_logs   | new_value        | text                        | YES         | 
+| change_logs   | reason           | text                        | YES         | 
+| change_logs   | metadata         | jsonb                       | YES         | 
+| change_logs   | created_at       | timestamp without time zone | NO          | CURRENT_TIMESTAMP

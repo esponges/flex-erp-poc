@@ -116,6 +116,12 @@ func (h *Handler) CreateSKU(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Log the SKU creation
+	userID, _ := r.Context().Value("user_id").(string)
+	logReq := models.NewSKUChangeLog(orgID, userID, sku.ID, "create") // orgID converted in LogChange
+	logReq.Reason = &[]string{"New SKU created"}[0]
+	h.DB.LogChange(orgID, userID, *logReq)
+
 	h.respondWithJSON(w, http.StatusCreated, sku)
 }
 
@@ -155,6 +161,12 @@ func (h *Handler) UpdateSKU(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Log the SKU update
+	userID, _ := r.Context().Value("user_id").(string)
+	logReq := models.NewSKUChangeLog(orgID, userID, sku.ID, "update")
+	logReq.Reason = &[]string{"SKU information updated"}[0]
+	h.DB.LogChange(orgID, userID, *logReq)
+
 	h.respondWithJSON(w, http.StatusOK, sku)
 }
 
@@ -190,6 +202,19 @@ func (h *Handler) UpdateSKUStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Log the SKU status change
+	userID, _ := r.Context().Value("user_id").(string)
+	changeType := "activate"
+	if !req.IsActive {
+		changeType = "deactivate"
+	}
+	logReq := models.NewSKUChangeLog(orgID, userID, sku.ID, changeType)
+	reason := "SKU activated"
+	if !req.IsActive {
+		reason = "SKU deactivated"
+	}
+	logReq.Reason = &reason
+	h.DB.LogChange(orgID, userID, *logReq)
+
 	h.respondWithJSON(w, http.StatusOK, sku)
 }
-

@@ -67,6 +67,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "transactions", Actions: []string{"read", "create", "update", "delete"}},
 			{Resource: "users", Actions: []string{"read", "create", "update", "delete"}},
 			{Resource: "settings", Actions: []string{"read", "update"}},
+			{Resource: "logs", Actions: []string{"read", "create"}},
 		},
 	},
 	{
@@ -78,6 +79,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "transactions", Actions: []string{"read", "create", "update"}},
 			{Resource: "users", Actions: []string{"read"}},
 			{Resource: "settings", Actions: []string{"read", "update"}},
+			{Resource: "logs", Actions: []string{"read"}},
 		},
 	},
 	{
@@ -87,6 +89,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "skus", Actions: []string{"read", "create", "update"}},
 			{Resource: "inventory", Actions: []string{"read", "update"}},
 			{Resource: "transactions", Actions: []string{"read", "create"}},
+			{Resource: "logs", Actions: []string{"read"}},
 		},
 	},
 	{
@@ -96,6 +99,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "skus", Actions: []string{"read"}},
 			{Resource: "inventory", Actions: []string{"read"}},
 			{Resource: "transactions", Actions: []string{"read"}},
+			{Resource: "logs", Actions: []string{"read"}},
 		},
 	},
 }
