@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SKU {
   id: number;
@@ -43,7 +44,10 @@ interface SKUListParams {
 
 // Mock API functions (will connect to real API when backend is ready)
 const skuAPI = {
-  list: async (params: SKUListParams = {}): Promise<{ skus: SKU[] }> => {
+  list: async (
+    params: SKUListParams = {},
+    orgId: string
+  ): Promise<{ skus: SKU[] }> => {
     const token = localStorage.getItem('auth_token');
     const queryParams = new URLSearchParams();
 
@@ -55,7 +59,7 @@ const skuAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/1100401179193344001/skus?${queryParams}`,
+      `http://localhost:8080/api/v1/orgs/${orgId}/skus?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,10 +75,10 @@ const skuAPI = {
     return response.json();
   },
 
-  create: async (data: CreateSKURequest): Promise<SKU> => {
+  create: async (data: CreateSKURequest, orgId: string): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      'http://localhost:8080/api/v1/orgs/1100401179193344001/skus',
+      `http://localhost:8080/api/v1/orgs/${orgId}/skus`,
       {
         method: 'POST',
         headers: {
@@ -93,10 +97,10 @@ const skuAPI = {
     return response.json();
   },
 
-  update: async (id: number, data: UpdateSKURequest): Promise<SKU> => {
+  update: async (id: number, data: UpdateSKURequest, orgId: string): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/1100401179193344001/skus/${id}`,
+      `http://localhost:8080/api/v1/orgs/${orgId}/skus/${id}`,
       {
         method: 'PATCH',
         headers: {
@@ -115,10 +119,10 @@ const skuAPI = {
     return response.json();
   },
 
-  updateStatus: async (id: number, isActive: boolean): Promise<SKU> => {
+  updateStatus: async (id: number, isActive: boolean, orgId: string): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/1100401179193344001/skus/${id}/status`,
+      `http://localhost:8080/api/v1/orgs/${orgId}/skus/${id}/status`,
       {
         method: 'PATCH',
         headers: {
@@ -139,6 +143,7 @@ const skuAPI = {
 };
 
 export function SKUs() {
+  const { state: authState } = useAuth();
   const [filters, setFilters] = useState<SKUListParams>({
     includeDeactivated: false,
   });
@@ -149,11 +154,11 @@ export function SKUs() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['skus', filters],
-    queryFn: () => skuAPI.list(filters),
+    queryFn: () => skuAPI.list(filters, authState.organization?.id!),
   });
 
   const createMutation = useMutation({
-    mutationFn: skuAPI.create,
+    mutationFn: (data: CreateSKURequest) => skuAPI.create(data, authState.organization?.id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['skus'] });
       setShowAddModal(false);
@@ -162,7 +167,7 @@ export function SKUs() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateSKURequest }) =>
-      skuAPI.update(id, data),
+      skuAPI.update(id, data, authState.organization?.id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['skus'] });
       setEditingSKU(null);
@@ -171,7 +176,7 @@ export function SKUs() {
 
   const statusMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      skuAPI.updateStatus(id, isActive),
+      skuAPI.updateStatus(id, isActive, authState.organization?.id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['skus'] });
     },

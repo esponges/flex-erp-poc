@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface InventoryWithSKU {
   id: number;
@@ -35,7 +36,8 @@ interface UpdateManualCostRequest {
 // API functions
 const inventoryAPI = {
   list: async (
-    params: InventoryListParams = {}
+    params: InventoryListParams = {},
+    orgId: string
   ): Promise<InventoryWithSKU[]> => {
     const token = localStorage.getItem('auth_token');
     const queryParams = new URLSearchParams();
@@ -46,7 +48,7 @@ const inventoryAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/1100401179193344001/inventory?${queryParams}`,
+      `http://localhost:8080/api/v1/orgs/${orgId}/inventory?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -64,11 +66,12 @@ const inventoryAPI = {
 
   updateManualCost: async (
     skuId: number,
-    data: UpdateManualCostRequest
+    data: UpdateManualCostRequest,
+    orgId: string
   ): Promise<InventoryWithSKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/1100401179193344001/inventory/sku/${skuId}/cost`,
+      `http://localhost:8080/api/v1/orgs/${orgId}/inventory/sku/${skuId}/cost`,
       {
         method: 'PATCH',
         headers: {
@@ -89,6 +92,7 @@ const inventoryAPI = {
 };
 
 export function Inventory() {
+  const { state: authState } = useAuth();
   const queryClient = useQueryClient(); // add this to context
   const [filters, setFilters] = useState<InventoryListParams>({
     page: 1,
@@ -105,14 +109,16 @@ export function Inventory() {
     error,
   } = useQuery({
     queryKey: ['inventory', filters],
-    queryFn: () => inventoryAPI.list(filters),
+    queryFn: () => inventoryAPI.list(filters, authState.organization?.id!),
   });
-
-  console.log({ inventory });
 
   const updateCostMutation = useMutation({
     mutationFn: ({ skuId, cost }: { skuId: number; cost: number }) =>
-      inventoryAPI.updateManualCost(skuId, { weighted_cost: cost }),
+      inventoryAPI.updateManualCost(
+        skuId,
+        { weighted_cost: cost },
+        authState.organization?.id!
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       setEditingCost(null);
