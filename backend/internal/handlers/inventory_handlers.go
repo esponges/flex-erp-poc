@@ -13,7 +13,7 @@ import (
 
 func (h *Handler) GetInventory(w http.ResponseWriter, r *http.Request) {
 	organizationID := getOrganizationIDFromContext(r)
-	if organizationID == 0 {
+	if organizationID == "" {
 		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -53,15 +53,14 @@ func (h *Handler) GetInventory(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetInventoryBySKU(w http.ResponseWriter, r *http.Request) {
 	organizationID := getOrganizationIDFromContext(r)
-	if organizationID == 0 {
+	if organizationID == "" {
 		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	vars := mux.Vars(r)
-	skuIDStr := vars["skuId"]
-	skuID, err := strconv.Atoi(skuIDStr)
-	if err != nil {
+	skuID := vars["skuId"]
+	if skuID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}
@@ -77,15 +76,14 @@ func (h *Handler) GetInventoryBySKU(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UpdateManualCost(w http.ResponseWriter, r *http.Request) {
 	organizationID := getOrganizationIDFromContext(r)
-	if organizationID == 0 {
+	if organizationID == "" {
 		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	vars := mux.Vars(r)
-	skuIDStr := vars["skuId"]
-	skuID, err := strconv.Atoi(skuIDStr)
-	if err != nil {
+	skuID := vars["skuId"]
+	if skuID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}
@@ -113,13 +111,13 @@ func (h *Handler) UpdateManualCost(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) CreateInventory(w http.ResponseWriter, r *http.Request) {
 	organizationID := getOrganizationIDFromContext(r)
-	if organizationID == 0 {
+	if organizationID == "" {
 		h.respondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	var req struct {
-		SKUID        int     `json:"sku_id"`
+		SKUID        string  `json:"sku_id"`
 		Quantity     int     `json:"quantity"`
 		WeightedCost float64 `json:"weighted_cost"`
 	}
@@ -130,7 +128,7 @@ func (h *Handler) CreateInventory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Basic validation
-	if req.SKUID <= 0 {
+	if req.SKUID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}
@@ -152,10 +150,10 @@ func (h *Handler) CreateInventory(w http.ResponseWriter, r *http.Request) {
 	h.respondWithJSON(w, http.StatusCreated, inventory)
 }
 
-func getOrganizationIDFromContext(r *http.Request) int {
+func getOrganizationIDFromContext(r *http.Request) string {
 	orgID, ok := middleware.GetOrganizationIDFromContext(r.Context())
 	if !ok {
-		return 0
+		return ""
 	}
 	return orgID
 }

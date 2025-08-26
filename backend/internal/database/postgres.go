@@ -14,8 +14,8 @@ type PostgresService struct {
 }
 
 type User struct {
-	ID             int       `json:"id"`
-	OrganizationID int       `json:"organization_id"`
+	ID             string    `json:"id"`
+	OrganizationID string    `json:"organization_id"`
 	Email          string    `json:"email"`
 	Name           string    `json:"name"`
 	Role           string    `json:"role"`
@@ -24,7 +24,7 @@ type User struct {
 }
 
 type Organization struct {
-	ID        int       `json:"id"`
+	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -52,7 +52,7 @@ func (p *PostgresService) GetUserByEmail(email string) (*User, error) {
 	return user, nil
 }
 
-func (p *PostgresService) GetUserByID(id int) (*User, error) {
+func (p *PostgresService) GetUserByID(id string) (*User, error) {
 	user := &User{}
 	query := `
 		SELECT id, organization_id, email, name, role, created_at, updated_at 
@@ -74,7 +74,7 @@ func (p *PostgresService) GetUserByID(id int) (*User, error) {
 	return user, nil
 }
 
-func (p *PostgresService) GetOrganizationByID(id int) (*Organization, error) {
+func (p *PostgresService) GetOrganizationByID(id string) (*Organization, error) {
 	org := &Organization{}
 	query := `
 		SELECT id, name, created_at, updated_at 
@@ -95,7 +95,7 @@ func (p *PostgresService) GetOrganizationByID(id int) (*Organization, error) {
 
 // SKU Methods
 
-func (p *PostgresService) GetSKUs(organizationID int, params models.SKUListParams) ([]*models.SKU, error) {
+func (p *PostgresService) GetSKUs(organizationID string, params models.SKUListParams) ([]*models.SKU, error) {
 	query := `
 		SELECT id, organization_id, sku_code, product_name, description, category, supplier, barcode, is_active, created_at, updated_at
 		FROM skus 
@@ -172,7 +172,7 @@ func (p *PostgresService) GetSKUs(organizationID int, params models.SKUListParam
 	return skus, nil
 }
 
-func (p *PostgresService) GetSKUByID(organizationID, id int) (*models.SKU, error) {
+func (p *PostgresService) GetSKUByID(organizationID, id string) (*models.SKU, error) {
 	sku := &models.SKU{}
 	query := `
 		SELECT id, organization_id, sku_code, product_name, description, category, supplier, barcode, is_active, created_at, updated_at
@@ -198,7 +198,7 @@ func (p *PostgresService) GetSKUByID(organizationID, id int) (*models.SKU, error
 	return sku, nil
 }
 
-func (p *PostgresService) CreateSKU(organizationID int, req models.CreateSKURequest) (*models.SKU, error) {
+func (p *PostgresService) CreateSKU(organizationID string, req models.CreateSKURequest) (*models.SKU, error) {
 	sku := &models.SKU{}
 	query := `
 		INSERT INTO skus (organization_id, sku_code, product_name, description, category, supplier, barcode, is_active, created_at, updated_at)
@@ -237,7 +237,7 @@ func (p *PostgresService) CreateSKU(organizationID int, req models.CreateSKURequ
 	return sku, nil
 }
 
-func (p *PostgresService) UpdateSKU(organizationID, id int, req models.UpdateSKURequest) (*models.SKU, error) {
+func (p *PostgresService) UpdateSKU(organizationID, id string, req models.UpdateSKURequest) (*models.SKU, error) {
 	sku := &models.SKU{}
 	query := `
 		UPDATE skus 
@@ -275,7 +275,7 @@ func (p *PostgresService) UpdateSKU(organizationID, id int, req models.UpdateSKU
 	return sku, nil
 }
 
-func (p *PostgresService) UpdateSKUStatus(organizationID, id int, isActive bool) (*models.SKU, error) {
+func (p *PostgresService) UpdateSKUStatus(organizationID, id string, isActive bool) (*models.SKU, error) {
 	sku := &models.SKU{}
 	query := `
 		UPDATE skus 
@@ -305,7 +305,7 @@ func (p *PostgresService) UpdateSKUStatus(organizationID, id int, isActive bool)
 
 // Inventory Methods
 
-func (p *PostgresService) GetInventoryWithSKUs(organizationID int, params models.InventoryListParams) ([]*models.InventoryWithSKU, error) {
+func (p *PostgresService) GetInventoryWithSKUs(organizationID string, params models.InventoryListParams) ([]*models.InventoryWithSKU, error) {
 	query := `
 		SELECT 
 			i.id, i.organization_id, i.sku_id, i.quantity, i.weighted_cost, i.total_value, i.is_manual_cost, i.created_at, i.updated_at,
@@ -383,7 +383,7 @@ func (p *PostgresService) GetInventoryWithSKUs(organizationID int, params models
 	return inventory, nil
 }
 
-func (p *PostgresService) GetInventoryBySKUID(organizationID, skuID int) (*models.Inventory, error) {
+func (p *PostgresService) GetInventoryBySKUID(organizationID, skuID string) (*models.Inventory, error) {
 	inventory := &models.Inventory{}
 	query := `
 		SELECT id, organization_id, sku_id, quantity, weighted_cost, total_value, is_manual_cost, created_at, updated_at
@@ -407,7 +407,7 @@ func (p *PostgresService) GetInventoryBySKUID(organizationID, skuID int) (*model
 	return inventory, nil
 }
 
-func (p *PostgresService) UpdateManualCost(organizationID, skuID int, req models.UpdateManualCostRequest) (*models.Inventory, error) {
+func (p *PostgresService) UpdateManualCost(organizationID, skuID string, req models.UpdateManualCostRequest) (*models.Inventory, error) {
 	inventory := &models.Inventory{}
 	
 	// First get current inventory data
@@ -451,7 +451,7 @@ func (p *PostgresService) UpdateManualCost(organizationID, skuID int, req models
 	return inventory, nil
 }
 
-func (p *PostgresService) CreateInventoryForSKU(organizationID, skuID int, quantity int, weightedCost float64) (*models.Inventory, error) {
+func (p *PostgresService) CreateInventoryForSKU(organizationID, skuID string, quantity int, weightedCost float64) (*models.Inventory, error) {
 	inventory := &models.Inventory{}
 	totalValue := float64(quantity) * weightedCost
 	
@@ -490,7 +490,7 @@ func (p *PostgresService) CreateInventoryForSKU(organizationID, skuID int, quant
 
 // Transaction Methods
 
-func (p *PostgresService) GetTransactionsWithDetails(organizationID int, params models.TransactionListParams) ([]*models.TransactionWithSKU, error) {
+func (p *PostgresService) GetTransactionsWithDetails(organizationID string, params models.TransactionListParams) ([]*models.TransactionWithSKU, error) {
 	query := `
 		SELECT 
 			t.id, t.organization_id, t.sku_id, t.transaction_type, t.quantity, 
@@ -514,7 +514,7 @@ func (p *PostgresService) GetTransactionsWithDetails(organizationID int, params 
 	}
 
 	// Add SKU filter
-	if params.SKUID != nil && *params.SKUID > 0 {
+	if params.SKUID != nil && *params.SKUID != "" {
 		query += fmt.Sprintf(" AND t.sku_id = $%d", argIndex)
 		args = append(args, *params.SKUID)
 		argIndex++
@@ -600,7 +600,7 @@ func (p *PostgresService) GetTransactionsWithDetails(organizationID int, params 
 	return transactions, nil
 }
 
-func (p *PostgresService) CreateTransaction(organizationID, userID int, req models.CreateTransactionRequest) (*models.Transaction, error) {
+func (p *PostgresService) CreateTransaction(organizationID, userID string, req models.CreateTransactionRequest) (*models.Transaction, error) {
 	// First, validate that the SKU exists and belongs to this organization
 	_, err := p.GetSKUByID(organizationID, req.SKUID)
 	if err != nil {
@@ -673,7 +673,7 @@ func (p *PostgresService) CreateTransaction(organizationID, userID int, req mode
 	return transaction, nil
 }
 
-func (p *PostgresService) updateInventoryFromTransaction(organizationID, skuID int, transactionType string, quantity int, unitCost float64) error {
+func (p *PostgresService) updateInventoryFromTransaction(organizationID, skuID string, transactionType string, quantity int, unitCost float64) error {
 	// Get current inventory
 	inventory, err := p.GetInventoryBySKUID(organizationID, skuID)
 	if err != nil {
@@ -682,7 +682,7 @@ func (p *PostgresService) updateInventoryFromTransaction(organizationID, skuID i
 			_, err = p.CreateInventoryForSKU(organizationID, skuID, quantity, unitCost)
 			return err
 		}
-		return fmt.Errorf("inventory not found for SKU %d", skuID)
+		return fmt.Errorf("inventory not found for SKU %s", skuID)
 	}
 
 	var newQuantity int
@@ -715,7 +715,7 @@ func (p *PostgresService) updateInventoryFromTransaction(organizationID, skuID i
 	return err
 }
 
-func (p *PostgresService) GetTransactionSummary(organizationID int, params models.TransactionListParams) ([]*models.TransactionSummary, error) {
+func (p *PostgresService) GetTransactionSummary(organizationID string, params models.TransactionListParams) ([]*models.TransactionSummary, error) {
 	query := `
 		SELECT 
 			t.transaction_type,
@@ -730,7 +730,7 @@ func (p *PostgresService) GetTransactionSummary(organizationID int, params model
 	argIndex := 2
 
 	// Add filters (similar to GetTransactionsWithDetails)
-	if params.SKUID != nil && *params.SKUID > 0 {
+	if params.SKUID != nil && *params.SKUID != "" {
 		query += fmt.Sprintf(" AND t.sku_id = $%d", argIndex)
 		args = append(args, *params.SKUID)
 		argIndex++
@@ -782,7 +782,7 @@ func (p *PostgresService) GetTransactionSummary(organizationID int, params model
 
 // User Management Methods
 
-func (p *PostgresService) GetUsersWithDetails(organizationID int, params models.UserListParams) ([]*models.UserWithDetails, error) {
+func (p *PostgresService) GetUsersWithDetails(organizationID string, params models.UserListParams) ([]*models.UserWithDetails, error) {
 	query := `
 		SELECT 
 			u.id, u.organization_id, u.email, u.name, u.role, u.is_active, 
@@ -862,7 +862,7 @@ func (p *PostgresService) GetUsersWithDetails(organizationID int, params models.
 	return users, nil
 }
 
-func (p *PostgresService) GetUserWithDetails(organizationID, userID int) (*models.UserWithDetails, error) {
+func (p *PostgresService) GetUserWithDetails(organizationID, userID string) (*models.UserWithDetails, error) {
 	user := &models.UserWithDetails{}
 	query := `
 		SELECT 
@@ -891,7 +891,7 @@ func (p *PostgresService) GetUserWithDetails(organizationID, userID int) (*model
 	return user, nil
 }
 
-func (p *PostgresService) CreateUser(organizationID int, req models.CreateUserRequest) (*models.UserWithDetails, error) {
+func (p *PostgresService) CreateUser(organizationID string, req models.CreateUserRequest) (*models.UserWithDetails, error) {
 	user := &models.UserWithDetails{}
 	query := `
 		INSERT INTO users (organization_id, email, name, role, is_active, created_at, updated_at)
@@ -933,7 +933,7 @@ func (p *PostgresService) CreateUser(organizationID int, req models.CreateUserRe
 	return user, nil
 }
 
-func (p *PostgresService) UpdateUser(organizationID, userID int, req models.UpdateUserRequest) (*models.UserWithDetails, error) {
+func (p *PostgresService) UpdateUser(organizationID, userID string, req models.UpdateUserRequest) (*models.UserWithDetails, error) {
 	user := &models.UserWithDetails{}
 	
 	// Build dynamic query based on provided fields
@@ -987,7 +987,7 @@ func (p *PostgresService) UpdateUser(organizationID, userID int, req models.Upda
 	return user, nil
 }
 
-func (p *PostgresService) DeleteUser(organizationID, userID int) error {
+func (p *PostgresService) DeleteUser(organizationID, userID string) error {
 	query := `DELETE FROM users WHERE organization_id = $1 AND id = $2`
 	result, err := p.DB.Exec(query, organizationID, userID)
 	if err != nil {
@@ -1006,14 +1006,14 @@ func (p *PostgresService) DeleteUser(organizationID, userID int) error {
 	return nil
 }
 
-func (p *PostgresService) UpdateUserLoginTime(userID int) error {
+func (p *PostgresService) UpdateUserLoginTime(userID string) error {
 	query := `UPDATE users SET last_login_at = $1 WHERE id = $2`
 	_, err := p.DB.Exec(query, time.Now(), userID)
 	return err
 }
 
 // Helper function to check user permissions
-func (p *PostgresService) CheckUserPermission(userID int, resource, action string) (bool, error) {
+func (p *PostgresService) CheckUserPermission(userID string, resource, action string) (bool, error) {
 	// Get user role
 	var role string
 	query := `SELECT role FROM users WHERE id = $1`
@@ -1033,7 +1033,7 @@ func (p *PostgresService) CheckUserPermission(userID int, resource, action strin
 
 // Field Aliases Methods
 
-func (p *PostgresService) GetFieldAliases(organizationID int, params models.FieldAliasListParams) ([]*models.FieldAlias, error) {
+func (p *PostgresService) GetFieldAliases(organizationID string, params models.FieldAliasListParams) ([]*models.FieldAlias, error) {
 	var conditions []string
 	var args []interface{}
 	argIndex := 2
@@ -1098,7 +1098,7 @@ func (p *PostgresService) GetFieldAliases(organizationID int, params models.Fiel
 	return aliases, nil
 }
 
-func (p *PostgresService) CreateFieldAlias(organizationID int, req models.CreateFieldAliasRequest) (*models.FieldAlias, error) {
+func (p *PostgresService) CreateFieldAlias(organizationID string, req models.CreateFieldAliasRequest) (*models.FieldAlias, error) {
 	alias := &models.FieldAlias{}
 	
 	// Set defaults
@@ -1149,7 +1149,7 @@ func (p *PostgresService) CreateFieldAlias(organizationID int, req models.Create
 	return alias, nil
 }
 
-func (p *PostgresService) UpdateFieldAlias(organizationID, aliasID int, req models.UpdateFieldAliasRequest) (*models.FieldAlias, error) {
+func (p *PostgresService) UpdateFieldAlias(organizationID, aliasID string, req models.UpdateFieldAliasRequest) (*models.FieldAlias, error) {
 	alias := &models.FieldAlias{}
 	
 	// Build dynamic query based on provided fields
@@ -1208,7 +1208,7 @@ func (p *PostgresService) UpdateFieldAlias(organizationID, aliasID int, req mode
 	return alias, nil
 }
 
-func (p *PostgresService) DeleteFieldAlias(organizationID, aliasID int) error {
+func (p *PostgresService) DeleteFieldAlias(organizationID, aliasID string) error {
 	query := `DELETE FROM field_aliases WHERE organization_id = $1 AND id = $2`
 	result, err := p.DB.Exec(query, organizationID, aliasID)
 	if err != nil {
@@ -1227,7 +1227,7 @@ func (p *PostgresService) DeleteFieldAlias(organizationID, aliasID int) error {
 	return nil
 }
 
-func (p *PostgresService) GetTableFields(organizationID int, tableName string) (*models.TableFieldsResponse, error) {
+func (p *PostgresService) GetTableFields(organizationID string, tableName string) (*models.TableFieldsResponse, error) {
 	// Get aliases for this table
 	params := models.FieldAliasListParams{
 		TableName: &tableName,
@@ -1273,7 +1273,7 @@ func (p *PostgresService) GetTableFields(organizationID int, tableName string) (
 	}, nil
 }
 
-func (p *PostgresService) InitializeDefaultFieldAliases(organizationID int, tableName string) error {
+func (p *PostgresService) InitializeDefaultFieldAliases(organizationID string, tableName string) error {
 	// Check if aliases already exist for this table
 	params := models.FieldAliasListParams{
 		TableName: &tableName,

@@ -1,15 +1,15 @@
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
 
 interface User {
-  id: number;
-  organization_id: number;
+  id: string;
+  organization_id: string;
   email: string;
   name: string;
   role: string;
 }
 
 interface Organization {
-  id: number;
+  id: string;
   name: string;
 }
 

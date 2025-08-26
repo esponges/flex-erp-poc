@@ -108,6 +108,8 @@ export function Inventory() {
     queryFn: () => inventoryAPI.list(filters),
   });
 
+  console.log({ inventory });
+
   const updateCostMutation = useMutation({
     mutationFn: ({ skuId, cost }: { skuId: number; cost: number }) =>
       inventoryAPI.updateManualCost(skuId, { weighted_cost: cost }),

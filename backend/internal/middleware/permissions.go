@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"flex-erp-poc/internal/database"
 	"flex-erp-poc/internal/models"
@@ -86,8 +85,8 @@ func (pm *PermissionMiddleware) RequirePermission(resource, action string) mux.M
 
 			// Add user information to context
 			ctx := r.Context()
-			if userID, ok := claims["user_id"].(float64); ok {
-				ctx = context.WithValue(ctx, UserIDKey, int(userID))
+			if userID, ok := claims["user_id"].(string); ok {
+				ctx = context.WithValue(ctx, UserIDKey, userID)
 			}
 			ctx = context.WithValue(ctx, UserRoleKey, userRole)
 
@@ -153,8 +152,8 @@ func (pm *PermissionMiddleware) RequireRole(allowedRoles ...string) mux.Middlewa
 
 			// Add user information to context
 			ctx := r.Context()
-			if userID, ok := claims["user_id"].(float64); ok {
-				ctx = context.WithValue(ctx, UserIDKey, int(userID))
+			if userID, ok := claims["user_id"].(string); ok {
+				ctx = context.WithValue(ctx, UserIDKey, userID)
 			}
 			ctx = context.WithValue(ctx, UserRoleKey, userRole)
 
@@ -198,7 +197,7 @@ func (pm *PermissionMiddleware) RequireSelfOrPermission(resource, action string)
 				return
 			}
 
-			userID, hasUserID := claims["user_id"].(float64)
+			userID, hasUserID := claims["user_id"].(string)
 			userRole, hasUserRole := claims["role"].(string)
 
 			if !hasUserID || !hasUserRole {
@@ -214,8 +213,7 @@ func (pm *PermissionMiddleware) RequireSelfOrPermission(resource, action string)
 
 			// Check if user is accessing their own data
 			if hasTargetUserID {
-				targetUserID, err := strconv.Atoi(targetUserIDStr)
-				if err == nil && targetUserID == int(userID) {
+				if targetUserIDStr == userID {
 					accessGranted = true
 				}
 			}
@@ -230,7 +228,7 @@ func (pm *PermissionMiddleware) RequireSelfOrPermission(resource, action string)
 
 			// Add user information to context
 			ctx := r.Context()
-			ctx = context.WithValue(ctx, UserIDKey, int(userID))
+			ctx = context.WithValue(ctx, UserIDKey, userID)
 			ctx = context.WithValue(ctx, UserRoleKey, userRole)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -249,8 +247,8 @@ func (pm *PermissionMiddleware) hasPermission(roleName, resource, action string)
 }
 
 // GetUserIDFromContext extracts the user ID from the request context
-func GetUserIDFromContext(ctx context.Context) (int, bool) {
-	userID, ok := ctx.Value(UserIDKey).(int)
+func GetUserIDFromContext(ctx context.Context) (string, bool) {
+	userID, ok := ctx.Value(UserIDKey).(string)
 	return userID, ok
 }
 

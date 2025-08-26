@@ -27,9 +27,7 @@ func (h *Handler) GetTransactions(w http.ResponseWriter, r *http.Request) {
 		params.TransactionType = &transactionType
 	}
 	if skuIDStr := query.Get("sku_id"); skuIDStr != "" {
-		if skuID, err := strconv.Atoi(skuIDStr); err == nil && skuID > 0 {
-			params.SKUID = &skuID
-		}
+		params.SKUID = &skuIDStr
 	}
 	if category := query.Get("category"); category != "" {
 		params.Category = &category
@@ -83,7 +81,7 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Basic validation
-	if req.SKUID <= 0 {
+	if req.SKUID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}
@@ -126,9 +124,7 @@ func (h *Handler) GetTransactionSummary(w http.ResponseWriter, r *http.Request) 
 	// Parse query parameters for filtering
 	query := r.URL.Query()
 	if skuIDStr := query.Get("sku_id"); skuIDStr != "" {
-		if skuID, err := strconv.Atoi(skuIDStr); err == nil && skuID > 0 {
-			params.SKUID = &skuID
-		}
+		params.SKUID = &skuIDStr
 	}
 	if category := query.Get("category"); category != "" {
 		params.Category = &category

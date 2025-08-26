@@ -5,8 +5,8 @@ import (
 )
 
 type SKU struct {
-	ID             int       `json:"id" db:"id"`
-	OrganizationID int       `json:"organization_id" db:"organization_id"`
+	ID             string    `json:"id" db:"id"`
+	OrganizationID string    `json:"organization_id" db:"organization_id"`
 	SKUCode        string    `json:"sku_code" db:"sku_code"`
 	ProductName    string    `json:"product_name" db:"product_name"`
 	Description    *string   `json:"description" db:"description"`

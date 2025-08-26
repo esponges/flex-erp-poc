@@ -125,8 +125,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	userID, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	userID := vars["id"]
+	if userID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
@@ -179,13 +179,13 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	userID, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	userID := vars["id"]
+	if userID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
-	err = h.DB.DeleteUser(orgID, userID)
+	err := h.DB.DeleteUser(orgID, userID)
 	if err != nil {
 		if err.Error() == "user not found or not authorized" {
 			h.respondWithError(w, http.StatusNotFound, err.Error())
@@ -216,8 +216,8 @@ func (h *Handler) GetUserPermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	userID, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	userID := vars["id"]
+	if userID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
@@ -264,8 +264,8 @@ func (h *Handler) GetUserPermissions(w http.ResponseWriter, r *http.Request) {
 // POST /api/users/{id}/check-permission
 func (h *Handler) CheckUserPermission(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	userID, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	userID := vars["id"]
+	if userID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}

@@ -13,8 +13,8 @@ import (
 
 func (h *Handler) GetFieldAliases(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	orgID, err := strconv.Atoi(vars["orgId"])
-	if err != nil {
+	orgID := vars["orgId"]
+	if orgID == "" {
 		http.Error(w, "Invalid organization ID", http.StatusBadRequest)
 		return
 	}
@@ -56,8 +56,8 @@ func (h *Handler) GetFieldAliases(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) CreateFieldAlias(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	orgID, err := strconv.Atoi(vars["orgId"])
-	if err != nil {
+	orgID := vars["orgId"]
+	if orgID == "" {
 		http.Error(w, "Invalid organization ID", http.StatusBadRequest)
 		return
 	}
@@ -112,14 +112,14 @@ func (h *Handler) CreateFieldAlias(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UpdateFieldAlias(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	orgID, err := strconv.Atoi(vars["orgId"])
-	if err != nil {
+	orgID := vars["orgId"]
+	if orgID == "" {
 		http.Error(w, "Invalid organization ID", http.StatusBadRequest)
 		return
 	}
 
-	aliasID, err := strconv.Atoi(vars["aliasId"])
-	if err != nil {
+	aliasID := vars["aliasId"]
+	if aliasID == "" {
 		http.Error(w, "Invalid alias ID", http.StatusBadRequest)
 		return
 	}
@@ -146,19 +146,19 @@ func (h *Handler) UpdateFieldAlias(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteFieldAlias(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	orgID, err := strconv.Atoi(vars["orgId"])
-	if err != nil {
+	orgID := vars["orgId"]
+	if orgID == "" {
 		http.Error(w, "Invalid organization ID", http.StatusBadRequest)
 		return
 	}
 
-	aliasID, err := strconv.Atoi(vars["aliasId"])
-	if err != nil {
+	aliasID := vars["aliasId"]
+	if aliasID == "" {
 		http.Error(w, "Invalid alias ID", http.StatusBadRequest)
 		return
 	}
 
-	err = h.DB.DeleteFieldAlias(orgID, aliasID)
+	err := h.DB.DeleteFieldAlias(orgID, aliasID)
 	if err != nil {
 		if err.Error() == "field alias not found" {
 			http.Error(w, "Field alias not found", http.StatusNotFound)
@@ -173,8 +173,8 @@ func (h *Handler) DeleteFieldAlias(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetTableFields(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	orgID, err := strconv.Atoi(vars["orgId"])
-	if err != nil {
+	orgID := vars["orgId"]
+	if orgID == "" {
 		http.Error(w, "Invalid organization ID", http.StatusBadRequest)
 		return
 	}
@@ -210,8 +210,8 @@ func (h *Handler) GetTableFields(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) InitializeTableFields(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	orgID, err := strconv.Atoi(vars["orgId"])
-	if err != nil {
+	orgID := vars["orgId"]
+	if orgID == "" {
 		http.Error(w, "Invalid organization ID", http.StatusBadRequest)
 		return
 	}
@@ -235,7 +235,7 @@ func (h *Handler) InitializeTableFields(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.DB.InitializeDefaultFieldAliases(orgID, tableName)
+	err := h.DB.InitializeDefaultFieldAliases(orgID, tableName)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to initialize table fields: %s", err.Error()), http.StatusInternalServerError)
 		return

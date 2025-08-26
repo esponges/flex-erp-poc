@@ -9,8 +9,8 @@ import (
 )
 
 type Claims struct {
-	UserID         int    `json:"user_id"`
-	OrganizationID int    `json:"organization_id"`
+	UserID         string `json:"user_id"`
+	OrganizationID string `json:"organization_id"`
 	Email          string `json:"email"`
 	Role           string `json:"role"`
 	jwt.RegisteredClaims
@@ -59,7 +59,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func GetOrganizationIDFromContext(ctx context.Context) (int, bool) {
-	orgID, ok := ctx.Value(OrganizationContextKey).(int)
+func GetOrganizationIDFromContext(ctx context.Context) (string, bool) {
+	orgID, ok := ctx.Value(OrganizationContextKey).(string)
 	return orgID, ok
 }

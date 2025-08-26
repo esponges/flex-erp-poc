@@ -3,8 +3,8 @@ package models
 import "time"
 
 type FieldAlias struct {
-	ID             int       `json:"id"`
-	OrganizationID int       `json:"organization_id"`
+	ID             string    `json:"id"`
+	OrganizationID string    `json:"organization_id"`
 	TableName      string    `json:"table_name"`
 	FieldName      string    `json:"field_name"`
 	DisplayName    string    `json:"display_name"`

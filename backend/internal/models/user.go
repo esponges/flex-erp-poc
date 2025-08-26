@@ -4,8 +4,8 @@ import "time"
 
 // Enhanced User model for user management
 type UserWithDetails struct {
-	ID             int       `json:"id"`
-	OrganizationID int       `json:"organization_id"`
+	ID             string    `json:"id"`
+	OrganizationID string    `json:"organization_id"`
 	Email          string    `json:"email"`
 	Name           string    `json:"name"`
 	Role           string    `json:"role"`

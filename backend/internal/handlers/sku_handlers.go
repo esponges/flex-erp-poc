@@ -67,8 +67,8 @@ func (h *Handler) GetSKU(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	skuID, err := strconv.Atoi(vars["skuId"])
-	if err != nil {
+	skuID := vars["skuId"]
+	if skuID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}
@@ -127,8 +127,8 @@ func (h *Handler) UpdateSKU(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	skuID, err := strconv.Atoi(vars["skuId"])
-	if err != nil {
+	skuID := vars["skuId"]
+	if skuID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}
@@ -166,8 +166,8 @@ func (h *Handler) UpdateSKUStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	skuID, err := strconv.Atoi(vars["skuId"])
-	if err != nil {
+	skuID := vars["skuId"]
+	if skuID == "" {
 		h.respondWithError(w, http.StatusBadRequest, "Invalid SKU ID")
 		return
 	}

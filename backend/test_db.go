@@ -42,10 +42,10 @@ func main() {
 	} else {
 		defer rows.Close()
 		for rows.Next() {
-			var id int
+			var id string
 			var name string
 			rows.Scan(&id, &name)
-			fmt.Printf("  %d: %s\n", id, name)
+			fmt.Printf("  %s: %s\n", id, name)
 		}
 	}
 
@@ -57,10 +57,10 @@ func main() {
 	} else {
 		defer rows.Close()
 		for rows.Next() {
-			var id, orgId int
+			var id, orgId string
 			var email, name, role string
 			rows.Scan(&id, &orgId, &email, &name, &role)
-			fmt.Printf("  %d: %s (%s) - Org: %d\n", id, email, role, orgId)
+			fmt.Printf("  %s: %s (%s) - Org: %s\n", id, email, role, orgId)
 		}
 	}
 
@@ -72,22 +72,22 @@ func main() {
 	} else {
 		defer rows.Close()
 		for rows.Next() {
-			var id, orgId int
+			var id, orgId string
 			var skuCode, productName string
 			var isActive bool
 			rows.Scan(&id, &orgId, &skuCode, &productName, &isActive)
-			fmt.Printf("  %d: %s - %s (Org: %d, Active: %t)\n", id, skuCode, productName, orgId, isActive)
+			fmt.Printf("  %s: %s - %s (Org: %s, Active: %t)\n", id, skuCode, productName, orgId, isActive)
 		}
 	}
 
 	// Get the actual organization ID
-	var orgId int
+	var orgId string
 	err = db.QueryRow("SELECT id FROM organizations LIMIT 1").Scan(&orgId)
 	if err != nil {
 		log.Fatalf("Failed to get organization ID: %v", err)
 	}
 
-	log.Printf("Using organization ID: %d", orgId)
+	log.Printf("Using organization ID: %s", orgId)
 
 	// Insert missing data if needed
 	var userCount int

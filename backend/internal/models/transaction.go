@@ -3,32 +3,32 @@ package models
 import "time"
 
 type Transaction struct {
-	ID              int       `json:"id"`
-	OrganizationID  int       `json:"organization_id"`
-	SKUID           int       `json:"sku_id"`
+	ID              string    `json:"id"`
+	OrganizationID  string    `json:"organization_id"`
+	SKUID           string    `json:"sku_id"`
 	TransactionType string    `json:"transaction_type"` // "in" or "out"
 	Quantity        int       `json:"quantity"`
 	UnitCost        float64   `json:"unit_cost"`
 	TotalCost       float64   `json:"total_cost"`
 	ReferenceNumber *string   `json:"reference_number,omitempty"`
 	Notes           *string   `json:"notes,omitempty"`
-	CreatedBy       int       `json:"created_by"`
+	CreatedBy       string    `json:"created_by"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 // TransactionWithSKU includes SKU details for transaction listings
 type TransactionWithSKU struct {
-	ID              int       `json:"id"`
-	OrganizationID  int       `json:"organization_id"`
-	SKUID           int       `json:"sku_id"`
+	ID              string    `json:"id"`
+	OrganizationID  string    `json:"organization_id"`
+	SKUID           string    `json:"sku_id"`
 	TransactionType string    `json:"transaction_type"`
 	Quantity        int       `json:"quantity"`
 	UnitCost        float64   `json:"unit_cost"`
 	TotalCost       float64   `json:"total_cost"`
 	ReferenceNumber *string   `json:"reference_number,omitempty"`
 	Notes           *string   `json:"notes,omitempty"`
-	CreatedBy       int       `json:"created_by"`
+	CreatedBy       string    `json:"created_by"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 	// SKU details
@@ -42,7 +42,7 @@ type TransactionWithSKU struct {
 
 // Request/Response types
 type CreateTransactionRequest struct {
-	SKUID           int     `json:"sku_id" validate:"required,min=1"`
+	SKUID           string  `json:"sku_id" validate:"required,uuid"`
 	TransactionType string  `json:"transaction_type" validate:"required,oneof=in out"`
 	Quantity        int     `json:"quantity" validate:"required,min=1"`
 	UnitCost        float64 `json:"unit_cost" validate:"required,min=0"`
@@ -52,7 +52,7 @@ type CreateTransactionRequest struct {
 
 type TransactionListParams struct {
 	TransactionType *string `json:"transaction_type,omitempty"`
-	SKUID           *int    `json:"sku_id,omitempty"`
+	SKUID           *string `json:"sku_id,omitempty"`
 	Category        *string `json:"category,omitempty"`
 	Search          *string `json:"search,omitempty"`
 	Page            int     `json:"page"`

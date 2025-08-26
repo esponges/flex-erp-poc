@@ -27,14 +27,16 @@ echo "🔨 Building backend binary..."
 
 
 # Start backend in debug mode with Delve
-dlv exec backend/bin/server --headless --listen=:2345 --api-version=2 &
+cd backend
+dlv exec bin/server --headless --listen=:2345 --api-version=2 &
 BACKEND_PID=$!
 
 # Start frontend
+cd ..
 cd ./frontend && pnpm dev &
 FRONTEND_PID=$!
 
-echo "✅ Backend started on http://localhost:8080"
+echo "Start backend using Debugger Mode with option 'Attach to backend debugger'"
 echo "✅ Frontend started on http://localhost:5173"
 echo ""
 echo "Press Ctrl+C to stop both services"

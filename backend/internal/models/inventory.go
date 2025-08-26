@@ -5,9 +5,9 @@ import (
 )
 
 type Inventory struct {
-	ID             int     `json:"id" db:"id"`
-	OrganizationID int     `json:"organization_id" db:"organization_id"`
-	SKUID          int     `json:"sku_id" db:"sku_id"`
+	ID             string  `json:"id" db:"id"`
+	OrganizationID string  `json:"organization_id" db:"organization_id"`
+	SKUID          string  `json:"sku_id" db:"sku_id"`
 	Quantity       int     `json:"quantity" db:"quantity"`
 	WeightedCost   float64 `json:"weighted_cost" db:"weighted_cost"`
 	TotalValue     float64 `json:"total_value" db:"total_value"`
@@ -17,9 +17,9 @@ type Inventory struct {
 }
 
 type InventoryWithSKU struct {
-	ID             int     `json:"id"`
-	OrganizationID int     `json:"organization_id"`
-	SKUID          int     `json:"sku_id"`
+	ID             string  `json:"id"`
+	OrganizationID string  `json:"organization_id"`
+	SKUID          string  `json:"sku_id"`
 	Quantity       int     `json:"quantity"`
 	WeightedCost   float64 `json:"weighted_cost"`
 	TotalValue     float64 `json:"total_value"`

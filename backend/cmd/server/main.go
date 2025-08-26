@@ -13,14 +13,14 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
 	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 )
 
 func main() {
 	// Load environment variables
 	if err := godotenv.Load(".env"); err != nil {
-		log.Println("No .env file found, using environment variables")
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
 	// Database connection
@@ -48,80 +48,80 @@ func main() {
 
 	// Setup routes
 	r := mux.NewRouter()
-	
+
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck).Methods("GET")
-	
+
 	// Auth routes
 	r.HandleFunc("/auth/login", h.Login).Methods("POST")
-	
+
 	// Protected auth routes
 	authRoutes := r.PathPrefix("/auth").Subrouter()
 	authRoutes.Use(middleware.AuthMiddleware)
 	authRoutes.HandleFunc("/me", h.Me).Methods("GET")
-	
+
 	// Protected API routes
 	api := r.PathPrefix("/api/v1").Subrouter()
 	api.Use(middleware.AuthMiddleware)
 
 	// SKU routes
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus", h.GetSKUs).Methods("GET")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus", h.CreateSKU).Methods("POST")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}", h.GetSKU).Methods("GET")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}", h.UpdateSKU).Methods("PATCH")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/skus/{skuId:[0-9]+}/status", h.UpdateSKUStatus).Methods("PATCH")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/skus", h.GetSKUs).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/skus", h.CreateSKU).Methods("POST")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/skus/{skuId:[0-9a-f-]+}", h.GetSKU).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/skus/{skuId:[0-9a-f-]+}", h.UpdateSKU).Methods("PATCH")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/skus/{skuId:[0-9a-f-]+}/status", h.UpdateSKUStatus).Methods("PATCH")
 
 	// Inventory routes
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory", h.GetInventory).Methods("GET")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory", h.CreateInventory).Methods("POST")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory/sku/{skuId:[0-9]+}", h.GetInventoryBySKU).Methods("GET")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/inventory/sku/{skuId:[0-9]+}/cost", h.UpdateManualCost).Methods("PATCH")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/inventory", h.GetInventory).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/inventory", h.CreateInventory).Methods("POST")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/inventory/sku/{skuId:[0-9a-f-]+}", h.GetInventoryBySKU).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/inventory/sku/{skuId:[0-9a-f-]+}/cost", h.UpdateManualCost).Methods("PATCH")
 
 	// Transaction routes
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions", h.GetTransactions).Methods("GET")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions", h.CreateTransaction).Methods("POST")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/transactions/summary", h.GetTransactionSummary).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/transactions", h.GetTransactions).Methods("GET")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/transactions", h.CreateTransaction).Methods("POST")
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/transactions/summary", h.GetTransactionSummary).Methods("GET")
 
 	// User management routes (with role-based access control)
-	api.Handle("/orgs/{orgId:[0-9]+}/users", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/users",
 		permMiddleware.RequirePermission("users", "read")(http.HandlerFunc(h.GetUsers))).Methods("GET")
-	api.Handle("/orgs/{orgId:[0-9]+}/users", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/users",
 		permMiddleware.RequirePermission("users", "create")(http.HandlerFunc(h.CreateUser))).Methods("POST")
-	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/users/{id:[0-9a-f-]+}",
 		permMiddleware.RequirePermission("users", "update")(http.HandlerFunc(h.UpdateUser))).Methods("PUT")
-	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/users/{id:[0-9a-f-]+}",
 		permMiddleware.RequirePermission("users", "delete")(http.HandlerFunc(h.DeleteUser))).Methods("DELETE")
-	api.HandleFunc("/orgs/{orgId:[0-9]+}/users/roles", h.GetUserRoles).Methods("GET")
-	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}/permissions", 
+	api.HandleFunc("/orgs/{orgId:[0-9a-f-]+}/users/roles", h.GetUserRoles).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/users/{id:[0-9a-f-]+}/permissions",
 		permMiddleware.RequireSelfOrPermission("users", "read")(http.HandlerFunc(h.GetUserPermissions))).Methods("GET")
-	api.Handle("/orgs/{orgId:[0-9]+}/users/{id:[0-9]+}/check-permission", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/users/{id:[0-9a-f-]+}/check-permission",
 		permMiddleware.RequireSelfOrPermission("users", "read")(http.HandlerFunc(h.CheckUserPermission))).Methods("POST")
 
 	// Field Aliases routes (settings/customization feature)
-	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/field-aliases",
 		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetFieldAliases))).Methods("GET")
-	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/field-aliases",
 		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.CreateFieldAlias))).Methods("POST")
-	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases/{aliasId:[0-9]+}", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/field-aliases/{aliasId:[0-9a-f-]+}",
 		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.UpdateFieldAlias))).Methods("PATCH")
-	api.Handle("/orgs/{orgId:[0-9]+}/field-aliases/{aliasId:[0-9]+}", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/field-aliases/{aliasId:[0-9a-f-]+}",
 		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.DeleteFieldAlias))).Methods("DELETE")
-	
+
 	// Table fields management - get customized fields for a specific table
-	api.Handle("/orgs/{orgId:[0-9]+}/tables/{tableName}/fields", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/tables/{tableName}/fields",
 		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetTableFields))).Methods("GET")
-	api.Handle("/orgs/{orgId:[0-9]+}/tables/{tableName}/fields/initialize", 
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/tables/{tableName}/fields/initialize",
 		permMiddleware.RequirePermission("settings", "update")(http.HandlerFunc(h.InitializeTableFields))).Methods("POST")
-	
+
 	// Supported tables endpoint - useful for frontend dropdown
-	api.Handle("/supported-tables", 
+	api.Handle("/supported-tables",
 		permMiddleware.RequirePermission("settings", "read")(http.HandlerFunc(h.GetSupportedTables))).Methods("GET")
 
 	// CORS setup
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"*"},
+		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	})
 

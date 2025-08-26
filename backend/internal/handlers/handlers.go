@@ -68,14 +68,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		user = realUser
 	} else {
 		// Mock user with actual organization ID from database
-		var orgId int
+		var orgId string
 		err = h.DB.DB.QueryRow("SELECT id FROM organizations LIMIT 1").Scan(&orgId)
 		if err != nil {
-			orgId = 1100401179193344001 // fallback
+			orgId = "1100401179193344001" // fallback
 		}
 
 		user = &database.User{
-			ID:             1,
+			ID:             "1",
 			OrganizationID: orgId,
 			Email:          loginReq.Email,
 			Name:           "Test User",
@@ -128,7 +128,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.UserContextKey).(int)
+	userID, ok := r.Context().Value(middleware.UserContextKey).(string)
 	if !ok {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -136,7 +136,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	organizationID, ok := r.Context().Value(middleware.OrganizationContextKey).(int)
+	organizationID, ok := r.Context().Value(middleware.OrganizationContextKey).(string)
 	if !ok {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
