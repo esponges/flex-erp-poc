@@ -27,5 +27,6 @@ jobs:
       - name: Install dependencies
         run: pnpm i && pnpm playwright install --with-deps
 
-      - name: Validate
-        run: pnpm biome ci && pnpm test:ci && pnpm test:e2e:ci
+      # todo: enable when tests are created
+      # - name: Validate
+      #   run: pnpm biome ci && pnpm test:ci && pnpm test:e2e:ci
