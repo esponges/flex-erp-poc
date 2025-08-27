@@ -16,7 +16,7 @@ import Logs from '@/pages/Logs';
 import { Layout } from '@/components/Layout';
 import { AuthGuard } from '@/components/AuthGuard';
 
-// Root route - just renders the outlet  
+// Root route - just renders the outlet
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
 });
@@ -44,15 +44,11 @@ const loginRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/dashboard',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
-      <Dashboard />
+      <Layout>
+        <Dashboard />
+      </Layout>
     </AuthGuard>
   ),
 });
@@ -76,15 +72,11 @@ const indexRoute = createRoute({
 const skusRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/skus',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
-      <SKUs />
+      <Layout>
+        <SKUs />
+      </Layout>
     </AuthGuard>
   ),
 });
@@ -92,12 +84,6 @@ const skusRoute = createRoute({
 const inventoryRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/inventory',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
       <Layout>
@@ -110,12 +96,6 @@ const inventoryRoute = createRoute({
 const transactionsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/transactions',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
       <Layout>
@@ -128,15 +108,11 @@ const transactionsRoute = createRoute({
 const usersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/users',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
-      <Users />
+      <Layout>
+        <Users />
+      </Layout>
     </AuthGuard>
   ),
 });
@@ -144,12 +120,6 @@ const usersRoute = createRoute({
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
       <Layout>
@@ -162,12 +132,6 @@ const settingsRoute = createRoute({
 const logsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/logs',
-  beforeLoad: () => {
-    const { isAuthenticated } = getAuthState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
   component: () => (
     <AuthGuard>
       <Layout>
