@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Layout } from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface InventoryWithSKU {
@@ -146,258 +145,380 @@ export function Inventory() {
 
   if (error) {
     return (
-      <Layout>
-        <div className='p-6'>
-          <div className='bg-red-50 border border-red-200 rounded-md p-4'>
-            <p className='text-red-600'>
-              Error loading inventory: {error.message}
-            </p>
-          </div>
+      <div className='p-6'>
+        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
+          <p className='text-red-600'>
+            Error loading inventory: {error.message}
+          </p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className='space-y-6'>
-        <div>
-          <h1 className='text-2xl font-semibold text-gray-900'>
-            Inventory Management
-          </h1>
-          <p className='text-gray-600'>
-            Track and manage your product inventory
-          </p>
-        </div>
+    <div className='space-y-6'>
+      <div>
+        <h1 className='text-2xl font-semibold text-gray-900'>
+          Inventory Management
+        </h1>
+        <p className='text-gray-600'>Track and manage your product inventory</p>
+      </div>
 
-        {/* Filters */}
-        <div className='bg-white p-4 rounded-lg border border-gray-200'>
-          <div className='flex flex-wrap gap-4'>
-            <div className='flex-1 min-w-64'>
-              <input
-                type='text'
-                placeholder='Search by SKU, product name, or description...'
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                value={filters.search || ''}
-                onChange={(e) =>
-                  setFilters({ ...filters, search: e.target.value || '' })
-                }
-              />
-            </div>
-            <div>
-              <select
-                className='px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                value={filters.category || ''}
-                onChange={(e) =>
-                  setFilters({ ...filters, category: e.target.value || '' })
-                }
-              >
-                <option value=''>All Categories</option>
-                <option value='Electronics'>Electronics</option>
-                <option value='Furniture'>Furniture</option>
-                <option value='Stationery'>Stationery</option>
-              </select>
-            </div>
+      {/* Filters */}
+      <div className='bg-white p-4 rounded-lg border border-gray-200'>
+        <div className='flex flex-col sm:flex-row gap-4'>
+          <div className='flex-1'>
+            <input
+              type='text'
+              placeholder='Search by SKU, product name, or description...'
+              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+              value={filters.search || ''}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value || '' })
+              }
+            />
           </div>
-        </div>
-
-        {/* Inventory Table */}
-        <div className='bg-white rounded-lg shadow'>
-          <div className='overflow-x-auto'>
-            <table className='min-w-full divide-y divide-gray-200'>
-              <thead className='bg-gray-50'>
-                <tr>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Product
-                  </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    SKU
-                  </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Category
-                  </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Quantity
-                  </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Cost
-                  </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Total Value
-                  </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Status
-                  </th>
-                  <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className='bg-white divide-y divide-gray-200'>
-                {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className='px-6 py-4 text-center text-gray-500'
-                    >
-                      Loading...
-                    </td>
-                  </tr>
-                ) : inventory.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className='px-6 py-4 text-center text-gray-500'
-                    >
-                      No inventory items found
-                    </td>
-                  </tr>
-                ) : (
-                  inventory.map((item) => {
-                    const stockStatus = getStockStatus(item.quantity);
-                    const isEditing = editingCost?.skuId === item.sku_id;
-
-                    return (
-                      <tr key={item.id} className='hover:bg-gray-50'>
-                        <td className='px-6 py-4 whitespace-nowrap'>
-                          <div>
-                            <div className='text-sm font-medium text-gray-900'>
-                              {item.product_name}
-                            </div>
-                            {item.description && (
-                              <div className='text-sm text-gray-500'>
-                                {item.description}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                          {item.sku_code}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                          {item.category || '-'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                          {item.quantity}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                          {isEditing ? (
-                            <div className='flex items-center space-x-2'>
-                              <input
-                                type='number'
-                                step='0.01'
-                                className='w-20 px-2 py-1 border border-gray-300 rounded text-sm'
-                                value={editingCost.cost}
-                                onChange={(e) =>
-                                  setEditingCost({
-                                    ...editingCost,
-                                    cost: parseFloat(e.target.value) || 0,
-                                  })
-                                }
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    handleCostUpdate(
-                                      item.sku_id,
-                                      editingCost.cost
-                                    );
-                                  } else if (e.key === 'Escape') {
-                                    setEditingCost(null);
-                                  }
-                                }}
-                                autoFocus
-                              />
-                              <button
-                                onClick={() =>
-                                  handleCostUpdate(
-                                    item.sku_id,
-                                    editingCost.cost
-                                  )
-                                }
-                                className='text-green-600 hover:text-green-800'
-                                disabled={updateCostMutation.isPending}
-                              >
-                                ✓
-                              </button>
-                              <button
-                                onClick={() => setEditingCost(null)}
-                                className='text-red-600 hover:text-red-800'
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ) : (
-                            <div className='flex items-center space-x-2'>
-                              <span>{formatCurrency(item.weighted_cost)}</span>
-                              {item.is_manual_cost && (
-                                <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'>
-                                  Manual
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                          {formatCurrency(item.total_value)}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap'>
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${stockStatus.color}`}
-                          >
-                            {stockStatus.text}
-                          </span>
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
-                          {!isEditing && (
-                            <button
-                              onClick={() =>
-                                setEditingCost({
-                                  skuId: item.sku_id,
-                                  cost: item.weighted_cost,
-                                })
-                              }
-                              className='text-indigo-600 hover:text-indigo-900'
-                            >
-                              Edit Cost
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Summary Stats */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <div className='bg-white p-4 rounded-lg border border-gray-200'>
-            <div className='text-sm font-medium text-gray-500'>Total Items</div>
-            <div className='text-2xl font-bold text-gray-900'>
-              {inventory.length}
-            </div>
-          </div>
-          <div className='bg-white p-4 rounded-lg border border-gray-200'>
-            <div className='text-sm font-medium text-gray-500'>
-              Total Inventory Value
-            </div>
-            <div className='text-2xl font-bold text-gray-900'>
-              {formatCurrency(
-                inventory.reduce((sum, item) => sum + item.total_value, 0)
-              )}
-            </div>
-          </div>
-          <div className='bg-white p-4 rounded-lg border border-gray-200'>
-            <div className='text-sm font-medium text-gray-500'>
-              Low Stock Items
-            </div>
-            <div className='text-2xl font-bold text-gray-900'>
-              {inventory.filter((item) => item.quantity < 10).length}
-            </div>
+          <div className='w-full sm:w-auto'>
+            <select
+              className='w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+              value={filters.category || ''}
+              onChange={(e) =>
+                setFilters({ ...filters, category: e.target.value || '' })
+              }
+            >
+              <option value=''>All Categories</option>
+              <option value='Electronics'>Electronics</option>
+              <option value='Furniture'>Furniture</option>
+              <option value='Stationery'>Stationery</option>
+            </select>
           </div>
         </div>
       </div>
-    </Layout>
+
+      {/* Inventory Table - Desktop */}
+      <div className='bg-white rounded-lg shadow hidden lg:block'>
+        <div className='overflow-x-auto'>
+          <table className='min-w-full divide-y divide-gray-200'>
+            <thead className='bg-gray-50'>
+              <tr>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Product
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  SKU
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Category
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Quantity
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Cost
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Total Value
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Status
+                </th>
+                <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className='bg-white divide-y divide-gray-200'>
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className='px-6 py-4 text-center text-gray-500'
+                  >
+                    Loading...
+                  </td>
+                </tr>
+              ) : inventory.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className='px-6 py-4 text-center text-gray-500'
+                  >
+                    No inventory items found
+                  </td>
+                </tr>
+              ) : (
+                inventory.map((item) => {
+                  const stockStatus = getStockStatus(item.quantity);
+                  const isEditing = editingCost?.skuId === item.sku_id;
+
+                  return (
+                    <tr key={item.id} className='hover:bg-gray-50'>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <div>
+                          <div className='text-sm font-medium text-gray-900'>
+                            {item.product_name}
+                          </div>
+                          {item.description && (
+                            <div className='text-sm text-gray-500'>
+                              {item.description}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {item.sku_code}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {item.category || '-'}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {item.quantity}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {isEditing ? (
+                          <div className='flex items-center space-x-2'>
+                            <input
+                              type='number'
+                              step='0.01'
+                              className='w-20 px-2 py-1 border border-gray-300 rounded text-sm'
+                              value={editingCost.cost}
+                              onChange={(e) =>
+                                setEditingCost({
+                                  ...editingCost,
+                                  cost: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleCostUpdate(
+                                    item.sku_id,
+                                    editingCost.cost
+                                  );
+                                } else if (e.key === 'Escape') {
+                                  setEditingCost(null);
+                                }
+                              }}
+                              autoFocus
+                            />
+                            <button
+                              onClick={() =>
+                                handleCostUpdate(item.sku_id, editingCost.cost)
+                              }
+                              className='text-green-600 hover:text-green-800'
+                              disabled={updateCostMutation.isPending}
+                            >
+                              ✓
+                            </button>
+                            <button
+                              onClick={() => setEditingCost(null)}
+                              className='text-red-600 hover:text-red-800'
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <div className='flex items-center space-x-2'>
+                            <span>{formatCurrency(item.weighted_cost)}</span>
+                            {item.is_manual_cost && (
+                              <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'>
+                                Manual
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {formatCurrency(item.total_value)}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${stockStatus.color}`}
+                        >
+                          {stockStatus.text}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
+                        {!isEditing && (
+                          <button
+                            onClick={() =>
+                              setEditingCost({
+                                skuId: item.sku_id,
+                                cost: item.weighted_cost,
+                              })
+                            }
+                            className='text-indigo-600 hover:text-indigo-900'
+                          >
+                            Edit Cost
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Inventory Cards - Mobile & Tablet */}
+      <div className='lg:hidden space-y-4'>
+        {isLoading ? (
+          <div className='bg-white rounded-lg shadow p-6 text-center text-gray-500'>
+            Loading...
+          </div>
+        ) : inventory.length === 0 ? (
+          <div className='bg-white rounded-lg shadow p-6 text-center text-gray-500'>
+            No inventory items found
+          </div>
+        ) : (
+          inventory.map((item) => {
+            const stockStatus = getStockStatus(item.quantity);
+            const isEditing = editingCost?.skuId === item.sku_id;
+
+            return (
+              <div key={item.id} className='bg-white rounded-lg shadow p-4'>
+                <div className='flex justify-between items-start mb-3'>
+                  <div className='flex-1 min-w-0'>
+                    <h3 className='text-sm font-medium text-gray-900 truncate'>
+                      {item.product_name}
+                    </h3>
+                    <p className='text-sm text-gray-500 mt-1'>
+                      SKU: {item.sku_code}
+                    </p>
+                    {item.description && (
+                      <p className='text-xs text-gray-400 mt-1 line-clamp-2'>
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${stockStatus.color} ml-2`}
+                  >
+                    {stockStatus.text}
+                  </span>
+                </div>
+
+                <div className='grid grid-cols-2 gap-3 text-sm'>
+                  <div>
+                    <span className='text-gray-500'>Category:</span>
+                    <span className='ml-1 font-medium'>
+                      {item.category || '-'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className='text-gray-500'>Quantity:</span>
+                    <span className='ml-1 font-medium'>{item.quantity}</span>
+                  </div>
+                  <div>
+                    <span className='text-gray-500'>Cost:</span>
+                    {isEditing ? (
+                      <div className='flex items-center space-x-2 mt-1'>
+                        <input
+                          type='number'
+                          step='0.01'
+                          className='w-20 px-2 py-1 border border-gray-300 rounded text-sm'
+                          value={editingCost.cost}
+                          onChange={(e) =>
+                            setEditingCost({
+                              ...editingCost,
+                              cost: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleCostUpdate(item.sku_id, editingCost.cost);
+                            } else if (e.key === 'Escape') {
+                              setEditingCost(null);
+                            }
+                          }}
+                          autoFocus
+                        />
+                        <button
+                          onClick={() =>
+                            handleCostUpdate(item.sku_id, editingCost.cost)
+                          }
+                          className='text-green-600 hover:text-green-800'
+                          disabled={updateCostMutation.isPending}
+                        >
+                          ✓
+                        </button>
+                        <button
+                          onClick={() => setEditingCost(null)}
+                          className='text-red-600 hover:text-red-800'
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className='flex items-center space-x-1 mt-1'>
+                        <span className='font-medium'>
+                          {formatCurrency(item.weighted_cost)}
+                        </span>
+                        {item.is_manual_cost && (
+                          <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'>
+                            Manual
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <span className='text-gray-500'>Total Value:</span>
+                    <span className='ml-1 font-medium'>
+                      {formatCurrency(item.total_value)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className='flex justify-end mt-3'>
+                  {!isEditing && (
+                    <button
+                      onClick={() =>
+                        setEditingCost({
+                          skuId: item.sku_id,
+                          cost: item.weighted_cost,
+                        })
+                      }
+                      className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
+                    >
+                      Edit Cost
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Summary Stats */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        <div className='bg-white p-4 rounded-lg border border-gray-200'>
+          <div className='text-sm font-medium text-gray-500'>Total Items</div>
+          <div className='text-2xl font-bold text-gray-900'>
+            {inventory.length}
+          </div>
+        </div>
+        <div className='bg-white p-4 rounded-lg border border-gray-200'>
+          <div className='text-sm font-medium text-gray-500'>
+            Total Inventory Value
+          </div>
+          <div className='text-2xl font-bold text-gray-900'>
+            {formatCurrency(
+              inventory.reduce((sum, item) => sum + item.total_value, 0)
+            )}
+          </div>
+        </div>
+        <div className='bg-white p-4 rounded-lg border border-gray-200'>
+          <div className='text-sm font-medium text-gray-500'>
+            Low Stock Items
+          </div>
+          <div className='text-2xl font-bold text-gray-900'>
+            {inventory.filter((item) => item.quantity < 10).length}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

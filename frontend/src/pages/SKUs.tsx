@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Layout } from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface SKU {
@@ -97,7 +96,11 @@ const skuAPI = {
     return response.json();
   },
 
-  update: async (id: number, data: UpdateSKURequest, orgId: string): Promise<SKU> => {
+  update: async (
+    id: number,
+    data: UpdateSKURequest,
+    orgId: string
+  ): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
       `http://localhost:8080/api/v1/orgs/${orgId}/skus/${id}`,
@@ -119,7 +122,11 @@ const skuAPI = {
     return response.json();
   },
 
-  updateStatus: async (id: number, isActive: boolean, orgId: string): Promise<SKU> => {
+  updateStatus: async (
+    id: number,
+    isActive: boolean,
+    orgId: string
+  ): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
       `http://localhost:8080/api/v1/orgs/${orgId}/skus/${id}/status`,
@@ -158,7 +165,8 @@ export function SKUs() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateSKURequest) => skuAPI.create(data, authState.organization?.id!),
+    mutationFn: (data: CreateSKURequest) =>
+      skuAPI.create(data, authState.organization?.id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['skus'] });
       setShowAddModal(false);
@@ -203,138 +211,220 @@ export function SKUs() {
   ];
 
   return (
-    <Layout>
-      <div className='space-y-6'>
-        {/* Header */}
-        <div className='flex items-center justify-between'>
-          <div>
-            <h1 className='text-2xl font-bold text-gray-900'>SKUs</h1>
-            <p className='mt-1 text-sm text-gray-600'>
-              Manage your Stock Keeping Units (products)
-            </p>
-          </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700'
-          >
-            Add SKU
-          </button>
+    <div className='space-y-6'>
+      {/* Header */}
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+        <div>
+          <h1 className='text-2xl font-bold text-gray-900'>SKUs</h1>
+          <p className='mt-1 text-sm text-gray-600'>
+            Manage your Stock Keeping Units (products)
+          </p>
         </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 self-start sm:self-auto'
+        >
+          Add SKU
+        </button>
+      </div>
 
-        {/* Filters */}
-        <div className='bg-white shadow rounded-lg'>
-          <div className='p-6'>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Search
-                </label>
+      {/* Filters */}
+      <div className='bg-white shadow rounded-lg'>
+        <div className='p-4 sm:p-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className='sm:col-span-2 lg:col-span-1'>
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
+                Search
+              </label>
+              <input
+                type='text'
+                placeholder='Search SKUs...'
+                value={filters.search || ''}
+                onChange={(e) => handleSearch(e.target.value)}
+                className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
+                Category
+              </label>
+              <select
+                value={filters.category || ''}
+                onChange={(e) => handleCategoryFilter(e.target.value)}
+                className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+              >
+                <option value=''>All Categories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className='flex items-end sm:col-span-2 lg:col-span-1'>
+              <label className='flex items-center'>
                 <input
-                  type='text'
-                  placeholder='Search SKUs...'
-                  value={filters.search || ''}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+                  type='checkbox'
+                  checked={filters.includeDeactivated}
+                  onChange={toggleIncludeDeactivated}
+                  className='rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Category
-                </label>
-                <select
-                  value={filters.category || ''}
-                  onChange={(e) => handleCategoryFilter(e.target.value)}
-                  className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-                >
-                  <option value=''>All Categories</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className='flex items-end'>
-                <label className='flex items-center'>
-                  <input
-                    type='checkbox'
-                    checked={filters.includeDeactivated}
-                    onChange={toggleIncludeDeactivated}
-                    className='rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
-                  />
-                  <span className='ml-2 text-sm text-gray-700'>
-                    Include inactive SKUs
-                  </span>
-                </label>
-              </div>
+                <span className='ml-2 text-sm text-gray-700'>
+                  Include inactive SKUs
+                </span>
+              </label>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* SKU Table */}
-        <div className='bg-white shadow rounded-lg overflow-hidden'>
-          {isLoading && (
-            <div className='p-6 text-center'>
-              <div className='text-sm text-gray-600'>Loading SKUs...</div>
+      {/* SKU Table - Desktop */}
+      <div className='bg-white shadow rounded-lg overflow-hidden hidden lg:block'>
+        {isLoading && (
+          <div className='p-6 text-center'>
+            <div className='text-sm text-gray-600'>Loading SKUs...</div>
+          </div>
+        )}
+
+        {error && (
+          <div className='p-6 text-center'>
+            <div className='text-sm text-red-600'>
+              Error: {(error as Error).message}
             </div>
-          )}
+          </div>
+        )}
 
-          {error && (
-            <div className='p-6 text-center'>
-              <div className='text-sm text-red-600'>
-                Error: {(error as Error).message}
-              </div>
-            </div>
-          )}
-
-          {!isLoading && !error && (
-            <div className='overflow-x-auto'>
-              <table className='min-w-full divide-y divide-gray-200'>
-                <thead className='bg-gray-50'>
-                  <tr>
-                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                      SKU Code
-                    </th>
-                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                      Product Name
-                    </th>
-                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                      Category
-                    </th>
-                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                      Supplier
-                    </th>
-                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                      Status
-                    </th>
-                    <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className='bg-white divide-y divide-gray-200'>
-                  {skus.map((sku) => (
-                    <tr key={sku.id} className='hover:bg-gray-50'>
-                      <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
-                        {sku.sku_code}
-                      </td>
-                      <td className='px-6 py-4 whitespace-nowrap'>
-                        <div className='text-sm text-gray-900'>
-                          {sku.product_name}
+        {!isLoading && !error && (
+          <div className='overflow-x-auto'>
+            <table className='min-w-full divide-y divide-gray-200'>
+              <thead className='bg-gray-50'>
+                <tr>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    SKU Code
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Product Name
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Category
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Supplier
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Status
+                  </th>
+                  <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className='bg-white divide-y divide-gray-200'>
+                {skus.map((sku) => (
+                  <tr key={sku.id} className='hover:bg-gray-50'>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+                      {sku.sku_code}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <div className='text-sm text-gray-900'>
+                        {sku.product_name}
+                      </div>
+                      {sku.description && (
+                        <div className='text-sm text-gray-500'>
+                          {sku.description}
                         </div>
-                        {sku.description && (
-                          <div className='text-sm text-gray-500'>
-                            {sku.description}
-                          </div>
-                        )}
-                      </td>
-                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                        {sku.category || '-'}
-                      </td>
-                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                        {sku.supplier || '-'}
-                      </td>
-                      <td className='px-6 py-4 whitespace-nowrap'>
+                      )}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                      {sku.category || '-'}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                      {sku.supplier || '-'}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          sku.is_active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {sku.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
+                      <button
+                        onClick={() => setEditingSKU(sku)}
+                        className='text-indigo-600 hover:text-indigo-900'
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() =>
+                          statusMutation.mutate({
+                            id: sku.id,
+                            isActive: !sku.is_active,
+                          })
+                        }
+                        disabled={statusMutation.isPending}
+                        className={`${
+                          sku.is_active
+                            ? 'text-red-600 hover:text-red-900'
+                            : 'text-green-600 hover:text-green-900'
+                        }`}
+                      >
+                        {sku.is_active ? 'Deactivate' : 'Activate'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {skus.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className='px-6 py-4 text-center text-sm text-gray-500'
+                    >
+                      No SKUs found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* SKU Cards - Mobile & Tablet */}
+      <div className='lg:hidden space-y-4'>
+        {isLoading && (
+          <div className='bg-white shadow rounded-lg p-6 text-center'>
+            <div className='text-sm text-gray-600'>Loading SKUs...</div>
+          </div>
+        )}
+
+        {error && (
+          <div className='bg-white shadow rounded-lg p-6 text-center'>
+            <div className='text-sm text-red-600'>
+              Error: {(error as Error).message}
+            </div>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <>
+            {skus.length === 0 ? (
+              <div className='bg-white shadow rounded-lg p-6 text-center'>
+                <div className='text-sm text-gray-500'>No SKUs found</div>
+              </div>
+            ) : (
+              skus.map((sku) => (
+                <div key={sku.id} className='bg-white shadow rounded-lg p-4'>
+                  <div className='flex justify-between items-start mb-3'>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <h3 className='text-sm font-medium text-gray-900 truncate'>
+                          {sku.product_name}
+                        </h3>
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             sku.is_active
@@ -344,73 +434,87 @@ export function SKUs() {
                         >
                           {sku.is_active ? 'Active' : 'Inactive'}
                         </span>
-                      </td>
-                      <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
-                        <button
-                          onClick={() => setEditingSKU(sku)}
-                          className='text-indigo-600 hover:text-indigo-900'
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() =>
-                            statusMutation.mutate({
-                              id: sku.id,
-                              isActive: !sku.is_active,
-                            })
-                          }
-                          disabled={statusMutation.isPending}
-                          className={`${
-                            sku.is_active
-                              ? 'text-red-600 hover:text-red-900'
-                              : 'text-green-600 hover:text-green-900'
-                          }`}
-                        >
-                          {sku.is_active ? 'Deactivate' : 'Activate'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {skus.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className='px-6 py-4 text-center text-sm text-gray-500'
-                      >
-                        No SKUs found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                      </div>
+                      <p className='text-sm text-gray-500 mb-1'>
+                        SKU: {sku.sku_code}
+                      </p>
+                      {sku.description && (
+                        <p className='text-xs text-gray-400 mb-2 line-clamp-2'>
+                          {sku.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
 
-        {/* Add SKU Modal */}
-        {showAddModal && (
-          <AddSKUModal
-            onClose={() => setShowAddModal(false)}
-            onSubmit={(data) => createMutation.mutate(data)}
-            isLoading={createMutation.isPending}
-            error={createMutation.error as Error | null}
-          />
-        )}
+                  <div className='grid grid-cols-2 gap-3 text-sm mb-3'>
+                    <div>
+                      <span className='text-gray-500'>Category:</span>
+                      <span className='ml-1 font-medium'>
+                        {sku.category || '-'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className='text-gray-500'>Supplier:</span>
+                      <span className='ml-1 font-medium'>
+                        {sku.supplier || '-'}
+                      </span>
+                    </div>
+                  </div>
 
-        {/* Edit SKU Modal */}
-        {editingSKU && (
-          <EditSKUModal
-            sku={editingSKU}
-            onClose={() => setEditingSKU(null)}
-            onSubmit={(data) =>
-              updateMutation.mutate({ id: editingSKU.id, data })
-            }
-            isLoading={updateMutation.isPending}
-            error={updateMutation.error as Error | null}
-          />
+                  <div className='flex justify-end space-x-3'>
+                    <button
+                      onClick={() => setEditingSKU(sku)}
+                      className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() =>
+                        statusMutation.mutate({
+                          id: sku.id,
+                          isActive: !sku.is_active,
+                        })
+                      }
+                      disabled={statusMutation.isPending}
+                      className={`text-sm font-medium ${
+                        sku.is_active
+                          ? 'text-red-600 hover:text-red-900'
+                          : 'text-green-600 hover:text-green-900'
+                      }`}
+                    >
+                      {sku.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </>
         )}
       </div>
-    </Layout>
+
+      {/* Add SKU Modal */}
+      {showAddModal && (
+        <AddSKUModal
+          onClose={() => setShowAddModal(false)}
+          onSubmit={(data) => createMutation.mutate(data)}
+          isLoading={createMutation.isPending}
+          error={createMutation.error as Error | null}
+        />
+      )}
+
+      {/* Edit SKU Modal */}
+      {editingSKU && (
+        <EditSKUModal
+          sku={editingSKU}
+          onClose={() => setEditingSKU(null)}
+          onSubmit={(data) =>
+            updateMutation.mutate({ id: editingSKU.id, data })
+          }
+          isLoading={updateMutation.isPending}
+          error={updateMutation.error as Error | null}
+        />
+      )}
+    </div>
   );
 }
 
@@ -449,13 +553,13 @@ function AddSKUModal({
 
   return (
     <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50'>
-      <div className='bg-white rounded-lg shadow-lg max-w-md w-full'>
+      <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-screen overflow-y-auto'>
         <form onSubmit={handleSubmit}>
-          <div className='px-6 py-4 border-b border-gray-200'>
+          <div className='px-4 sm:px-6 py-4 border-b border-gray-200'>
             <h3 className='text-lg font-medium text-gray-900'>Add New SKU</h3>
           </div>
 
-          <div className='px-6 py-4 space-y-4'>
+          <div className='px-4 sm:px-6 py-4 space-y-4'>
             {error && (
               <div className='bg-red-50 border border-red-200 rounded-md p-4'>
                 <div className='text-sm text-red-600'>{error.message}</div>
@@ -557,11 +661,11 @@ function AddSKUModal({
             </div>
           </div>
 
-          <div className='px-6 py-4 border-t border-gray-200 flex justify-end space-x-3'>
+          <div className='px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3'>
             <button
               type='button'
               onClick={onClose}
-              className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50'
+              className='w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50'
             >
               Cancel
             </button>
@@ -570,7 +674,7 @@ function AddSKUModal({
               disabled={
                 isLoading || !formData.sku_code || !formData.product_name
               }
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
+              className='w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
             >
               {isLoading ? 'Creating...' : 'Create SKU'}
             </button>
@@ -617,15 +721,15 @@ function EditSKUModal({
 
   return (
     <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50'>
-      <div className='bg-white rounded-lg shadow-lg max-w-md w-full'>
+      <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-screen overflow-y-auto'>
         <form onSubmit={handleSubmit}>
-          <div className='px-6 py-4 border-b border-gray-200'>
+          <div className='px-4 sm:px-6 py-4 border-b border-gray-200'>
             <h3 className='text-lg font-medium text-gray-900'>
               Edit SKU: {sku.sku_code}
             </h3>
           </div>
 
-          <div className='px-6 py-4 space-y-4'>
+          <div className='px-4 sm:px-6 py-4 space-y-4'>
             {error && (
               <div className='bg-red-50 border border-red-200 rounded-md p-4'>
                 <div className='text-sm text-red-600'>{error.message}</div>
@@ -710,18 +814,18 @@ function EditSKUModal({
             </div>
           </div>
 
-          <div className='px-6 py-4 border-t border-gray-200 flex justify-end space-x-3'>
+          <div className='px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3'>
             <button
               type='button'
               onClick={onClose}
-              className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50'
+              className='w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50'
             >
               Cancel
             </button>
             <button
               type='submit'
               disabled={isLoading || !formData.product_name}
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
+              className='w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
             >
               {isLoading ? 'Updating...' : 'Update SKU'}
             </button>

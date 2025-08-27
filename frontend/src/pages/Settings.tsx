@@ -261,8 +261,8 @@ export default function Settings() {
       </div>
 
       <div className='bg-white rounded-lg shadow'>
-        <div className='p-6 border-b'>
-          <div className='flex items-center justify-between'>
+        <div className='p-4 sm:p-6 border-b'>
+          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
             <div>
               <h2 className='text-lg font-semibold'>Customize Field Names</h2>
               <p className='text-gray-600 text-sm mt-1'>
@@ -272,7 +272,7 @@ export default function Settings() {
             <button
               onClick={handleInitializeTable}
               disabled={initializeFieldsMutation.isPending}
-              className='flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50'
+              className='flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap self-start sm:self-auto'
             >
               <RefreshCw
                 className={`w-4 h-4 ${
@@ -291,7 +291,7 @@ export default function Settings() {
             <select
               value={selectedTable}
               onChange={(e) => setSelectedTable(e.target.value)}
-              className='border border-gray-300 rounded-lg px-3 py-2 w-64'
+              className='border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-64'
             >
               {supportedTables.map((table) => (
                 <option key={table.name} value={table.name}>
@@ -303,20 +303,20 @@ export default function Settings() {
         </div>
 
         {/* Table fields list */}
-        <div className='p-6'>
+        <div className='p-4 sm:p-6'>
           {isLoading ? (
             <div className='flex justify-center py-8'>
               <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
             </div>
           ) : tableFields?.fields?.length ? (
             <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
+              <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
                 <h3 className='font-medium text-gray-900'>
                   {currentTableLabel} Fields ({tableFields.fields.length})
                 </h3>
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className='flex items-center gap-2 px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700'
+                  className='flex items-center gap-2 px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 whitespace-nowrap self-start sm:self-auto'
                 >
                   <Plus className='w-4 h-4' />
                   Add Field
@@ -324,12 +324,12 @@ export default function Settings() {
               </div>
 
               {tableFields.metadata && (
-                <div className='flex gap-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg'>
+                <div className='flex flex-wrap gap-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg'>
                   <span>Total: {tableFields.metadata.total_fields}</span>
                   <span>Hidden: {tableFields.metadata.hidden_fields}</span>
                   <span>Custom: {tableFields.metadata.custom_aliases}</span>
                   {tableFields.metadata.last_updated && (
-                    <span>
+                    <span className='whitespace-nowrap'>
                       Updated:{' '}
                       {new Date(
                         tableFields.metadata.last_updated
@@ -381,7 +381,7 @@ export default function Settings() {
                             rows={2}
                           />
                         </div>
-                        <div className='flex items-center gap-4'>
+                        <div className='flex flex-col sm:flex-row sm:items-end gap-4'>
                           <label className='flex items-center gap-2'>
                             <input
                               type='checkbox'
@@ -395,7 +395,7 @@ export default function Settings() {
                             />
                             <span className='text-sm'>Hide field</span>
                           </label>
-                          <div>
+                          <div className='flex-1 sm:flex-none'>
                             <label className='block text-sm font-medium mb-1'>
                               Sort Order
                             </label>
@@ -408,22 +408,22 @@ export default function Settings() {
                                   sort_order: parseInt(e.target.value),
                                 })
                               }
-                              className='w-20 border border-gray-300 rounded px-2 py-1'
+                              className='w-full sm:w-20 border border-gray-300 rounded px-2 py-1'
                             />
                           </div>
                         </div>
-                        <div className='flex gap-2'>
+                        <div className='flex flex-col sm:flex-row gap-2'>
                           <button
                             onClick={handleSaveEdit}
                             disabled={updateFieldMutation.isPending}
-                            className='flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50'
+                            className='flex items-center justify-center gap-1 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50'
                           >
                             <Save className='w-4 h-4' />
                             Save
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className='flex items-center gap-1 px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700'
+                            className='flex items-center justify-center gap-1 px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700'
                           >
                             <X className='w-4 h-4' />
                             Cancel
@@ -431,24 +431,24 @@ export default function Settings() {
                         </div>
                       </div>
                     ) : (
-                      <div className='flex items-center justify-between'>
-                        <div className='flex-1'>
-                          <div className='flex items-center gap-3'>
-                            <span className='font-medium'>
+                      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
+                        <div className='flex-1 min-w-0'>
+                          <div className='flex flex-wrap items-center gap-2 sm:gap-3'>
+                            <span className='font-medium break-words'>
                               {field.display_name}
                             </span>
-                            <span className='text-sm text-gray-500'>
+                            <span className='text-sm text-gray-500 break-all'>
                               ({field.field_name})
                             </span>
                             {field.is_hidden && (
-                              <span className='inline-flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded'>
+                              <span className='inline-flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded whitespace-nowrap'>
                                 <EyeOff className='w-3 h-3' />
                                 Hidden
                               </span>
                             )}
                           </div>
                           {field.description && (
-                            <p className='text-sm text-gray-600 mt-1'>
+                            <p className='text-sm text-gray-600 mt-1 break-words'>
                               {field.description}
                             </p>
                           )}
@@ -456,7 +456,7 @@ export default function Settings() {
                             Sort: {field.sort_order}
                           </div>
                         </div>
-                        <div className='flex items-center gap-2'>
+                        <div className='flex items-center gap-2 self-start sm:self-auto'>
                           <button
                             onClick={() => handleEditField(field)}
                             className='p-2 text-gray-600 hover:bg-gray-100 rounded'
@@ -489,8 +489,8 @@ export default function Settings() {
 
       {/* Add new field modal */}
       {showAddForm && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-lg p-6 w-96'>
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-white rounded-lg p-4 sm:p-6 w-full max-w-md'>
             <h3 className='text-lg font-semibold mb-4'>Add Custom Field</h3>
             <div className='space-y-4'>
               <div>
@@ -535,7 +535,7 @@ export default function Settings() {
                   placeholder='Optional description'
                 />
               </div>
-              <div className='flex items-center gap-4'>
+              <div className='flex flex-col sm:flex-row sm:items-end gap-4'>
                 <label className='flex items-center gap-2'>
                   <input
                     type='checkbox'
@@ -546,7 +546,7 @@ export default function Settings() {
                   />
                   <span className='text-sm'>Hide field</span>
                 </label>
-                <div>
+                <div className='flex-1'>
                   <label className='block text-sm font-medium mb-1'>
                     Sort Order
                   </label>
@@ -559,12 +559,12 @@ export default function Settings() {
                         sort_order: parseInt(e.target.value),
                       })
                     }
-                    className='w-20 border border-gray-300 rounded px-2 py-1'
+                    className='w-full sm:w-20 border border-gray-300 rounded px-2 py-1'
                   />
                 </div>
               </div>
             </div>
-            <div className='flex gap-2 mt-6'>
+            <div className='flex flex-col sm:flex-row gap-2 mt-6'>
               <button
                 onClick={handleAddField}
                 disabled={
