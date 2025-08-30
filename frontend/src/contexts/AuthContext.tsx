@@ -5,6 +5,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
+import { apiUrl } from '@/utils/api';
 
 interface User {
   id: string;
@@ -109,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserDetails = async (token: string) => {
     try {
       const response = await fetch(
-        `${import.meta.env['VITE_BACKEND_URL']}/auth/me`,
+        apiUrl('/auth/me'),
         {
           method: 'GET',
           headers: {
@@ -148,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await fetch(
-        `${import.meta.env['VITE_BACKEND_URL']}/auth/login`,
+        apiUrl('/auth/login'),
         {
           method: 'POST',
           headers: {
