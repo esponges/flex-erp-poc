@@ -295,7 +295,7 @@ export function SKUs() {
         )}
 
         {!isLoading && !error && (
-          <div className='overflow-x-auto'>
+          <div className='overflow-x-auto max-w-full'>
             <table className='min-w-full divide-y divide-gray-200'>
               <thead className='bg-gray-50'>
                 <tr>

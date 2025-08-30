@@ -197,7 +197,7 @@ export function Inventory() {
 
       {/* Inventory Table - Desktop */}
       <div className='bg-white rounded-lg shadow hidden lg:block'>
-        <div className='overflow-x-auto'>
+        <div className='overflow-x-auto max-w-full'>
           <table className='min-w-full divide-y divide-gray-200'>
             <thead className='bg-gray-50'>
               <tr>
