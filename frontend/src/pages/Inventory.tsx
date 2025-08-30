@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { FileImportModal } from '@/components/FileImportModal';
 
 interface InventoryWithSKU {
   id: number;
@@ -101,6 +102,8 @@ export function Inventory() {
     skuId: number;
     cost: number;
   } | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importType, setImportType] = useState<'initial' | 'replace'>('initial');
 
   const {
     data: inventory = [],
@@ -126,6 +129,15 @@ export function Inventory() {
 
   const handleCostUpdate = (skuId: number, newCost: number) => {
     updateCostMutation.mutate({ skuId, cost: newCost });
+  };
+
+  const handleImportSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['inventory'] });
+  };
+
+  const openImportModal = (type: 'initial' | 'replace') => {
+    setImportType(type);
+    setShowImportModal(true);
   };
 
   const formatCurrency = (amount: number) => {
@@ -157,11 +169,27 @@ export function Inventory() {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h1 className='text-2xl font-semibold text-gray-900'>
-          Inventory Management
-        </h1>
-        <p className='text-gray-600'>Track and manage your product inventory</p>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+        <div>
+          <h1 className='text-2xl font-semibold text-gray-900'>
+            Inventory Management
+          </h1>
+          <p className='text-gray-600'>Track and manage your product inventory</p>
+        </div>
+        <div className='mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2'>
+          <button
+            onClick={() => openImportModal('initial')}
+            className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium'
+          >
+            Initial Import
+          </button>
+          <button
+            onClick={() => openImportModal('replace')}
+            className='px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 text-sm font-medium'
+          >
+            Replace Inventory
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -519,6 +547,14 @@ export function Inventory() {
           </div>
         </div>
       </div>
+
+      {/* File Import Modal */}
+      <FileImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportSuccess={handleImportSuccess}
+        importType={importType}
+      />
     </div>
   );
 }

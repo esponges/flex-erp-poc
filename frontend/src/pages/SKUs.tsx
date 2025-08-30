@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { FileImportModal } from '@/components/FileImportModal';
 
 interface SKU {
   id: number;
@@ -156,6 +157,8 @@ export function SKUs() {
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSKU, setEditingSKU] = useState<SKU | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importType, setImportType] = useState<'initial' | 'replace'>('initial');
 
   const queryClient = useQueryClient(); // add this to context
 
@@ -205,6 +208,15 @@ export function SKUs() {
     }));
   };
 
+  const handleImportSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['skus'] });
+  };
+
+  const openImportModal = (type: 'initial' | 'replace') => {
+    setImportType(type);
+    setShowImportModal(true);
+  };
+
   const skus = data?.skus || [];
   const categories = [
     ...new Set(skus.map((sku) => sku.category).filter(Boolean)),
@@ -220,12 +232,26 @@ export function SKUs() {
             Manage your Stock Keeping Units (products)
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 self-start sm:self-auto'
-        >
-          Add SKU
-        </button>
+        <div className='flex flex-col sm:flex-row gap-2'>
+          <button
+            onClick={() => openImportModal('initial')}
+            className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700'
+          >
+            Initial Import
+          </button>
+          <button
+            onClick={() => openImportModal('replace')}
+            className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700'
+          >
+            Replace SKUs
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700'
+          >
+            Add SKU
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -514,6 +540,14 @@ export function SKUs() {
           error={updateMutation.error as Error | null}
         />
       )}
+
+      {/* File Import Modal */}
+      <FileImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportSuccess={handleImportSuccess}
+        importType={importType}
+      />
     </div>
   );
 }
