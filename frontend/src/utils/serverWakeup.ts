@@ -1,7 +1,7 @@
 // Server wake-up utility to ping the backend when the app loads
 // This helps wake up sleeping servers on free hosting tiers
 
-const BACKEND_URL = import.meta.env['BACKEND_URL'] || 'http://localhost:8080';
+const BACKEND_URL = import.meta.env['VITE_BACKEND_URL'] || 'http://localhost:8080';
 
 interface WakeupOptions {
   timeout?: number;
