@@ -59,7 +59,7 @@ const skuAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${orgId}/skus?${queryParams}`,
+      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +78,7 @@ const skuAPI = {
   create: async (data: CreateSKURequest, orgId: string): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${orgId}/skus`,
+      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus`,
       {
         method: 'POST',
         headers: {
@@ -104,7 +104,7 @@ const skuAPI = {
   ): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${orgId}/skus/${id}`,
+      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus/${id}`,
       {
         method: 'PATCH',
         headers: {
@@ -130,7 +130,7 @@ const skuAPI = {
   ): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${orgId}/skus/${id}/status`,
+      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus/${id}/status`,
       {
         method: 'PATCH',
         headers: {
@@ -158,7 +158,9 @@ export function SKUs() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSKU, setEditingSKU] = useState<SKU | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [importType, setImportType] = useState<'initial' | 'replace'>('initial');
+  const [importType, setImportType] = useState<'initial' | 'replace'>(
+    'initial'
+  );
 
   const queryClient = useQueryClient(); // add this to context
 

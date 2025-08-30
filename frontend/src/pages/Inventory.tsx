@@ -48,7 +48,7 @@ const inventoryAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${orgId}/inventory?${queryParams}`,
+      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/inventory?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,7 +71,7 @@ const inventoryAPI = {
   ): Promise<InventoryWithSKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://localhost:8080/api/v1/orgs/${orgId}/inventory/sku/${skuId}/cost`,
+      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/inventory/sku/${skuId}/cost`,
       {
         method: 'PATCH',
         headers: {
@@ -103,7 +103,9 @@ export function Inventory() {
     cost: number;
   } | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [importType, setImportType] = useState<'initial' | 'replace'>('initial');
+  const [importType, setImportType] = useState<'initial' | 'replace'>(
+    'initial'
+  );
 
   const {
     data: inventory = [],
@@ -174,7 +176,9 @@ export function Inventory() {
           <h1 className='text-2xl font-semibold text-gray-900'>
             Inventory Management
           </h1>
-          <p className='text-gray-600'>Track and manage your product inventory</p>
+          <p className='text-gray-600'>
+            Track and manage your product inventory
+          </p>
         </div>
         <div className='mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2'>
           <button

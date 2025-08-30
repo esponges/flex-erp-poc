@@ -1,4 +1,10 @@
-import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  type ReactNode,
+} from 'react';
 
 interface User {
   id: string;
@@ -28,7 +34,10 @@ type AuthAction =
     }
   | { type: 'LOGOUT' }
   | { type: 'INIT_START' }
-  | { type: 'INIT_SUCCESS'; payload: { user: User; organization: Organization } }
+  | {
+      type: 'INIT_SUCCESS';
+      payload: { user: User; organization: Organization };
+    }
   | { type: 'INIT_FAILURE' };
 
 const initialState: AuthState = {
@@ -99,13 +108,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserDetails = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:8080/auth/me', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        'http://{import.meta.env.BACKEND_URL}/auth/me',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch user details');
@@ -135,13 +147,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:8080/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        'http://{import.meta.env.BACKEND_URL}/auth/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Login failed');

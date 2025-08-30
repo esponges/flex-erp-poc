@@ -76,7 +76,7 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://localhost:8080/api/v1/orgs/${orgId}/tables/${selectedTable}/fields`,
+        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/tables/${selectedTable}/fields`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -99,7 +99,7 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://localhost:8080/api/v1/orgs/${orgId}/field-aliases/${aliasId}`,
+        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/field-aliases/${aliasId}`,
         {
           method: 'PATCH',
           headers: {
@@ -134,14 +134,17 @@ export default function Settings() {
       if (!orgId || !token) {
         throw new Error('No organization ID or token available');
       }
-      const response = await fetch(`http://localhost:8080/api/v1/orgs/${orgId}/field-aliases`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/field-aliases`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to create field alias');
       }
@@ -170,7 +173,7 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://localhost:8080/api/v1/orgs/${orgId}/tables/${tableName}/fields/initialize`,
+        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/tables/${tableName}/fields/initialize`,
         {
           method: 'POST',
           headers: {
@@ -238,8 +241,8 @@ export default function Settings() {
   // Show loading state while auth is initializing
   if (authState.isInitializing) {
     return (
-      <div className="flex justify-center items-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className='flex justify-center items-center py-16'>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
       </div>
     );
   }
@@ -247,8 +250,8 @@ export default function Settings() {
   // Show error if not authenticated
   if (!authState.isAuthenticated || !orgId || !token) {
     return (
-      <div className="text-center py-16">
-        <p className="text-gray-500">Please log in to access settings.</p>
+      <div className='text-center py-16'>
+        <p className='text-gray-500'>Please log in to access settings.</p>
       </div>
     );
   }

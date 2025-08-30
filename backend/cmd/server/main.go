@@ -127,9 +127,11 @@ func main() {
 	api.Handle("/orgs/{orgId:[0-9a-f-]+}/activity-summary",
 		permMiddleware.RequirePermission("logs", "read")(http.HandlerFunc(h.GetActivitySummary))).Methods("GET")
 
+	remoteFrontendURL := os.Getenv("REMOTE_FRONTEND_URL")
+	// In production, serve static files from the "frontend/dist" directory
 	// CORS setup
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"},
+		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000", remoteFrontendURL},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
