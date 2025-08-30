@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { FileImportModal } from '@/components/FileImportModal';
+import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 interface SKU {
   id: number;
@@ -59,14 +60,9 @@ const skuAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `${
-        import.meta.env['VITE_BACKEND_URL']
-      }/api/v1/orgs/${orgId}/skus?${queryParams}`,
+      apiUrl(`/api/v1/orgs/${orgId}/skus?${queryParams}`),
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -78,15 +74,11 @@ const skuAPI = {
   },
 
   create: async (data: CreateSKURequest, orgId: string): Promise<SKU> => {
-    const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${orgId}/skus`,
+      apiUrl(`/api/v1/orgs/${orgId}/skus`),
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
       }
     );
@@ -104,15 +96,11 @@ const skuAPI = {
     data: UpdateSKURequest,
     orgId: string
   ): Promise<SKU> => {
-    const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${orgId}/skus/${id}`,
+      apiUrl(`/api/v1/orgs/${orgId}/skus/${id}`),
       {
         method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
       }
     );
@@ -130,17 +118,11 @@ const skuAPI = {
     isActive: boolean,
     orgId: string
   ): Promise<SKU> => {
-    const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `${
-        import.meta.env['VITE_BACKEND_URL']
-      }/api/v1/orgs/${orgId}/skus/${id}/status`,
+      apiUrl(`/api/v1/orgs/${orgId}/skus/${id}/status`),
       {
         method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ is_active: isActive }),
       }
     );

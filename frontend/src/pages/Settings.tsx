@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiUrl, getAuthHeaders } from '@/utils/api';
 import {
   Settings as SettingsIcon,
   Edit3,
@@ -76,14 +77,9 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `${
-          import.meta.env['VITE_BACKEND_URL']
-        }/api/v1/orgs/${orgId}/tables/${selectedTable}/fields`,
+        apiUrl(`/api/v1/orgs/${orgId}/tables/${selectedTable}/fields`),
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
         }
       );
       if (!response.ok) {
@@ -101,15 +97,10 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `${
-          import.meta.env['VITE_BACKEND_URL']
-        }/api/v1/orgs/${orgId}/field-aliases/${aliasId}`,
+        apiUrl(`/api/v1/orgs/${orgId}/field-aliases/${aliasId}`),
         {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify(data),
         }
       );
@@ -139,15 +130,10 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `${
-          import.meta.env['VITE_BACKEND_URL']
-        }/api/v1/orgs/${orgId}/field-aliases`,
+        apiUrl(`/api/v1/orgs/${orgId}/field-aliases`),
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify(data),
         }
       );
@@ -179,15 +165,10 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `${
-          import.meta.env['VITE_BACKEND_URL']
-        }/api/v1/orgs/${orgId}/tables/${tableName}/fields/initialize`,
+        apiUrl(`/api/v1/orgs/${orgId}/tables/${tableName}/fields/initialize`),
         {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
         }
       );
       if (!response.ok) {

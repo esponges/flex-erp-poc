@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiUrl, getAuthHeaders } from '@/utils/api';
 import {
   Activity,
   Clock,
@@ -81,14 +82,9 @@ export default function Logs() {
           throw new Error('No organization ID or token available');
         }
         const response = await fetch(
-          `${
-            import.meta.env['VITE_BACKEND_URL']
-          }/api/v1/orgs/${orgId}/activity-summary?last_days=${selectedPeriod}`,
+          apiUrl(`/api/v1/orgs/${orgId}/activity-summary?last_days=${selectedPeriod}`),
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
           }
         );
         if (!response.ok) {
@@ -129,14 +125,9 @@ export default function Logs() {
       }
 
       const response = await fetch(
-        `${
-          import.meta.env['VITE_BACKEND_URL']
-        }/api/v1/orgs/${orgId}/change-logs?${params}`,
+        apiUrl(`/api/v1/orgs/${orgId}/change-logs?${params}`),
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
         }
       );
       if (!response.ok) {

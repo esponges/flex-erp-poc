@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 interface UserWithDetails {
   id: number;
@@ -70,14 +71,9 @@ export function Users() {
     if (searchQuery) params.append('search', searchQuery);
 
     const response = await fetch(
-      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
-        state.organization.id
-      }/users?${params.toString()}`,
+      apiUrl(`/api/v1/orgs/${state.organization.id}/users?${params.toString()}`),
       {
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -94,14 +90,9 @@ export function Users() {
     }
 
     const response = await fetch(
-      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
-        state.organization.id
-      }/users/roles`,
+      apiUrl(`/api/v1/orgs/${state.organization.id}/users/roles`),
       {
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -130,15 +121,10 @@ export function Users() {
       }
 
       const response = await fetch(
-        `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
-          state.organization.id
-        }/users`,
+        apiUrl(`/api/v1/orgs/${state.organization.id}/users`),
         {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${state.token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify(userData),
         }
       );
@@ -170,15 +156,10 @@ export function Users() {
       }
 
       const response = await fetch(
-        `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
-          state.organization.id
-        }/users/${userId}`,
+        apiUrl(`/api/v1/orgs/${state.organization.id}/users/${userId}`),
         {
           method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${state.token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify(userData),
         }
       );
@@ -204,9 +185,7 @@ export function Users() {
       }
 
       const response = await fetch(
-        `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
-          state.organization.id
-        }/users/${userId}`,
+        apiUrl(`/api/v1/orgs/${state.organization.id}/users/${userId}`),
         {
           method: 'DELETE',
           headers: {

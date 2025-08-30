@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 interface TransactionWithSKU {
   id: number;
@@ -77,14 +78,9 @@ const transactionAPI = {
     if (params.end_date) queryParams.set('end_date', params.end_date);
 
     const response = await fetch(
-      `${
-        import.meta.env['VITE_BACKEND_URL']
-      }/api/v1/orgs/${orgId}/transactions?${queryParams}`,
+      apiUrl(`/api/v1/orgs/${orgId}/transactions?${queryParams}`),
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -99,17 +95,11 @@ const transactionAPI = {
     data: CreateTransactionRequest,
     orgId: string
   ): Promise<TransactionWithSKU> => {
-    const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `${
-        import.meta.env['VITE_BACKEND_URL']
-      }/api/v1/orgs/${orgId}/transactions`,
+      apiUrl(`/api/v1/orgs/${orgId}/transactions`),
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
       }
     );
@@ -126,7 +116,6 @@ const transactionAPI = {
     params: TransactionListParams = {},
     orgId: string
   ): Promise<TransactionSummary[]> => {
-    const token = localStorage.getItem('auth_token');
     const queryParams = new URLSearchParams();
 
     if (params.sku_id) queryParams.set('sku_id', params.sku_id.toString());
@@ -135,14 +124,9 @@ const transactionAPI = {
     if (params.end_date) queryParams.set('end_date', params.end_date);
 
     const response = await fetch(
-      `${
-        import.meta.env['VITE_BACKEND_URL']
-      }/api/v1/orgs/${orgId}/transactions/summary?${queryParams}`,
+      apiUrl(`/api/v1/orgs/${orgId}/transactions/summary?${queryParams}`),
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -156,14 +140,10 @@ const transactionAPI = {
 
 const skuAPI = {
   list: async (orgId: string): Promise<{ skus: SKU[] }> => {
-    const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${orgId}/skus`,
+      apiUrl(`/api/v1/orgs/${orgId}/skus`),
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
