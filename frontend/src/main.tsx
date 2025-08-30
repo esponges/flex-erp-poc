@@ -2,6 +2,10 @@ import './global.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { autoWakeupServer } from './utils/serverWakeup'
+
+// Start server wakeup process immediately (non-blocking)
+autoWakeupServer()
 
 const container = document.querySelector('#root')
 

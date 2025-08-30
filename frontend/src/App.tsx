@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { router } from '@/router'
+import { ServerStatusBanner } from '@/components/ServerStatusBanner'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ export function App() {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <ServerStatusBanner />
           <RouterProvider router={router} />
           <ReactQueryDevtools initialIsOpen={false} />
         </AuthProvider>

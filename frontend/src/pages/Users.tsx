@@ -70,7 +70,7 @@ export function Users() {
     if (searchQuery) params.append('search', searchQuery);
 
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${
+      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
         state.organization.id
       }/users?${params.toString()}`,
       {
@@ -94,7 +94,9 @@ export function Users() {
     }
 
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${state.organization.id}/users/roles`,
+      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
+        state.organization.id
+      }/users/roles`,
       {
         headers: {
           Authorization: `Bearer ${state.token}`,
@@ -128,7 +130,9 @@ export function Users() {
       }
 
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${state.organization.id}/users`,
+        `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
+          state.organization.id
+        }/users`,
         {
           method: 'POST',
           headers: {
@@ -166,7 +170,9 @@ export function Users() {
       }
 
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${state.organization.id}/users/${userId}`,
+        `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
+          state.organization.id
+        }/users/${userId}`,
         {
           method: 'PUT',
           headers: {
@@ -198,7 +204,9 @@ export function Users() {
       }
 
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${state.organization.id}/users/${userId}`,
+        `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${
+          state.organization.id
+        }/users/${userId}`,
         {
           method: 'DELETE',
           headers: {

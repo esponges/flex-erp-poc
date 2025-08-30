@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { FileImportModal } from '@/components/FileImportModal';
+import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 interface InventoryWithSKU {
   id: number;
@@ -48,12 +49,9 @@ const inventoryAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/inventory?${queryParams}`,
+      apiUrl(`/api/v1/orgs/${orgId}/inventory?${queryParams}`),
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -71,13 +69,10 @@ const inventoryAPI = {
   ): Promise<InventoryWithSKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/inventory/sku/${skuId}/cost`,
+      apiUrl(`/api/v1/orgs/${orgId}/inventory/sku/${skuId}/cost`),
       {
         method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
       }
     );

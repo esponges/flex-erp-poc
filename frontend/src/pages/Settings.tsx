@@ -76,7 +76,9 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/tables/${selectedTable}/fields`,
+        `${
+          import.meta.env['VITE_BACKEND_URL']
+        }/api/v1/orgs/${orgId}/tables/${selectedTable}/fields`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -99,7 +101,9 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/field-aliases/${aliasId}`,
+        `${
+          import.meta.env['VITE_BACKEND_URL']
+        }/api/v1/orgs/${orgId}/field-aliases/${aliasId}`,
         {
           method: 'PATCH',
           headers: {
@@ -135,7 +139,9 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/field-aliases`,
+        `${
+          import.meta.env['VITE_BACKEND_URL']
+        }/api/v1/orgs/${orgId}/field-aliases`,
         {
           method: 'POST',
           headers: {
@@ -173,7 +179,9 @@ export default function Settings() {
         throw new Error('No organization ID or token available');
       }
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/tables/${tableName}/fields/initialize`,
+        `${
+          import.meta.env['VITE_BACKEND_URL']
+        }/api/v1/orgs/${orgId}/tables/${tableName}/fields/initialize`,
         {
           method: 'POST',
           headers: {

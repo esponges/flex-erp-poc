@@ -81,7 +81,9 @@ export default function Logs() {
           throw new Error('No organization ID or token available');
         }
         const response = await fetch(
-          `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/activity-summary?last_days=${selectedPeriod}`,
+          `${
+            import.meta.env['VITE_BACKEND_URL']
+          }/api/v1/orgs/${orgId}/activity-summary?last_days=${selectedPeriod}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -127,7 +129,9 @@ export default function Logs() {
       }
 
       const response = await fetch(
-        `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/change-logs?${params}`,
+        `${
+          import.meta.env['VITE_BACKEND_URL']
+        }/api/v1/orgs/${orgId}/change-logs?${params}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

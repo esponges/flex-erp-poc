@@ -18,10 +18,12 @@ import (
 )
 
 func main() {
-	// Load environment variables (optional in production)
+	// Load environment variables from .env file (development only)
 	if err := godotenv.Load(".env"); err != nil {
-		log.Printf("Warning: .env file not found or couldn't be loaded: %v", err)
-		log.Println("Continuing with system environment variables...")
+		// Only log in development (when DATABASE_URL might not be set yet)
+		if os.Getenv("DATABASE_URL") == "" {
+			log.Println("No .env file found - please create one for local development")
+		}
 	}
 
 	// Database connection

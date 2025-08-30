@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserDetails = async (token: string) => {
     try {
       const response = await fetch(
-        'http://{import.meta.env.BACKEND_URL}/auth/me',
+        `${import.meta.env['VITE_BACKEND_URL']}/auth/me`,
         {
           method: 'GET',
           headers: {
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await fetch(
-        'http://{import.meta.env.BACKEND_URL}/auth/login',
+        `${import.meta.env['VITE_BACKEND_URL']}/auth/login`,
         {
           method: 'POST',
           headers: {

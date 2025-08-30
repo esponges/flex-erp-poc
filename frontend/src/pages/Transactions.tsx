@@ -77,7 +77,9 @@ const transactionAPI = {
     if (params.end_date) queryParams.set('end_date', params.end_date);
 
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/transactions?${queryParams}`,
+      `${
+        import.meta.env['VITE_BACKEND_URL']
+      }/api/v1/orgs/${orgId}/transactions?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -99,7 +101,9 @@ const transactionAPI = {
   ): Promise<TransactionWithSKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/transactions`,
+      `${
+        import.meta.env['VITE_BACKEND_URL']
+      }/api/v1/orgs/${orgId}/transactions`,
       {
         method: 'POST',
         headers: {
@@ -131,7 +135,9 @@ const transactionAPI = {
     if (params.end_date) queryParams.set('end_date', params.end_date);
 
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/transactions/summary?${queryParams}`,
+      `${
+        import.meta.env['VITE_BACKEND_URL']
+      }/api/v1/orgs/${orgId}/transactions/summary?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +158,7 @@ const skuAPI = {
   list: async (orgId: string): Promise<{ skus: SKU[] }> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus`,
+      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${orgId}/skus`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

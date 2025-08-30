@@ -59,7 +59,9 @@ const skuAPI = {
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus?${queryParams}`,
+      `${
+        import.meta.env['VITE_BACKEND_URL']
+      }/api/v1/orgs/${orgId}/skus?${queryParams}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +80,7 @@ const skuAPI = {
   create: async (data: CreateSKURequest, orgId: string): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus`,
+      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${orgId}/skus`,
       {
         method: 'POST',
         headers: {
@@ -104,7 +106,7 @@ const skuAPI = {
   ): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus/${id}`,
+      `${import.meta.env['VITE_BACKEND_URL']}/api/v1/orgs/${orgId}/skus/${id}`,
       {
         method: 'PATCH',
         headers: {
@@ -130,7 +132,9 @@ const skuAPI = {
   ): Promise<SKU> => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(
-      `http://{import.meta.env.BACKEND_URL}/api/v1/orgs/${orgId}/skus/${id}/status`,
+      `${
+        import.meta.env['VITE_BACKEND_URL']
+      }/api/v1/orgs/${orgId}/skus/${id}/status`,
       {
         method: 'PATCH',
         headers: {
