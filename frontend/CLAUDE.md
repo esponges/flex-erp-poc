@@ -1,4 +1,6 @@
 - Always use `tailwindcss` for styling in the frontend unless there's a very good reason not to.
 - Avoid using export default in React components; prefer named exports for better consistency and easier refactoring.
-- The app runs on port 5173 by default.
+- The app runs on poxrt 5173 by default.
 - When making any styling related changes use your MCP tools to verify the changes you're making.
+- When implementing API calls to the backend use the `apiUrl` and `getAuthHeaders` utility functions from `frontend/src/utils/api.ts`.
+- the request use `react-query` for data fetching and server state management.

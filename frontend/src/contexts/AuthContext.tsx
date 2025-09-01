@@ -5,6 +5,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
+import { useRouter } from '@tanstack/react-router';
 import { apiUrl } from '@/utils/api';
 
 interface User {
@@ -106,19 +107,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const router = useRouter();
 
   const fetchUserDetails = async (token: string) => {
     try {
-      const response = await fetch(
-        apiUrl('/auth/me'),
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        router.navigate({ to: '/' });
+      }, 15000); // 15 seconds timeout
+
+      const response = await fetch(apiUrl('/auth/me'), {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error('Failed to fetch user details');
@@ -148,16 +156,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch(
-        apiUrl('/auth/login'),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(apiUrl('/auth/login'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!response.ok) {
         throw new Error('Login failed');
@@ -180,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     dispatch({ type: 'LOGOUT' });
+    router.navigate({ to: '/' });
   };
 
   return (
