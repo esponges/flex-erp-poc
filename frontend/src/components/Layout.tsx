@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface LayoutProps {
@@ -8,7 +8,13 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { state, logout } = useAuth()
+  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    navigate({ to: '/', replace: true })
+  }
 
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard' },
@@ -77,7 +83,7 @@ export function Layout({ children }: LayoutProps) {
                   </p>
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="ml-3 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200"
                 >
                   Sign out

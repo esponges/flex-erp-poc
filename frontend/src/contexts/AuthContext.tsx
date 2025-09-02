@@ -5,7 +5,6 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
-import { useRouter } from '@tanstack/react-router';
 import { apiUrl } from '@/utils/api';
 
 interface User {
@@ -133,14 +132,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const router = useRouter();
 
   const fetchUserDetails = async (token: string) => {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        router.navigate({ to: '/' });
+        // Navigation will be handled by AuthGuard
       }, 15000); // 15 seconds timeout
 
       const response = await fetch(apiUrl('/auth/me'), {
@@ -210,8 +208,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    router.navigate({ to: '/' });
     dispatch({ type: 'LOGOUT' });
+    // Navigation will be handled by the calling component or AuthGuard
   };
 
   return (
