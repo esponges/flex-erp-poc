@@ -1,5 +1,6 @@
-import { type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from '@tanstack/react-router';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -8,6 +9,15 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
   const { state } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to login if not authenticated and not initializing
+  useEffect(() => {
+    if (!state.isInitializing && !state.isAuthenticated) {
+      console.log('User not authenticated, redirecting to login');
+      navigate({ to: '/login', replace: true });
+    }
+  }, [state.isAuthenticated, state.isInitializing, navigate]);
 
   // Show loading spinner while initializing
   if (state.isInitializing) {
@@ -24,5 +34,10 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
   }
 
   // Show children if authenticated
-  return <>{children}</>;
+  if (state.isAuthenticated) {
+    return <>{children}</>;
+  }
+
+  // Return null while redirecting
+  return null;
 }

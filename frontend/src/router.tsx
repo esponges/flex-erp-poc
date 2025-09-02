@@ -15,6 +15,7 @@ import Settings from '@/pages/Settings';
 import Logs from '@/pages/Logs';
 import { Layout } from '@/components/Layout';
 import { AuthGuard } from '@/components/AuthGuard';
+import { getValidToken } from '@/contexts/AuthContext';
 
 // Root route - just renders the outlet
 const rootRoute = createRootRoute({
@@ -23,7 +24,7 @@ const rootRoute = createRootRoute({
 
 // Auth guard function to check if user is authenticated
 function getAuthState() {
-  const token = localStorage.getItem('auth_token');
+  const token = getValidToken();
   return { isAuthenticated: !!token };
 }
 

@@ -210,8 +210,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    dispatch({ type: 'LOGOUT' });
     router.navigate({ to: '/' });
+    dispatch({ type: 'LOGOUT' });
   };
 
   return (
