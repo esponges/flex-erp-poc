@@ -42,18 +42,42 @@ type AuthAction =
     }
   | { type: 'INIT_FAILURE' };
 
+const TOKEN_EXPIRY_HOURS = 2; // Token expires after 2 hours
+
+export const getValidToken = (): string | null => {
+  const token = localStorage.getItem('auth_token');
+  const tokenTimestamp = localStorage.getItem('auth_token_timestamp');
+
+  if (!token || !tokenTimestamp) {
+    return null;
+  }
+
+  const tokenAge = Date.now() - parseInt(tokenTimestamp);
+  const maxAge = TOKEN_EXPIRY_HOURS * 60 * 60 * 1000; // Convert hours to milliseconds
+
+  if (tokenAge > maxAge) {
+    // Token has expired, remove it
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_token_timestamp');
+    return null;
+  }
+
+  return token;
+};
+
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
   organization: null,
-  token: localStorage.getItem('auth_token'),
-  isInitializing: !!localStorage.getItem('auth_token'),
+  token: getValidToken(),
+  isInitializing: !!getValidToken(),
 };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'LOGIN_SUCCESS':
       localStorage.setItem('auth_token', action.payload.token);
+      localStorage.setItem('auth_token_timestamp', Date.now().toString());
       return {
         isAuthenticated: true,
         user: action.payload.user,
@@ -63,6 +87,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       };
     case 'LOGOUT':
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_token_timestamp');
       return {
         isAuthenticated: false,
         user: null,
@@ -85,6 +110,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       };
     case 'INIT_FAILURE':
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_token_timestamp');
       return {
         isAuthenticated: false,
         user: null,
@@ -147,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
+    const token = getValidToken();
     if (token) {
       dispatch({ type: 'INIT_START' });
       fetchUserDetails(token);

@@ -64,7 +64,6 @@ const transactionAPI = {
     params: TransactionListParams = {},
     orgId: string
   ): Promise<TransactionWithSKU[]> => {
-    const token = localStorage.getItem('auth_token');
     const queryParams = new URLSearchParams();
 
     if (params.transaction_type)
@@ -95,14 +94,11 @@ const transactionAPI = {
     data: CreateTransactionRequest,
     orgId: string
   ): Promise<TransactionWithSKU> => {
-    const response = await fetch(
-      apiUrl(`/api/v1/orgs/${orgId}/transactions`),
-      {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(apiUrl(`/api/v1/orgs/${orgId}/transactions`), {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
 
     if (!response.ok) {
       const error = await response.json();
@@ -140,12 +136,9 @@ const transactionAPI = {
 
 const skuAPI = {
   list: async (orgId: string): Promise<{ skus: SKU[] }> => {
-    const response = await fetch(
-      apiUrl(`/api/v1/orgs/${orgId}/skus`),
-      {
-        headers: getAuthHeaders(),
-      }
-    );
+    const response = await fetch(apiUrl(`/api/v1/orgs/${orgId}/skus`), {
+      headers: getAuthHeaders(),
+    });
 
     if (!response.ok) {
       throw new Error('Failed to fetch SKUs');

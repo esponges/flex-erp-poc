@@ -49,7 +49,6 @@ const skuAPI = {
     params: SKUListParams = {},
     orgId: string
   ): Promise<{ skus: SKU[] }> => {
-    const token = localStorage.getItem('auth_token');
     const queryParams = new URLSearchParams();
 
     if (params.includeDeactivated)
@@ -74,14 +73,11 @@ const skuAPI = {
   },
 
   create: async (data: CreateSKURequest, orgId: string): Promise<SKU> => {
-    const response = await fetch(
-      apiUrl(`/api/v1/orgs/${orgId}/skus`),
-      {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(apiUrl(`/api/v1/orgs/${orgId}/skus`), {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
 
     if (!response.ok) {
       const error = await response.json();
@@ -96,14 +92,11 @@ const skuAPI = {
     data: UpdateSKURequest,
     orgId: string
   ): Promise<SKU> => {
-    const response = await fetch(
-      apiUrl(`/api/v1/orgs/${orgId}/skus/${id}`),
-      {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(apiUrl(`/api/v1/orgs/${orgId}/skus/${id}`), {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
 
     if (!response.ok) {
       const error = await response.json();

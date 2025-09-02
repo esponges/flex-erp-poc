@@ -40,7 +40,6 @@ const inventoryAPI = {
     params: InventoryListParams = {},
     orgId: string
   ): Promise<InventoryWithSKU[]> => {
-    const token = localStorage.getItem('auth_token');
     const queryParams = new URLSearchParams();
 
     if (params.category) queryParams.set('category', params.category);
@@ -67,7 +66,6 @@ const inventoryAPI = {
     data: UpdateManualCostRequest,
     orgId: string
   ): Promise<InventoryWithSKU> => {
-    const token = localStorage.getItem('auth_token');
     const response = await fetch(
       apiUrl(`/api/v1/orgs/${orgId}/inventory/sku/${skuId}/cost`),
       {
