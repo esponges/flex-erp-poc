@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FileImportModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface ImportResult {
 }
 
 export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }: FileImportModalProps) {
+  const { t } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -29,7 +31,7 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
     
     return {
       status: 'processing',
-      message: 'AI is analyzing your file schema and preparing import...',
+      message: t('fileImport.progress.processingMessage'),
       detectedColumns: columns,
       rowCount: estimatedRows,
       estimatedTime: `${Math.ceil(estimatedRows / 100)} minutes`
@@ -67,12 +69,12 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
     ];
     
     if (!validTypes.includes(file.type) && !file.name.match(/\.(csv|xlsx?)$/i)) {
-      alert('Please upload a CSV or Excel file');
+      alert(t('fileImport.validation.invalidFileType'));
       return false;
     }
     
     if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      alert('File size must be less than 10MB');
+      alert(t('fileImport.validation.fileTooLarge'));
       return false;
     }
     
@@ -131,7 +133,7 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              {importType === 'initial' ? 'Initial Import' : 'Replace Inventory'}
+              {importType === 'initial' ? t('fileImport.modal.initialImport') : t('fileImport.modal.replaceInventory')}
             </h2>
             <button
               onClick={handleClose}
@@ -149,12 +151,12 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
               <div className="mb-6">
                 <p className="text-gray-600 mb-2">
                   {importType === 'initial' 
-                    ? 'Upload a CSV or Excel file to populate your inventory for the first time.'
-                    : 'Upload a CSV or Excel file to completely replace your current inventory.'
+                    ? t('fileImport.modal.initialDescription')
+                    : t('fileImport.modal.replaceDescription')
                   }
                 </p>
                 <p className="text-sm text-amber-600">
-                  {importType === 'replace' && 'Warning: This will remove all existing inventory data.'}
+                  {importType === 'replace' && t('fileImport.modal.replaceWarning')}
                 </p>
               </div>
 
@@ -188,14 +190,14 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                     <div>
                       <p className="text-sm font-medium text-gray-900">{file.name}</p>
                       <p className="text-xs text-gray-500">
-                        {(file.size / 1024).toFixed(1)} KB • Ready to import
+                        {(file.size / 1024).toFixed(1)} KB • {t('fileImport.upload.ready')}
                       </p>
                     </div>
                     <button
                       onClick={() => setFile(null)}
                       className="text-red-600 hover:text-red-800 text-sm"
                     >
-                      Remove file
+                      {t('fileImport.upload.removeFile')}
                     </button>
                   </div>
                 ) : (
@@ -204,16 +206,16 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <div>
-                      <p className="text-gray-600">Drag and drop your file here, or</p>
+                      <p className="text-gray-600">{t('fileImport.upload.dragAndDrop')}</p>
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         className="text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        browse to select
+                        {t('fileImport.upload.browseToSelect')}
                       </button>
                     </div>
                     <p className="text-xs text-gray-500">
-                      Supported formats: CSV, Excel (.xlsx, .xls) • Max size: 10MB
+                      {t('fileImport.upload.supportedFormats')}
                     </p>
                   </div>
                 )}
@@ -226,14 +228,14 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                   disabled={isUploading}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleImport}
                   disabled={!file || isUploading}
                   className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUploading ? 'Processing...' : 'Start Import'}
+                  {isUploading ? t('fileImport.buttons.processing') : t('fileImport.buttons.startImport')}
                 </button>
               </div>
             </>
@@ -247,7 +249,7 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">Processing your import</h3>
+                      <h3 className="text-lg font-medium text-gray-900">{t('fileImport.progress.processingTitle')}</h3>
                       <p className="text-gray-600 mt-2">{importResult.message}</p>
                     </div>
                   </div>
@@ -259,7 +261,7 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">Import completed successfully!</h3>
+                      <h3 className="text-lg font-medium text-gray-900">{t('fileImport.progress.completedTitle')}</h3>
                       <p className="text-gray-600 mt-2">{importResult.message}</p>
                     </div>
                   </div>
@@ -271,7 +273,7 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">Import failed</h3>
+                      <h3 className="text-lg font-medium text-gray-900">{t('fileImport.progress.failedTitle')}</h3>
                       <p className="text-gray-600 mt-2">{importResult.message}</p>
                     </div>
                   </div>
@@ -281,21 +283,21 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
               {/* Import Details */}
               {importResult.detectedColumns && (
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">Import Details</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">{t('fileImport.details.title')}</h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500">Rows detected:</span>
+                      <span className="text-gray-500">{t('fileImport.details.rowsDetected')}:</span>
                       <span className="ml-2 font-medium">{importResult.rowCount}</span>
                     </div>
                     {importResult.estimatedTime && (
                       <div>
-                        <span className="text-gray-500">Estimated time:</span>
+                        <span className="text-gray-500">{t('fileImport.details.estimatedTime')}:</span>
                         <span className="ml-2 font-medium">{importResult.estimatedTime}</span>
                       </div>
                     )}
                   </div>
                   <div className="mt-3">
-                    <span className="text-gray-500">Detected columns:</span>
+                    <span className="text-gray-500">{t('fileImport.details.detectedColumns')}:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {importResult.detectedColumns.map((column, index) => (
                         <span 
@@ -317,7 +319,7 @@ export function FileImportModal({ isOpen, onClose, onImportSuccess, importType }
                     onClick={handleClose}
                     className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                   >
-                    Close
+                    {t('common.close')}
                   </button>
                 </div>
               )}

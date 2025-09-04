@@ -1,0 +1,296 @@
+{
+  "app": {
+    "title": "Flex ERP",
+    "subtitle": "Inventory Management System"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "skus": "SKUs",
+    "inventory": "Inventory",
+    "transactions": "Transactions",
+    "users": "Users",
+    "logs": "Activity Logs",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "signIn": "Sign in to your account",
+    "email": "Email address",
+    "password": "Password",
+    "signInButton": "Sign in",
+    "signingIn": "Signing in...",
+    "loginFailed": "Login failed. Please try again.",
+    "emailRequired": "Email is required",
+    "demoNote": "This is a demo. Enter any email to sign in.",
+    "passwordPlaceholder": "Password (any value for demo)"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "submit": "Submit",
+    "reset": "Reset",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "all": "All",
+    "none": "None",
+    "total": "Total",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to Flex ERP - Inventory Management System",
+    "stats": {
+      "totalSkus": "Total SKUs",
+      "inventoryItems": "Inventory Items", 
+      "todaysTransactions": "Today's Transactions",
+      "totalValue": "Total Value",
+      "comingSoon": "Coming Soon"
+    },
+    "implementationStatus": {
+      "title": "Implementation Status",
+      "phase1": "✅ Phase 1: Foundation & Authentication - Complete",
+      "phase2": "🚧 Phase 2: SKU Management - Next", 
+      "phase3": "⏳ Phase 3: Inventory & Calculated Fields - Pending",
+      "phase4": "⏳ Phase 4: Transaction System - Pending"
+    }
+  },
+  "inventory": {
+    "title": "Inventory Management",
+    "subtitle": "Track and manage your product inventory",
+    "buttons": {
+      "initialImport": "Initial Import",
+      "replaceInventory": "Replace Inventory"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by SKU, product name, or description...",
+      "allCategories": "All Categories",
+      "categories": {
+        "electronics": "Electronics",
+        "furniture": "Furniture", 
+        "stationery": "Stationery"
+      }
+    },
+    "table": {
+      "headers": {
+        "product": "Product",
+        "sku": "SKU",
+        "category": "Category", 
+        "quantity": "Quantity",
+        "cost": "Cost",
+        "totalValue": "Total Value",
+        "status": "Status"
+      }
+    },
+    "status": {
+      "outOfStock": "Out of Stock",
+      "lowStock": "Low Stock",
+      "inStock": "In Stock"
+    },
+    "actions": {
+      "editCost": "Edit Cost"
+    },
+    "messages": {
+      "errorLoading": "Error loading inventory: {error}",
+      "noItemsFound": "No inventory items found"
+    },
+    "summary": {
+      "totalItems": "Total Items",
+      "totalInventoryValue": "Total Inventory Value",
+      "lowStockItems": "Low Stock Items"
+    },
+    "badges": {
+      "manual": "Manual"
+    }
+  },
+  "skus": {
+    "title": "SKUs",
+    "subtitle": "Manage your Stock Keeping Units (products)",
+    "buttons": {
+      "initialImport": "Initial Import",
+      "replaceSkus": "Replace SKUs",
+      "addSku": "Add SKU"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Search SKUs...",
+      "category": "Category",
+      "allCategories": "All Categories",
+      "includeInactive": "Include inactive SKUs"
+    },
+    "table": {
+      "headers": {
+        "skuCode": "SKU Code",
+        "productName": "Product Name",
+        "category": "Category",
+        "supplier": "Supplier",
+        "status": "Status"
+      }
+    },
+    "actions": {
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "modal": {
+      "add": {
+        "title": "Add New SKU"
+      },
+      "edit": {
+        "title": "Edit SKU: {skuCode}"
+      },
+      "fields": {
+        "skuCode": "SKU Code",
+        "skuCodePlaceholder": "e.g. ELEC-001",
+        "productName": "Product Name", 
+        "description": "Description",
+        "category": "Category",
+        "categoryPlaceholder": "e.g. Electronics",
+        "supplier": "Supplier",
+        "barcode": "Barcode"
+      },
+      "buttons": {
+        "create": "Create SKU",
+        "creating": "Creating...",
+        "update": "Update SKU",
+        "updating": "Updating..."
+      }
+    },
+    "messages": {
+      "noSkusFound": "No SKUs found",
+      "loadingSkus": "Loading SKUs..."
+    }
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage user accounts and permissions",
+    "buttons": {
+      "addUser": "Add User"
+    },
+    "summary": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "inactiveUsers": "Inactive Users"
+    },
+    "filters": {
+      "role": "Role",
+      "allRoles": "All Roles",
+      "status": "Status",
+      "allUsers": "All Users",
+      "searchPlaceholder": "Search by name or email..."
+    },
+    "table": {
+      "headers": {
+        "user": "User",
+        "role": "Role",
+        "lastLogin": "Last Login",
+        "created": "Created"
+      }
+    },
+    "roles": {
+      "admin": "Admin",
+      "manager": "Manager",
+      "user": "User",
+      "viewer": "Viewer"
+    },
+    "modal": {
+      "add": {
+        "title": "Add New User"
+      },
+      "edit": {
+        "title": "Edit User"
+      },
+      "fields": {
+        "email": "Email",
+        "name": "Name",
+        "role": "Role",
+        "activeUser": "Active user"
+      },
+      "buttons": {
+        "createUser": "Create User",
+        "creating": "Creating...",
+        "updateUser": "Update User",
+        "updating": "Updating..."
+      }
+    },
+    "messages": {
+      "loadingUsers": "Loading users...",
+      "deleteConfirm": "Are you sure you want to delete this user?",
+      "never": "Never"
+    }
+  },
+  "fileImport": {
+    "modal": {
+      "initialImport": "Initial Import",
+      "replaceInventory": "Replace Inventory",
+      "initialDescription": "Upload a CSV or Excel file to populate your inventory for the first time.",
+      "replaceDescription": "Upload a CSV or Excel file to completely replace your current inventory.",
+      "replaceWarning": "Warning: This will remove all existing inventory data."
+    },
+    "upload": {
+      "dragDrop": "Drag and drop your file here, or",
+      "browse": "browse to select",
+      "supportedFormats": "Supported formats: CSV, Excel (.xlsx, .xls) • Max size: 10MB",
+      "ready": "Ready to import",
+      "removeFile": "Remove file"
+    },
+    "buttons": {
+      "startImport": "Start Import",
+      "processing": "Processing..."
+    },
+    "progress": {
+      "processingTitle": "Processing your import",
+      "processingMessage": "AI is analyzing your file schema and preparing import...",
+      "completedTitle": "Import completed successfully!",
+      "failedTitle": "Import failed"
+    },
+    "details": {
+      "title": "Import Details",
+      "rowsDetected": "Rows detected:",
+      "estimatedTime": "Estimated time:",
+      "detectedColumns": "Detected columns:"
+    }
+  },
+  "validation": {
+    "required": "{field} is required",
+    "email": "Please enter a valid email address",
+    "minLength": "{field} must be at least {min} characters",
+    "maxLength": "{field} must not exceed {max} characters",
+    "numeric": "{field} must be a number",
+    "positive": "{field} must be positive"
+  },
+  "messages": {
+    "success": {
+      "created": "{item} created successfully",
+      "updated": "{item} updated successfully", 
+      "deleted": "{item} deleted successfully",
+      "imported": "Import completed successfully"
+    },
+    "error": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Network error. Please check your connection.",
+      "unauthorized": "You are not authorized to perform this action.",
+      "notFound": "The requested item was not found.",
+      "validation": "Please check your input and try again."
+    }
+  }
+}

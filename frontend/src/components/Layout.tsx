@@ -1,6 +1,8 @@
 import { type ReactNode, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
+import { LanguageSelector } from './LanguageSelector'
 
 interface LayoutProps {
   children: ReactNode
@@ -8,6 +10,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { state, logout } = useAuth()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -17,13 +20,13 @@ export function Layout({ children }: LayoutProps) {
   }
 
   const navigationItems = [
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'SKUs', href: '/skus' },
-    { name: 'Inventory', href: '/inventory' },
-    { name: 'Transactions', href: '/transactions' },
-    { name: 'Users', href: '/users' },
-    { name: 'Activity Logs', href: '/logs' },
-    { name: 'Settings', href: '/settings' },
+    { name: t('navigation.dashboard'), href: '/dashboard' },
+    { name: t('navigation.skus'), href: '/skus' },
+    { name: t('navigation.inventory'), href: '/inventory' },
+    { name: t('navigation.transactions'), href: '/transactions' },
+    { name: t('navigation.users'), href: '/users' },
+    { name: t('navigation.logs'), href: '/logs' },
+    { name: t('navigation.settings'), href: '/settings' },
   ]
 
   return (
@@ -46,7 +49,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex flex-col h-full">
             {/* Logo */}
             <div className="flex items-center justify-between h-16 px-4 bg-gray-800">
-              <h1 className="text-xl font-bold text-white">Flex ERP</h1>
+              <h1 className="text-xl font-bold text-white">{t('app.title')}</h1>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="lg:hidden text-gray-400 hover:text-white"
@@ -73,7 +76,7 @@ export function Layout({ children }: LayoutProps) {
 
             {/* User info and logout */}
             <div className="flex-shrink-0 px-4 py-4 border-t border-gray-700">
-              <div className="flex items-center">
+              <div className="flex items-center mb-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">
                     {state.user?.name}
@@ -86,8 +89,12 @@ export function Layout({ children }: LayoutProps) {
                   onClick={handleLogout}
                   className="ml-3 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200"
                 >
-                  Sign out
+                  {t('navigation.signOut')}
                 </button>
+              </div>
+              {/* Language Selector */}
+              <div className="flex justify-center">
+                <LanguageSelector />
               </div>
             </div>
           </div>
@@ -106,7 +113,7 @@ export function Layout({ children }: LayoutProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-lg font-medium text-gray-900">Flex ERP</h1>
+              <h1 className="text-lg font-medium text-gray-900">{t('app.title')}</h1>
               <div className="w-6" /> {/* Spacer for centering */}
             </div>
           </div>

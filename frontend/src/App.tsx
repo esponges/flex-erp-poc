@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { IntlProvider } from '@/contexts/IntlContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import { router } from '@/router'
 import { ServerStatusBanner } from '@/components/ServerStatusBanner'
 
@@ -39,16 +41,45 @@ function ErrorFallback({ error }: FallbackProps) {
   )
 }
 
+function InnerErrorFallback({ error }: FallbackProps) {
+  const { t } = useTranslation();
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            {t('messages.error.generic')}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {error.message}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+          >
+            {t('common.reset')}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function App() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ServerStatusBanner />
-          <RouterProvider router={router} />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </AuthProvider>
-      </QueryClientProvider>
+      <IntlProvider>
+        <ErrorBoundary FallbackComponent={InnerErrorFallback}>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ServerStatusBanner />
+              <RouterProvider router={router} />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </AuthProvider>
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </IntlProvider>
     </ErrorBoundary>
   )
 }

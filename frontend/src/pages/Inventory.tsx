@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { FileImportModal } from '@/components/FileImportModal';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
@@ -86,6 +87,7 @@ const inventoryAPI = {
 
 export function Inventory() {
   const { state: authState } = useAuth();
+  const { t, formatCurrency } = useTranslation();
   const queryClient = useQueryClient(); // add this to context
   const [filters, setFilters] = useState<InventoryListParams>({
     page: 1,
@@ -135,19 +137,14 @@ export function Inventory() {
     setShowImportModal(true);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  // Using the localized formatCurrency from useTranslation hook
 
   const getStockStatus = (quantity: number) => {
     if (quantity === 0)
-      return { text: 'Out of Stock', color: 'text-red-600 bg-red-50' };
+      return { text: t('inventory.status.outOfStock'), color: 'text-red-600 bg-red-50' };
     if (quantity < 10)
-      return { text: 'Low Stock', color: 'text-amber-600 bg-amber-50' };
-    return { text: 'In Stock', color: 'text-green-600 bg-green-50' };
+      return { text: t('inventory.status.lowStock'), color: 'text-amber-600 bg-amber-50' };
+    return { text: t('inventory.status.inStock'), color: 'text-green-600 bg-green-50' };
   };
 
   if (error) {
@@ -155,7 +152,7 @@ export function Inventory() {
       <div className='p-6'>
         <div className='bg-red-50 border border-red-200 rounded-md p-4'>
           <p className='text-red-600'>
-            Error loading inventory: {error.message}
+            {t('inventory.messages.errorLoading', { error: error.message })}
           </p>
         </div>
       </div>
@@ -167,10 +164,10 @@ export function Inventory() {
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
         <div>
           <h1 className='text-2xl font-semibold text-gray-900'>
-            Inventory Management
+            {t('inventory.title')}
           </h1>
           <p className='text-gray-600'>
-            Track and manage your product inventory
+            {t('inventory.subtitle')}
           </p>
         </div>
         <div className='mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2'>
@@ -178,13 +175,13 @@ export function Inventory() {
             onClick={() => openImportModal('initial')}
             className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium'
           >
-            Initial Import
+            {t('inventory.buttons.initialImport')}
           </button>
           <button
             onClick={() => openImportModal('replace')}
             className='px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 text-sm font-medium'
           >
-            Replace Inventory
+            {t('inventory.buttons.replaceInventory')}
           </button>
         </div>
       </div>
@@ -195,7 +192,7 @@ export function Inventory() {
           <div className='flex-1'>
             <input
               type='text'
-              placeholder='Search by SKU, product name, or description...'
+              placeholder={t('inventory.filters.searchPlaceholder')}
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
               value={filters.search || ''}
               onChange={(e) =>
@@ -211,10 +208,10 @@ export function Inventory() {
                 setFilters({ ...filters, category: e.target.value || '' })
               }
             >
-              <option value=''>All Categories</option>
-              <option value='Electronics'>Electronics</option>
-              <option value='Furniture'>Furniture</option>
-              <option value='Stationery'>Stationery</option>
+              <option value=''>{t('inventory.filters.allCategories')}</option>
+              <option value='Electronics'>{t('inventory.filters.categories.electronics')}</option>
+              <option value='Furniture'>{t('inventory.filters.categories.furniture')}</option>
+              <option value='Stationery'>{t('inventory.filters.categories.stationery')}</option>
             </select>
           </div>
         </div>
@@ -227,28 +224,28 @@ export function Inventory() {
             <thead className='bg-gray-50'>
               <tr>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Product
+                  {t('inventory.table.headers.product')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  SKU
+                  {t('inventory.table.headers.sku')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Category
+                  {t('inventory.table.headers.category')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Quantity
+                  {t('inventory.table.headers.quantity')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Cost
+                  {t('inventory.table.headers.cost')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Total Value
+                  {t('inventory.table.headers.totalValue')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Status
+                  {t('inventory.table.headers.status')}
                 </th>
                 <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Actions
+                  {t('common.actions')}
                 </th>
               </tr>
             </thead>
@@ -259,7 +256,7 @@ export function Inventory() {
                     colSpan={8}
                     className='px-6 py-4 text-center text-gray-500'
                   >
-                    Loading...
+                    {t('common.loading')}
                   </td>
                 </tr>
               ) : inventory.length === 0 ? (
@@ -268,7 +265,7 @@ export function Inventory() {
                     colSpan={8}
                     className='px-6 py-4 text-center text-gray-500'
                   >
-                    No inventory items found
+                    {t('inventory.messages.noItemsFound')}
                   </td>
                 </tr>
               ) : (
@@ -346,7 +343,7 @@ export function Inventory() {
                             <span>{formatCurrency(item.weighted_cost)}</span>
                             {item.is_manual_cost && (
                               <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'>
-                                Manual
+                                {t('inventory.badges.manual')}
                               </span>
                             )}
                           </div>
@@ -373,7 +370,7 @@ export function Inventory() {
                             }
                             className='text-indigo-600 hover:text-indigo-900'
                           >
-                            Edit Cost
+                            {t('inventory.actions.editCost')}
                           </button>
                         )}
                       </td>
@@ -390,11 +387,11 @@ export function Inventory() {
       <div className='lg:hidden space-y-4'>
         {isLoading ? (
           <div className='bg-white rounded-lg shadow p-6 text-center text-gray-500'>
-            Loading...
+            {t('common.loading')}
           </div>
         ) : inventory.length === 0 ? (
           <div className='bg-white rounded-lg shadow p-6 text-center text-gray-500'>
-            No inventory items found
+            {t('inventory.messages.noItemsFound')}
           </div>
         ) : (
           inventory.map((item) => {
@@ -482,7 +479,7 @@ export function Inventory() {
                         </span>
                         {item.is_manual_cost && (
                           <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'>
-                            Manual
+                            {t('inventory.badges.manual')}
                           </span>
                         )}
                       </div>
@@ -507,7 +504,7 @@ export function Inventory() {
                       }
                       className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
                     >
-                      Edit Cost
+                      {t('inventory.actions.editCost')}
                     </button>
                   )}
                 </div>
@@ -520,14 +517,14 @@ export function Inventory() {
       {/* Summary Stats */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
-          <div className='text-sm font-medium text-gray-500'>Total Items</div>
+          <div className='text-sm font-medium text-gray-500'>{t('inventory.summary.totalItems')}</div>
           <div className='text-2xl font-bold text-gray-900'>
             {inventory.length}
           </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
           <div className='text-sm font-medium text-gray-500'>
-            Total Inventory Value
+            {t('inventory.summary.totalInventoryValue')}
           </div>
           <div className='text-2xl font-bold text-gray-900'>
             {formatCurrency(
@@ -537,7 +534,7 @@ export function Inventory() {
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
           <div className='text-sm font-medium text-gray-500'>
-            Low Stock Items
+            {t('inventory.summary.lowStockItems')}
           </div>
           <div className='text-2xl font-bold text-gray-900'>
             {inventory.filter((item) => item.quantity < 10).length}

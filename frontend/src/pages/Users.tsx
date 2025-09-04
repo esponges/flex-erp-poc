@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 interface UserWithDetails {
@@ -38,6 +39,7 @@ interface UserRole {
 }
 
 export function Users() {
+  const { t, formatDate } = useTranslation();
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [isActiveFilter, setIsActiveFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -246,15 +248,7 @@ export function Users() {
     });
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  // Using formatDate from useTranslation hook instead
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -279,7 +273,7 @@ export function Users() {
   if (isLoading) {
     return (
       <div className='flex justify-center items-center h-64'>
-        <div className='text-lg text-gray-600'>Loading users...</div>
+        <div className='text-lg text-gray-600'>{t('users.messages.loadingUsers')}</div>
       </div>
     );
   }
@@ -289,32 +283,32 @@ export function Users() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900'>User Management</h1>
-          <p className='text-gray-600'>Manage user accounts and permissions</p>
+          <h1 className='text-2xl font-bold text-gray-900'>{t('users.title')}</h1>
+          <p className='text-gray-600'>{t('users.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
           className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium self-start sm:self-auto'
         >
-          Add User
+          {t('users.buttons.addUser')}
         </button>
       </div>
 
       {/* Summary Cards */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
-          <div className='text-sm font-medium text-gray-600'>Total Users</div>
+          <div className='text-sm font-medium text-gray-600'>{t('users.summary.totalUsers')}</div>
           <div className='text-2xl font-bold text-gray-900'>{totalUsers}</div>
         </div>
         <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
-          <div className='text-sm font-medium text-gray-600'>Active Users</div>
+          <div className='text-sm font-medium text-gray-600'>{t('users.summary.activeUsers')}</div>
           <div className='text-2xl font-bold text-green-600'>
             {activeUsersCount}
           </div>
         </div>
         <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
           <div className='text-sm font-medium text-gray-600'>
-            Inactive Users
+            {t('users.summary.inactiveUsers')}
           </div>
           <div className='text-2xl font-bold text-red-600'>
             {totalUsers - activeUsersCount}
@@ -327,14 +321,14 @@ export function Users() {
         <div className='flex flex-col sm:flex-row sm:items-end gap-4'>
           <div className='sm:w-auto'>
             <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Role
+              {t('users.filters.role')}
             </label>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
               className='w-full sm:w-auto border border-gray-300 rounded-md px-3 py-2 text-sm'
             >
-              <option value=''>All Roles</option>
+              <option value=''>{t('users.filters.allRoles')}</option>
               <option value='admin'>Admin</option>
               <option value='manager'>Manager</option>
               <option value='user'>User</option>

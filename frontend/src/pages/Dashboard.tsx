@@ -1,10 +1,13 @@
+import { useTranslation } from '@/hooks/useTranslation';
+
 export function Dashboard() {
+  const { t } = useTranslation();
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-2xl font-bold text-gray-900'>Dashboard</h1>
+        <h1 className='text-2xl font-bold text-gray-900'>{t('dashboard.title')}</h1>
         <p className='mt-1 text-sm text-gray-600'>
-          Welcome to Flex ERP - Inventory Management System
+          {t('dashboard.welcome')}
         </p>
       </div>
 
@@ -20,10 +23,10 @@ export function Dashboard() {
             <div className='ml-5 w-0 flex-1'>
               <dl>
                 <dt className='text-sm font-medium text-gray-500 truncate'>
-                  Total SKUs
+                  {t('dashboard.stats.totalSkus')}
                 </dt>
                 <dd className='text-lg font-medium text-gray-900'>
-                  Coming Soon
+                  {t('dashboard.stats.comingSoon')}
                 </dd>
               </dl>
             </div>
@@ -40,10 +43,10 @@ export function Dashboard() {
             <div className='ml-5 w-0 flex-1'>
               <dl>
                 <dt className='text-sm font-medium text-gray-500 truncate'>
-                  Inventory Items
+                  {t('dashboard.stats.inventoryItems')}
                 </dt>
                 <dd className='text-lg font-medium text-gray-900'>
-                  Coming Soon
+                  {t('dashboard.stats.comingSoon')}
                 </dd>
               </dl>
             </div>
@@ -60,10 +63,10 @@ export function Dashboard() {
             <div className='ml-5 w-0 flex-1'>
               <dl>
                 <dt className='text-sm font-medium text-gray-500 truncate'>
-                  Today's Transactions
+                  {t('dashboard.stats.todaysTransactions')}
                 </dt>
                 <dd className='text-lg font-medium text-gray-900'>
-                  Coming Soon
+                  {t('dashboard.stats.comingSoon')}
                 </dd>
               </dl>
             </div>
@@ -80,10 +83,10 @@ export function Dashboard() {
             <div className='ml-5 w-0 flex-1'>
               <dl>
                 <dt className='text-sm font-medium text-gray-500 truncate'>
-                  Total Value
+                  {t('dashboard.stats.totalValue')}
                 </dt>
                 <dd className='text-lg font-medium text-gray-900'>
-                  Coming Soon
+                  {t('dashboard.stats.comingSoon')}
                 </dd>
               </dl>
             </div>
@@ -95,7 +98,7 @@ export function Dashboard() {
       <div className='bg-white shadow rounded-lg'>
         <div className='px-4 py-5 sm:p-6'>
           <h3 className='text-lg leading-6 font-medium text-gray-900'>
-            Implementation Status
+            {t('dashboard.implementationStatus.title')}
           </h3>
           <div className='mt-5 space-y-3'>
             <div className='flex items-center'>
@@ -104,7 +107,7 @@ export function Dashboard() {
               </div>
               <div className='ml-3'>
                 <p className='text-sm text-gray-600'>
-                  ✅ Phase 1: Foundation & Authentication - Complete
+                  {t('dashboard.implementationStatus.phase1')}
                 </p>
               </div>
             </div>
@@ -114,7 +117,7 @@ export function Dashboard() {
               </div>
               <div className='ml-3'>
                 <p className='text-sm text-gray-600'>
-                  🚧 Phase 2: SKU Management - Next
+                  {t('dashboard.implementationStatus.phase2')}
                 </p>
               </div>
             </div>
@@ -124,7 +127,7 @@ export function Dashboard() {
               </div>
               <div className='ml-3'>
                 <p className='text-sm text-gray-600'>
-                  ⏳ Phase 3: Inventory & Calculated Fields - Pending
+                  {t('dashboard.implementationStatus.phase3')}
                 </p>
               </div>
             </div>
@@ -134,7 +137,7 @@ export function Dashboard() {
               </div>
               <div className='ml-3'>
                 <p className='text-sm text-gray-600'>
-                  ⏳ Phase 4: Transaction System - Pending
+                  {t('dashboard.implementationStatus.phase4')}
                 </p>
               </div>
             </div>

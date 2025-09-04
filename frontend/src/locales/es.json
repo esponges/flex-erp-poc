@@ -1,0 +1,296 @@
+{
+  "app": {
+    "title": "Flex ERP",
+    "subtitle": "Sistema de Gestión de Inventario"
+  },
+  "navigation": {
+    "dashboard": "Tablero",
+    "skus": "SKUs",
+    "inventory": "Inventario",
+    "transactions": "Transacciones",
+    "users": "Usuarios",
+    "logs": "Registro de Actividad",
+    "settings": "Configuración",
+    "signOut": "Cerrar sesión"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión en su cuenta",
+    "email": "Dirección de correo electrónico",
+    "password": "Contraseña",
+    "signInButton": "Iniciar sesión",
+    "signingIn": "Iniciando sesión...",
+    "loginFailed": "Error al iniciar sesión. Por favor, inténtelo de nuevo.",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "demoNote": "Esta es una demostración. Ingrese cualquier correo electrónico para iniciar sesión.",
+    "passwordPlaceholder": "Contraseña (cualquier valor para la demostración)"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "actions": "Acciones",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "yes": "Sí",
+    "no": "No",
+    "close": "Cerrar",
+    "submit": "Enviar",
+    "reset": "Restablecer",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "all": "Todos",
+    "none": "Ninguno",
+    "total": "Total",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "thisWeek": "Esta Semana",
+    "thisMonth": "Este Mes",
+    "required": "Obligatorio",
+    "optional": "Opcional"
+  },
+  "dashboard": {
+    "title": "Tablero",
+    "welcome": "Bienvenido a Flex ERP - Sistema de Gestión de Inventario",
+    "stats": {
+      "totalSkus": "Total de SKUs",
+      "inventoryItems": "Artículos del Inventario", 
+      "todaysTransactions": "Transacciones de Hoy",
+      "totalValue": "Valor Total",
+      "comingSoon": "Próximamente"
+    },
+    "implementationStatus": {
+      "title": "Estado de Implementación",
+      "phase1": "✅ Fase 1: Fundación y Autenticación - Completa",
+      "phase2": "🚧 Fase 2: Gestión de SKUs - Siguiente", 
+      "phase3": "⏳ Fase 3: Inventario y Campos Calculados - Pendiente",
+      "phase4": "⏳ Fase 4: Sistema de Transacciones - Pendiente"
+    }
+  },
+  "inventory": {
+    "title": "Gestión de Inventario",
+    "subtitle": "Rastree y gestione su inventario de productos",
+    "buttons": {
+      "initialImport": "Importación Inicial",
+      "replaceInventory": "Reemplazar Inventario"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar por SKU, nombre del producto o descripción...",
+      "allCategories": "Todas las Categorías",
+      "categories": {
+        "electronics": "Electrónicos",
+        "furniture": "Muebles", 
+        "stationery": "Papelería"
+      }
+    },
+    "table": {
+      "headers": {
+        "product": "Producto",
+        "sku": "SKU",
+        "category": "Categoría", 
+        "quantity": "Cantidad",
+        "cost": "Costo",
+        "totalValue": "Valor Total",
+        "status": "Estado"
+      }
+    },
+    "status": {
+      "outOfStock": "Sin Existencias",
+      "lowStock": "Pocas Existencias",
+      "inStock": "En Existencia"
+    },
+    "actions": {
+      "editCost": "Editar Costo"
+    },
+    "messages": {
+      "errorLoading": "Error al cargar el inventario: {error}",
+      "noItemsFound": "No se encontraron artículos de inventario"
+    },
+    "summary": {
+      "totalItems": "Total de Artículos",
+      "totalInventoryValue": "Valor Total del Inventario",
+      "lowStockItems": "Artículos con Pocas Existencias"
+    },
+    "badges": {
+      "manual": "Manual"
+    }
+  },
+  "skus": {
+    "title": "SKUs",
+    "subtitle": "Gestione sus Unidades de Mantenimiento en Existencia (productos)",
+    "buttons": {
+      "initialImport": "Importación Inicial",
+      "replaceSkus": "Reemplazar SKUs",
+      "addSku": "Agregar SKU"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar SKUs...",
+      "category": "Categoría",
+      "allCategories": "Todas las Categorías",
+      "includeInactive": "Incluir SKUs inactivos"
+    },
+    "table": {
+      "headers": {
+        "skuCode": "Código SKU",
+        "productName": "Nombre del Producto",
+        "category": "Categoría",
+        "supplier": "Proveedor",
+        "status": "Estado"
+      }
+    },
+    "actions": {
+      "activate": "Activar",
+      "deactivate": "Desactivar"
+    },
+    "modal": {
+      "add": {
+        "title": "Agregar Nuevo SKU"
+      },
+      "edit": {
+        "title": "Editar SKU: {skuCode}"
+      },
+      "fields": {
+        "skuCode": "Código SKU",
+        "skuCodePlaceholder": "ej. ELEC-001",
+        "productName": "Nombre del Producto", 
+        "description": "Descripción",
+        "category": "Categoría",
+        "categoryPlaceholder": "ej. Electrónicos",
+        "supplier": "Proveedor",
+        "barcode": "Código de Barras"
+      },
+      "buttons": {
+        "create": "Crear SKU",
+        "creating": "Creando...",
+        "update": "Actualizar SKU",
+        "updating": "Actualizando..."
+      }
+    },
+    "messages": {
+      "noSkusFound": "No se encontraron SKUs",
+      "loadingSkus": "Cargando SKUs..."
+    }
+  },
+  "users": {
+    "title": "Gestión de Usuarios",
+    "subtitle": "Gestionar cuentas de usuario y permisos",
+    "buttons": {
+      "addUser": "Agregar Usuario"
+    },
+    "summary": {
+      "totalUsers": "Total de Usuarios",
+      "activeUsers": "Usuarios Activos",
+      "inactiveUsers": "Usuarios Inactivos"
+    },
+    "filters": {
+      "role": "Rol",
+      "allRoles": "Todos los Roles",
+      "status": "Estado",
+      "allUsers": "Todos los Usuarios",
+      "searchPlaceholder": "Buscar por nombre o correo electrónico..."
+    },
+    "table": {
+      "headers": {
+        "user": "Usuario",
+        "role": "Rol",
+        "lastLogin": "Último Acceso",
+        "created": "Creado"
+      }
+    },
+    "roles": {
+      "admin": "Administrador",
+      "manager": "Gerente",
+      "user": "Usuario",
+      "viewer": "Visualizador"
+    },
+    "modal": {
+      "add": {
+        "title": "Agregar Nuevo Usuario"
+      },
+      "edit": {
+        "title": "Editar Usuario"
+      },
+      "fields": {
+        "email": "Correo Electrónico",
+        "name": "Nombre",
+        "role": "Rol",
+        "activeUser": "Usuario activo"
+      },
+      "buttons": {
+        "createUser": "Crear Usuario",
+        "creating": "Creando...",
+        "updateUser": "Actualizar Usuario",
+        "updating": "Actualizando..."
+      }
+    },
+    "messages": {
+      "loadingUsers": "Cargando usuarios...",
+      "deleteConfirm": "¿Está seguro de que desea eliminar este usuario?",
+      "never": "Nunca"
+    }
+  },
+  "fileImport": {
+    "modal": {
+      "initialImport": "Importación Inicial",
+      "replaceInventory": "Reemplazar Inventario",
+      "initialDescription": "Suba un archivo CSV o Excel para poblar su inventario por primera vez.",
+      "replaceDescription": "Suba un archivo CSV o Excel para reemplazar completamente su inventario actual.",
+      "replaceWarning": "Advertencia: Esto eliminará todos los datos de inventario existentes."
+    },
+    "upload": {
+      "dragDrop": "Arrastre y suelte su archivo aquí, o",
+      "browse": "examinar para seleccionar",
+      "supportedFormats": "Formatos compatibles: CSV, Excel (.xlsx, .xls) • Tamaño máx.: 10MB",
+      "ready": "Listo para importar",
+      "removeFile": "Quitar archivo"
+    },
+    "buttons": {
+      "startImport": "Iniciar Importación",
+      "processing": "Procesando..."
+    },
+    "progress": {
+      "processingTitle": "Procesando su importación",
+      "processingMessage": "La IA está analizando el esquema de su archivo y preparando la importación...",
+      "completedTitle": "¡Importación completada exitosamente!",
+      "failedTitle": "Error en la importación"
+    },
+    "details": {
+      "title": "Detalles de la Importación",
+      "rowsDetected": "Filas detectadas:",
+      "estimatedTime": "Tiempo estimado:",
+      "detectedColumns": "Columnas detectadas:"
+    }
+  },
+  "validation": {
+    "required": "{field} es obligatorio",
+    "email": "Por favor ingrese una dirección de correo electrónico válida",
+    "minLength": "{field} debe tener al menos {min} caracteres",
+    "maxLength": "{field} no debe exceder {max} caracteres",
+    "numeric": "{field} debe ser un número",
+    "positive": "{field} debe ser positivo"
+  },
+  "messages": {
+    "success": {
+      "created": "{item} creado exitosamente",
+      "updated": "{item} actualizado exitosamente", 
+      "deleted": "{item} eliminado exitosamente",
+      "imported": "Importación completada exitosamente"
+    },
+    "error": {
+      "generic": "Algo salió mal. Por favor, inténtelo de nuevo.",
+      "network": "Error de red. Por favor verifique su conexión.",
+      "unauthorized": "No está autorizado para realizar esta acción.",
+      "notFound": "El elemento solicitado no fue encontrado.",
+      "validation": "Por favor verifique su entrada e inténtelo de nuevo."
+    }
+  }
+}

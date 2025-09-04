@@ -4,3 +4,4 @@
 - When making any styling related changes use your MCP tools to verify the changes you're making.
 - When implementing API calls to the backend use the `apiUrl` and `getAuthHeaders` utility functions from `frontend/src/utils/api.ts`.
 - the request use `react-query` for data fetching and server state management.
+- we use `pnpm` as package manager.

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { FileImportModal } from '@/components/FileImportModal';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
@@ -131,6 +132,7 @@ const skuAPI = {
 
 export function SKUs() {
   const { state: authState } = useAuth();
+  const { t } = useTranslation();
   const [filters, setFilters] = useState<SKUListParams>({
     includeDeactivated: false,
   });
@@ -208,9 +210,9 @@ export function SKUs() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900'>SKUs</h1>
+          <h1 className='text-2xl font-bold text-gray-900'>{t('skus.title')}</h1>
           <p className='mt-1 text-sm text-gray-600'>
-            Manage your Stock Keeping Units (products)
+            {t('skus.subtitle')}
           </p>
         </div>
         <div className='flex flex-col sm:flex-row gap-2'>
@@ -218,19 +220,19 @@ export function SKUs() {
             onClick={() => openImportModal('initial')}
             className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700'
           >
-            Initial Import
+            {t('skus.buttons.initialImport')}
           </button>
           <button
             onClick={() => openImportModal('replace')}
             className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700'
           >
-            Replace SKUs
+            {t('skus.buttons.replaceSkus')}
           </button>
           <button
             onClick={() => setShowAddModal(true)}
             className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700'
           >
-            Add SKU
+            {t('skus.buttons.addSku')}
           </button>
         </div>
       </div>
@@ -241,11 +243,11 @@ export function SKUs() {
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             <div className='sm:col-span-2 lg:col-span-1'>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Search
+                {t('skus.filters.search')}
               </label>
               <input
                 type='text'
-                placeholder='Search SKUs...'
+                placeholder={t('skus.filters.searchPlaceholder')}
                 value={filters.search || ''}
                 onChange={(e) => handleSearch(e.target.value)}
                 className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
@@ -253,14 +255,14 @@ export function SKUs() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Category
+                {t('skus.filters.category')}
               </label>
               <select
                 value={filters.category || ''}
                 onChange={(e) => handleCategoryFilter(e.target.value)}
                 className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
               >
-                <option value=''>All Categories</option>
+                <option value=''>{t('skus.filters.allCategories')}</option>
                 {categories.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -277,7 +279,7 @@ export function SKUs() {
                   className='rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 />
                 <span className='ml-2 text-sm text-gray-700'>
-                  Include inactive SKUs
+                  {t('skus.filters.includeInactive')}
                 </span>
               </label>
             </div>
@@ -289,7 +291,7 @@ export function SKUs() {
       <div className='bg-white shadow rounded-lg overflow-hidden hidden lg:block'>
         {isLoading && (
           <div className='p-6 text-center'>
-            <div className='text-sm text-gray-600'>Loading SKUs...</div>
+            <div className='text-sm text-gray-600'>{t('skus.messages.loadingSkus')}</div>
           </div>
         )}
 
@@ -307,22 +309,22 @@ export function SKUs() {
               <thead className='bg-gray-50'>
                 <tr>
                   <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    SKU Code
+                    {t('skus.table.headers.skuCode')}
                   </th>
                   <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Product Name
+                    {t('skus.table.headers.productName')}
                   </th>
                   <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Category
+                    {t('skus.table.headers.category')}
                   </th>
                   <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Supplier
+                    {t('skus.table.headers.supplier')}
                   </th>
                   <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Status
+                    {t('skus.table.headers.status')}
                   </th>
                   <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Actions
+                    {t('common.actions')}
                   </th>
                 </tr>
               </thead>
@@ -380,7 +382,7 @@ export function SKUs() {
                             : 'text-green-600 hover:text-green-900'
                         }`}
                       >
-                        {sku.is_active ? 'Deactivate' : 'Activate'}
+                        {sku.is_active ? t('skus.actions.deactivate') : t('skus.actions.activate')}
                       </button>
                     </td>
                   </tr>
@@ -391,7 +393,7 @@ export function SKUs() {
                       colSpan={6}
                       className='px-6 py-4 text-center text-sm text-gray-500'
                     >
-                      No SKUs found
+                      {t('skus.messages.noSkusFound')}
                     </td>
                   </tr>
                 )}
@@ -405,7 +407,7 @@ export function SKUs() {
       <div className='lg:hidden space-y-4'>
         {isLoading && (
           <div className='bg-white shadow rounded-lg p-6 text-center'>
-            <div className='text-sm text-gray-600'>Loading SKUs...</div>
+            <div className='text-sm text-gray-600'>{t('skus.messages.loadingSkus')}</div>
           </div>
         )}
 
@@ -421,7 +423,7 @@ export function SKUs() {
           <>
             {skus.length === 0 ? (
               <div className='bg-white shadow rounded-lg p-6 text-center'>
-                <div className='text-sm text-gray-500'>No SKUs found</div>
+                <div className='text-sm text-gray-500'>{t('skus.messages.noSkusFound')}</div>
               </div>
             ) : (
               skus.map((sku) => (
@@ -489,7 +491,7 @@ export function SKUs() {
                           : 'text-green-600 hover:text-green-900'
                       }`}
                     >
-                      {sku.is_active ? 'Deactivate' : 'Activate'}
+                      {sku.is_active ? t('skus.actions.deactivate') : t('skus.actions.activate')}
                     </button>
                   </div>
                 </div>
@@ -571,7 +573,7 @@ function AddSKUModal({
       <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-screen overflow-y-auto'>
         <form onSubmit={handleSubmit}>
           <div className='px-4 sm:px-6 py-4 border-b border-gray-200'>
-            <h3 className='text-lg font-medium text-gray-900'>Add New SKU</h3>
+            <h3 className='text-lg font-medium text-gray-900'>{t('skus.modal.add.title')}</h3>
           </div>
 
           <div className='px-4 sm:px-6 py-4 space-y-4'>
@@ -583,7 +585,7 @@ function AddSKUModal({
 
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                SKU Code *
+                {t('skus.modal.fields.skuCode')} *
               </label>
               <input
                 type='text'
@@ -593,7 +595,7 @@ function AddSKUModal({
                   setFormData((prev) => ({ ...prev, sku_code: e.target.value }))
                 }
                 className='block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-                placeholder='e.g. ELEC-001'
+                placeholder={t('skus.modal.fields.skuCodePlaceholder')}
               />
             </div>
 
@@ -691,7 +693,7 @@ function AddSKUModal({
               }
               className='w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
             >
-              {isLoading ? 'Creating...' : 'Create SKU'}
+              {isLoading ? t('skus.modal.buttons.creating') : t('skus.modal.buttons.create')}
             </button>
           </div>
         </form>
@@ -740,7 +742,7 @@ function EditSKUModal({
         <form onSubmit={handleSubmit}>
           <div className='px-4 sm:px-6 py-4 border-b border-gray-200'>
             <h3 className='text-lg font-medium text-gray-900'>
-              Edit SKU: {sku.sku_code}
+              {t('skus.modal.edit.title', { skuCode: sku.sku_code })}
             </h3>
           </div>
 
@@ -842,7 +844,7 @@ function EditSKUModal({
               disabled={isLoading || !formData.product_name}
               className='w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
             >
-              {isLoading ? 'Updating...' : 'Update SKU'}
+              {isLoading ? t('skus.modal.buttons.updating') : t('skus.modal.buttons.update')}
             </button>
           </div>
         </form>
