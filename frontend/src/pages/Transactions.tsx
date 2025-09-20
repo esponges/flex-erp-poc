@@ -4,9 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 interface TransactionWithSKU {
-  id: number;
+  id: string;
   organization_id: number;
-  sku_id: number;
+  sku_id: string;
   transaction_type: 'in' | 'out';
   quantity: number;
   unit_cost: number;
@@ -25,7 +25,7 @@ interface TransactionWithSKU {
 
 interface TransactionListParams {
   transaction_type?: string;
-  sku_id?: number;
+  sku_id?: string;
   category?: string;
   search?: string;
   page?: number;
@@ -35,7 +35,7 @@ interface TransactionListParams {
 }
 
 interface CreateTransactionRequest {
-  sku_id: number;
+  sku_id: string;
   transaction_type: 'in' | 'out';
   quantity: number;
   unit_cost: number;
@@ -51,7 +51,7 @@ interface TransactionSummary {
 }
 
 interface SKU {
-  id: number;
+  id: string;
   sku_code: string;
   product_name: string;
   category?: string;
@@ -516,7 +516,7 @@ export function Transactions() {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 createMutation.mutate({
-                  sku_id: parseInt(formData.get('sku_id') as string),
+                  sku_id: formData.get('sku_id') as string,
                   transaction_type: formData.get('transaction_type') as
                     | 'in'
                     | 'out',

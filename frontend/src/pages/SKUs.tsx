@@ -210,10 +210,10 @@ export function SKUs() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900'>{t('skus.title')}</h1>
-          <p className='mt-1 text-sm text-gray-600'>
-            {t('skus.subtitle')}
-          </p>
+          <h1 className='text-2xl font-bold text-gray-900'>
+            {t('skus.title')}
+          </h1>
+          <p className='mt-1 text-sm text-gray-600'>{t('skus.subtitle')}</p>
         </div>
         <div className='flex flex-col sm:flex-row gap-2'>
           <button
@@ -291,7 +291,9 @@ export function SKUs() {
       <div className='bg-white shadow rounded-lg overflow-hidden hidden lg:block'>
         {isLoading && (
           <div className='p-6 text-center'>
-            <div className='text-sm text-gray-600'>{t('skus.messages.loadingSkus')}</div>
+            <div className='text-sm text-gray-600'>
+              {t('skus.messages.loadingSkus')}
+            </div>
           </div>
         )}
 
@@ -382,7 +384,9 @@ export function SKUs() {
                             : 'text-green-600 hover:text-green-900'
                         }`}
                       >
-                        {sku.is_active ? t('skus.actions.deactivate') : t('skus.actions.activate')}
+                        {sku.is_active
+                          ? t('skus.actions.deactivate')
+                          : t('skus.actions.activate')}
                       </button>
                     </td>
                   </tr>
@@ -407,7 +411,9 @@ export function SKUs() {
       <div className='lg:hidden space-y-4'>
         {isLoading && (
           <div className='bg-white shadow rounded-lg p-6 text-center'>
-            <div className='text-sm text-gray-600'>{t('skus.messages.loadingSkus')}</div>
+            <div className='text-sm text-gray-600'>
+              {t('skus.messages.loadingSkus')}
+            </div>
           </div>
         )}
 
@@ -423,7 +429,9 @@ export function SKUs() {
           <>
             {skus.length === 0 ? (
               <div className='bg-white shadow rounded-lg p-6 text-center'>
-                <div className='text-sm text-gray-500'>{t('skus.messages.noSkusFound')}</div>
+                <div className='text-sm text-gray-500'>
+                  {t('skus.messages.noSkusFound')}
+                </div>
               </div>
             ) : (
               skus.map((sku) => (
@@ -491,7 +499,9 @@ export function SKUs() {
                           : 'text-green-600 hover:text-green-900'
                       }`}
                     >
-                      {sku.is_active ? t('skus.actions.deactivate') : t('skus.actions.activate')}
+                      {sku.is_active
+                        ? t('skus.actions.deactivate')
+                        : t('skus.actions.activate')}
                     </button>
                   </div>
                 </div>
@@ -547,6 +557,7 @@ function AddSKUModal({
   isLoading: boolean;
   error: Error | null;
 }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<CreateSKURequest>({
     sku_code: '',
     product_name: '',
@@ -573,7 +584,9 @@ function AddSKUModal({
       <div className='bg-white rounded-lg shadow-lg max-w-md w-full max-h-screen overflow-y-auto'>
         <form onSubmit={handleSubmit}>
           <div className='px-4 sm:px-6 py-4 border-b border-gray-200'>
-            <h3 className='text-lg font-medium text-gray-900'>{t('skus.modal.add.title')}</h3>
+            <h3 className='text-lg font-medium text-gray-900'>
+              {t('skus.modal.add.title')}
+            </h3>
           </div>
 
           <div className='px-4 sm:px-6 py-4 space-y-4'>
@@ -693,7 +706,9 @@ function AddSKUModal({
               }
               className='w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
             >
-              {isLoading ? t('skus.modal.buttons.creating') : t('skus.modal.buttons.create')}
+              {isLoading
+                ? t('skus.modal.buttons.creating')
+                : t('skus.modal.buttons.create')}
             </button>
           </div>
         </form>
@@ -844,7 +859,9 @@ function EditSKUModal({
               disabled={isLoading || !formData.product_name}
               className='w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50'
             >
-              {isLoading ? t('skus.modal.buttons.updating') : t('skus.modal.buttons.update')}
+              {isLoading
+                ? t('skus.modal.buttons.updating')
+                : t('skus.modal.buttons.update')}
             </button>
           </div>
         </form>
