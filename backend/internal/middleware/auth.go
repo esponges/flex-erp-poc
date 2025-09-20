@@ -63,3 +63,8 @@ func GetOrganizationIDFromContext(ctx context.Context) (string, bool) {
 	orgID, ok := ctx.Value(OrganizationContextKey).(string)
 	return orgID, ok
 }
+
+func GetUserIDFromAuthContext(ctx context.Context) (string, bool) {
+	userID, ok := ctx.Value(UserContextKey).(string)
+	return userID, ok
+}

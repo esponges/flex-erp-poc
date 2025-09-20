@@ -70,7 +70,7 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := middleware.GetUserIDFromContext(r.Context())
+	userID, ok := middleware.GetUserIDFromAuthContext(r.Context())
 	if !ok {
 		h.respondWithError(w, http.StatusUnauthorized, "User not found in context")
 		return
