@@ -186,11 +186,11 @@ Quotation Line Items:
 - PDF preview components
 
 **Deliverables:**
-- [ ] Quotation creation form with item selection
-- [ ] Real-time price calculation display
-- [ ] Margin override functionality per line item
-- [ ] Quotation list view with basic filtering
-- [ ] Edit/duplicate/convert action buttons
+- [ ] ⏳ Quotation creation form with item selection (placeholder created, needs full implementation)
+- [ ] ⏳ Real-time price calculation display (logic implemented, needs UI integration)
+- [ ] ⏳ Margin override functionality per line item (backend ready, frontend pending)
+- [ ] ⏳ Quotation list view with basic filtering (placeholder only, data fetching pending)
+- [ ] ⏳ Edit/duplicate/convert action buttons (API endpoints ready, UI pending)
 
 #### Step 4: PDF Generation & Export
 **Files to modify/create:**
@@ -228,7 +228,15 @@ Quotation Line Items:
 - ✅ Automatic quotation number generation (Q2025-0001 format)
 - ✅ Real-time pricing calculations with margin support
 - ✅ API tested and working with sample data
-- 🔄 Currently working on: Quotation creation UI form
+- ✅ Basic frontend routing and page structure created
+- 🔄 Currently working on: Quotation data fetching and display UI
+
+**Current Gaps:**
+- ⏳ Frontend quotation list display (currently placeholder only)
+- ⏳ Quotation creation form with actual API integration
+- ⏳ Real-time price calculation UI components
+- ⏳ Item search and selection interface
+- ⏳ Edit/duplicate/convert functionality
 
 ### Notes & Decisions Log
 - [x] ✅ Technology stack decisions documented (Go backend + React frontend)

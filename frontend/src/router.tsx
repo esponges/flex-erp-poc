@@ -11,6 +11,7 @@ import { SKUs } from '@/pages/SKUs';
 import { Inventory } from '@/pages/Inventory';
 import { Transactions } from '@/pages/Transactions';
 import { Users } from '@/pages/Users';
+import { Quotations } from '@/pages/Quotations';
 import Settings from '@/pages/Settings';
 import Logs from '@/pages/Logs';
 import { Layout } from '@/components/Layout';
@@ -130,6 +131,18 @@ const settingsRoute = createRoute({
   ),
 });
 
+const quotationsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/quotations',
+  component: () => (
+    <AuthGuard>
+      <Layout>
+        <Quotations />
+      </Layout>
+    </AuthGuard>
+  ),
+});
+
 const logsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/logs',
@@ -150,6 +163,7 @@ const routeTree = rootRoute.addChildren([
   skusRoute,
   inventoryRoute,
   transactionsRoute,
+  quotationsRoute,
   usersRoute,
   settingsRoute,
   logsRoute,

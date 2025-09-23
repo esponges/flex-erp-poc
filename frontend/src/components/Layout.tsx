@@ -24,6 +24,7 @@ export function Layout({ children }: LayoutProps) {
     { name: t('navigation.skus'), href: '/skus' },
     { name: t('navigation.inventory'), href: '/inventory' },
     { name: t('navigation.transactions'), href: '/transactions' },
+    { name: 'Quotations', href: '/quotations' },
     { name: t('navigation.users'), href: '/users' },
     { name: t('navigation.logs'), href: '/logs' },
     { name: t('navigation.settings'), href: '/settings' },
