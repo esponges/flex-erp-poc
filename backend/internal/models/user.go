@@ -68,6 +68,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "users", Actions: []string{"read", "create", "update", "delete"}},
 			{Resource: "settings", Actions: []string{"read", "update"}},
 			{Resource: "logs", Actions: []string{"read", "create"}},
+			{Resource: "quotations", Actions: []string{"read", "create", "update", "delete"}},
 		},
 	},
 	{
@@ -80,6 +81,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "users", Actions: []string{"read"}},
 			{Resource: "settings", Actions: []string{"read", "update"}},
 			{Resource: "logs", Actions: []string{"read"}},
+			{Resource: "quotations", Actions: []string{"read", "create", "update"}},
 		},
 	},
 	{
@@ -90,6 +92,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "inventory", Actions: []string{"read", "update"}},
 			{Resource: "transactions", Actions: []string{"read", "create"}},
 			{Resource: "logs", Actions: []string{"read"}},
+			{Resource: "quotations", Actions: []string{"read", "create", "update"}},
 		},
 	},
 	{
@@ -100,6 +103,7 @@ var DefaultRoles = []UserRole{
 			{Resource: "inventory", Actions: []string{"read"}},
 			{Resource: "transactions", Actions: []string{"read"}},
 			{Resource: "logs", Actions: []string{"read"}},
+			{Resource: "quotations", Actions: []string{"read"}},
 		},
 	},
 }
@@ -111,24 +115,28 @@ var DefaultFieldPermissions = map[string][]FieldPermission{
 		{Resource: "inventory", Fields: map[string]string{"*": "write"}},
 		{Resource: "transactions", Fields: map[string]string{"*": "write"}},
 		{Resource: "users", Fields: map[string]string{"*": "write"}},
+		{Resource: "quotations", Fields: map[string]string{"*": "write"}},
 	},
 	"manager": {
 		{Resource: "skus", Fields: map[string]string{"*": "write"}},
 		{Resource: "inventory", Fields: map[string]string{"*": "write", "is_manual_cost": "read"}},
 		{Resource: "transactions", Fields: map[string]string{"*": "write"}},
 		{Resource: "users", Fields: map[string]string{"*": "read"}},
+		{Resource: "quotations", Fields: map[string]string{"*": "write"}},
 	},
 	"user": {
 		{Resource: "skus", Fields: map[string]string{"*": "write", "created_at": "read", "updated_at": "read"}},
 		{Resource: "inventory", Fields: map[string]string{"*": "read", "quantity": "write"}},
 		{Resource: "transactions", Fields: map[string]string{"*": "write", "created_by": "read"}},
 		{Resource: "users", Fields: map[string]string{"*": "hidden"}},
+		{Resource: "quotations", Fields: map[string]string{"*": "write", "created_at": "read", "updated_at": "read"}},
 	},
 	"viewer": {
 		{Resource: "skus", Fields: map[string]string{"*": "read"}},
 		{Resource: "inventory", Fields: map[string]string{"*": "read"}},
 		{Resource: "transactions", Fields: map[string]string{"*": "read"}},
 		{Resource: "users", Fields: map[string]string{"*": "hidden"}},
+		{Resource: "quotations", Fields: map[string]string{"*": "read"}},
 	},
 }
 

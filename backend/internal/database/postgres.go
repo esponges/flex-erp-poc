@@ -1651,3 +1651,555 @@ func (p *PostgresService) LogChange(organizationID string, userID string, req mo
 	_, err := p.CreateChangeLog(organizationID, userID, req)
 	return err
 }
+
+// Quotation Methods
+
+func (p *PostgresService) GetQuotations(organizationID string, params models.QuotationListParams) ([]*models.QuotationSummary, error) {
+	query := `
+		SELECT q.id, q.quotation_number, q.customer_name, q.total_amount, q.status, q.creation_date, q.valid_until,
+			   u.name as sales_person_name, COUNT(qli.id) as line_item_count
+		FROM quotations q
+		LEFT JOIN users u ON q.sales_person_id = u.id
+		LEFT JOIN quotation_line_items qli ON q.id = qli.quotation_id
+		WHERE q.organization_id = $1
+	`
+
+	args := []interface{}{organizationID}
+	argIndex := 2
+
+	// Add filters
+	if params.Status != nil {
+		query += fmt.Sprintf(" AND q.status = $%d", argIndex)
+		args = append(args, *params.Status)
+		argIndex++
+	}
+
+	if params.SalesPersonID != nil {
+		query += fmt.Sprintf(" AND q.sales_person_id = $%d", argIndex)
+		args = append(args, *params.SalesPersonID)
+		argIndex++
+	}
+
+	if params.CustomerName != nil {
+		query += fmt.Sprintf(" AND LOWER(q.customer_name) LIKE LOWER($%d)", argIndex)
+		args = append(args, "%"+*params.CustomerName+"%")
+		argIndex++
+	}
+
+	if params.DateFrom != nil {
+		query += fmt.Sprintf(" AND q.creation_date >= $%d", argIndex)
+		args = append(args, *params.DateFrom)
+		argIndex++
+	}
+
+	if params.DateTo != nil {
+		query += fmt.Sprintf(" AND q.creation_date <= $%d", argIndex)
+		args = append(args, *params.DateTo)
+		argIndex++
+	}
+
+	if params.Search != nil && *params.Search != "" {
+		searchTerm := "%" + strings.ToLower(*params.Search) + "%"
+		query += fmt.Sprintf(" AND (LOWER(q.customer_name) LIKE $%d OR LOWER(q.quotation_number) LIKE $%d OR LOWER(q.notes) LIKE $%d)", argIndex, argIndex, argIndex)
+		args = append(args, searchTerm)
+		argIndex++
+	}
+
+	query += " GROUP BY q.id, q.quotation_number, q.customer_name, q.total_amount, q.status, q.creation_date, q.valid_until, u.name"
+	query += " ORDER BY q.creation_date DESC"
+
+	// Add pagination
+	if params.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", argIndex)
+		args = append(args, params.Limit)
+		argIndex++
+
+		if params.Page > 0 {
+			offset := (params.Page - 1) * params.Limit
+			query += fmt.Sprintf(" OFFSET $%d", argIndex)
+			args = append(args, offset)
+		}
+	}
+
+	rows, err := p.DB.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query quotations: %w", err)
+	}
+	defer rows.Close()
+
+	var quotations []*models.QuotationSummary
+	for rows.Next() {
+		q := &models.QuotationSummary{}
+		var salesPersonName sql.NullString
+		err := rows.Scan(
+			&q.ID,
+			&q.QuotationNumber,
+			&q.CustomerName,
+			&q.TotalAmount,
+			&q.Status,
+			&q.CreationDate,
+			&q.ValidUntil,
+			&salesPersonName,
+			&q.LineItemCount,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan quotation: %w", err)
+		}
+
+		if salesPersonName.Valid {
+			q.SalesPersonName = &salesPersonName.String
+		}
+
+		quotations = append(quotations, q)
+	}
+
+	return quotations, nil
+}
+
+func (p *PostgresService) GetQuotationByID(organizationID, quotationID string) (*models.Quotation, error) {
+	// Get the main quotation
+	quotation := &models.Quotation{}
+	query := `
+		SELECT q.id, q.organization_id, q.quotation_number, q.customer_name, q.customer_email,
+			   q.customer_phone, q.customer_address, q.sales_person_id, q.creation_date,
+			   q.validity_period_days, q.valid_until, q.delivery_terms, q.payment_terms,
+			   q.default_margin_percentage, q.subtotal, q.total_amount, q.status, q.notes,
+			   q.created_at, q.updated_at, u.name as sales_person_name
+		FROM quotations q
+		LEFT JOIN users u ON q.sales_person_id = u.id
+		WHERE q.organization_id = $1 AND q.id = $2
+	`
+
+	var salesPersonName sql.NullString
+	err := p.DB.QueryRow(query, organizationID, quotationID).Scan(
+		&quotation.ID,
+		&quotation.OrganizationID,
+		&quotation.QuotationNumber,
+		&quotation.CustomerName,
+		&quotation.CustomerEmail,
+		&quotation.CustomerPhone,
+		&quotation.CustomerAddress,
+		&quotation.SalesPersonID,
+		&quotation.CreationDate,
+		&quotation.ValidityPeriodDays,
+		&quotation.ValidUntil,
+		&quotation.DeliveryTerms,
+		&quotation.PaymentTerms,
+		&quotation.DefaultMarginPercentage,
+		&quotation.Subtotal,
+		&quotation.TotalAmount,
+		&quotation.Status,
+		&quotation.Notes,
+		&quotation.CreatedAt,
+		&quotation.UpdatedAt,
+		&salesPersonName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if salesPersonName.Valid {
+		quotation.SalesPersonName = &salesPersonName.String
+	}
+
+	// Get line items
+	lineItems, err := p.getQuotationLineItems(quotationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get line items: %w", err)
+	}
+	quotation.LineItems = lineItems
+
+	return quotation, nil
+}
+
+func (p *PostgresService) getQuotationLineItems(quotationID string) ([]models.QuotationLineItem, error) {
+	query := `
+		SELECT qli.id, qli.quotation_id, qli.sku_id, qli.quantity, qli.base_price,
+			   qli.item_margin_percentage, qli.effective_margin_percentage,
+			   qli.additional_discount_amount, qli.additional_markup_amount,
+			   qli.unit_price_after_margin, qli.final_unit_price, qli.line_total,
+			   qli.created_at, qli.updated_at,
+			   s.id, s.organization_id, s.sku_code, s.product_name, s.description,
+			   s.category, s.supplier, s.barcode, s.is_active, s.created_at, s.updated_at
+		FROM quotation_line_items qli
+		JOIN skus s ON qli.sku_id = s.id
+		WHERE qli.quotation_id = $1
+		ORDER BY qli.created_at
+	`
+
+	rows, err := p.DB.Query(query, quotationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var lineItems []models.QuotationLineItem
+	for rows.Next() {
+		item := models.QuotationLineItem{}
+		sku := models.SKU{}
+		err := rows.Scan(
+			&item.ID,
+			&item.QuotationID,
+			&item.SKUID,
+			&item.Quantity,
+			&item.BasePrice,
+			&item.ItemMarginPercentage,
+			&item.EffectiveMarginPercentage,
+			&item.AdditionalDiscountAmount,
+			&item.AdditionalMarkupAmount,
+			&item.UnitPriceAfterMargin,
+			&item.FinalUnitPrice,
+			&item.LineTotal,
+			&item.CreatedAt,
+			&item.UpdatedAt,
+			&sku.ID,
+			&sku.OrganizationID,
+			&sku.SKUCode,
+			&sku.ProductName,
+			&sku.Description,
+			&sku.Category,
+			&sku.Supplier,
+			&sku.Barcode,
+			&sku.IsActive,
+			&sku.CreatedAt,
+			&sku.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		item.SKU = &sku
+		lineItems = append(lineItems, item)
+	}
+
+	return lineItems, nil
+}
+
+func (p *PostgresService) CreateQuotation(organizationID, userID string, req models.CreateQuotationRequest) (*models.Quotation, error) {
+	tx, err := p.DB.Begin()
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Calculate valid until date
+	validUntil := time.Now().AddDate(0, 0, req.ValidityPeriodDays)
+
+	// Generate quotation number
+	quotationNumber, err := p.generateQuotationNumber(tx, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate quotation number: %w", err)
+	}
+
+	// Create quotation
+	quotationQuery := `
+		INSERT INTO quotations (
+			organization_id, quotation_number, customer_name, customer_email, customer_phone, customer_address,
+			sales_person_id, validity_period_days, valid_until, delivery_terms, payment_terms,
+			default_margin_percentage, notes, created_at, updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14)
+		RETURNING id, creation_date
+	`
+
+	var quotationID string
+	var creationDate time.Time
+	now := time.Now()
+
+	err = tx.QueryRow(
+		quotationQuery,
+		organizationID,
+		quotationNumber,
+		req.CustomerName,
+		req.CustomerEmail,
+		req.CustomerPhone,
+		req.CustomerAddress,
+		userID,
+		req.ValidityPeriodDays,
+		validUntil,
+		req.DeliveryTerms,
+		req.PaymentTerms,
+		req.DefaultMarginPercentage,
+		req.Notes,
+		now,
+	).Scan(&quotationID, &creationDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create quotation: %w", err)
+	}
+
+	// Create line items
+	for _, lineItem := range req.LineItems {
+		err = p.createQuotationLineItem(tx, quotationID, lineItem, req.DefaultMarginPercentage)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create line item: %w", err)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Return the created quotation
+	return p.GetQuotationByID(organizationID, quotationID)
+}
+
+func (p *PostgresService) createQuotationLineItem(tx *sql.Tx, quotationID string, req models.CreateQuotationLineItemRequest, defaultMargin float64) error {
+	// Get SKU details to get base price
+	var basePrice float64
+	skuQuery := `SELECT weighted_cost FROM inventory WHERE sku_id = $1 AND quantity > 0 LIMIT 1`
+	err := tx.QueryRow(skuQuery, req.SKUID).Scan(&basePrice)
+	if err != nil {
+		// If no inventory found, try to get from a default source or set to 0
+		basePrice = 0
+	}
+
+	// Calculate pricing
+	effectiveMargin := defaultMargin
+	if req.ItemMarginPercentage != nil {
+		effectiveMargin = *req.ItemMarginPercentage
+	}
+
+	unitPriceAfterMargin := basePrice + (basePrice * effectiveMargin / 100)
+	finalUnitPrice := unitPriceAfterMargin + req.AdditionalMarkupAmount - req.AdditionalDiscountAmount
+	if finalUnitPrice < 0 {
+		finalUnitPrice = 0
+	}
+	lineTotal := finalUnitPrice * req.Quantity
+
+	lineItemQuery := `
+		INSERT INTO quotation_line_items (
+			quotation_id, sku_id, quantity, base_price, item_margin_percentage,
+			effective_margin_percentage, additional_discount_amount, additional_markup_amount,
+			unit_price_after_margin, final_unit_price, line_total, created_at, updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $12)
+	`
+
+	now := time.Now()
+	_, err = tx.Exec(
+		lineItemQuery,
+		quotationID,
+		req.SKUID,
+		req.Quantity,
+		basePrice,
+		req.ItemMarginPercentage,
+		effectiveMargin,
+		req.AdditionalDiscountAmount,
+		req.AdditionalMarkupAmount,
+		unitPriceAfterMargin,
+		finalUnitPrice,
+		lineTotal,
+		now,
+	)
+
+	return err
+}
+
+func (p *PostgresService) UpdateQuotation(organizationID, quotationID string, req models.UpdateQuotationRequest) (*models.Quotation, error) {
+	tx, err := p.DB.Begin()
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Calculate valid until date
+	validUntil := time.Now().AddDate(0, 0, req.ValidityPeriodDays)
+
+	// Update quotation
+	setParts := []string{"updated_at = $3"}
+	args := []interface{}{organizationID, quotationID, time.Now()}
+	argIndex := 4
+
+	setParts = append(setParts, fmt.Sprintf("customer_name = $%d", argIndex))
+	args = append(args, req.CustomerName)
+	argIndex++
+
+	if req.CustomerEmail != nil {
+		setParts = append(setParts, fmt.Sprintf("customer_email = $%d", argIndex))
+		args = append(args, req.CustomerEmail)
+		argIndex++
+	}
+
+	if req.CustomerPhone != nil {
+		setParts = append(setParts, fmt.Sprintf("customer_phone = $%d", argIndex))
+		args = append(args, req.CustomerPhone)
+		argIndex++
+	}
+
+	if req.CustomerAddress != nil {
+		setParts = append(setParts, fmt.Sprintf("customer_address = $%d", argIndex))
+		args = append(args, req.CustomerAddress)
+		argIndex++
+	}
+
+	setParts = append(setParts, fmt.Sprintf("validity_period_days = $%d", argIndex))
+	args = append(args, req.ValidityPeriodDays)
+	argIndex++
+
+	setParts = append(setParts, fmt.Sprintf("valid_until = $%d", argIndex))
+	args = append(args, validUntil)
+	argIndex++
+
+	if req.DeliveryTerms != nil {
+		setParts = append(setParts, fmt.Sprintf("delivery_terms = $%d", argIndex))
+		args = append(args, req.DeliveryTerms)
+		argIndex++
+	}
+
+	if req.PaymentTerms != nil {
+		setParts = append(setParts, fmt.Sprintf("payment_terms = $%d", argIndex))
+		args = append(args, req.PaymentTerms)
+		argIndex++
+	}
+
+	setParts = append(setParts, fmt.Sprintf("default_margin_percentage = $%d", argIndex))
+	args = append(args, req.DefaultMarginPercentage)
+	argIndex++
+
+	if req.Status != nil {
+		setParts = append(setParts, fmt.Sprintf("status = $%d", argIndex))
+		args = append(args, *req.Status)
+		argIndex++
+	}
+
+	if req.Notes != nil {
+		setParts = append(setParts, fmt.Sprintf("notes = $%d", argIndex))
+		args = append(args, req.Notes)
+		argIndex++
+	}
+
+	query := fmt.Sprintf(`
+		UPDATE quotations
+		SET %s
+		WHERE organization_id = $1 AND id = $2
+	`, strings.Join(setParts, ", "))
+
+	_, err = tx.Exec(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update quotation: %w", err)
+	}
+
+	// Delete existing line items
+	_, err = tx.Exec("DELETE FROM quotation_line_items WHERE quotation_id = $1", quotationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete existing line items: %w", err)
+	}
+
+	// Create new line items
+	for _, lineItem := range req.LineItems {
+		createReq := models.CreateQuotationLineItemRequest{
+			SKUID:                    lineItem.SKUID,
+			Quantity:                 lineItem.Quantity,
+			ItemMarginPercentage:     lineItem.ItemMarginPercentage,
+			AdditionalDiscountAmount: lineItem.AdditionalDiscountAmount,
+			AdditionalMarkupAmount:   lineItem.AdditionalMarkupAmount,
+		}
+		err = p.createQuotationLineItem(tx, quotationID, createReq, req.DefaultMarginPercentage)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create line item: %w", err)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return p.GetQuotationByID(organizationID, quotationID)
+}
+
+func (p *PostgresService) DeleteQuotation(organizationID, quotationID string) error {
+	query := `DELETE FROM quotations WHERE organization_id = $1 AND id = $2`
+	result, err := p.DB.Exec(query, organizationID, quotationID)
+	if err != nil {
+		return fmt.Errorf("failed to delete quotation: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("quotation not found")
+	}
+
+	return nil
+}
+
+func (p *PostgresService) DuplicateQuotation(organizationID, quotationID, userID string) (*models.Quotation, error) {
+	// Get the original quotation
+	original, err := p.GetQuotationByID(organizationID, quotationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get original quotation: %w", err)
+	}
+
+	// Create request from original
+	req := models.CreateQuotationRequest{
+		CustomerName:            original.CustomerName + " (Copy)",
+		CustomerEmail:           original.CustomerEmail,
+		CustomerPhone:           original.CustomerPhone,
+		CustomerAddress:         original.CustomerAddress,
+		ValidityPeriodDays:      original.ValidityPeriodDays,
+		DeliveryTerms:           original.DeliveryTerms,
+		PaymentTerms:            original.PaymentTerms,
+		DefaultMarginPercentage: original.DefaultMarginPercentage,
+		Notes:                   original.Notes,
+		LineItems:               []models.CreateQuotationLineItemRequest{},
+	}
+
+	// Convert line items
+	for _, item := range original.LineItems {
+		lineItem := models.CreateQuotationLineItemRequest{
+			SKUID:                    item.SKUID,
+			Quantity:                 item.Quantity,
+			ItemMarginPercentage:     item.ItemMarginPercentage,
+			AdditionalDiscountAmount: item.AdditionalDiscountAmount,
+			AdditionalMarkupAmount:   item.AdditionalMarkupAmount,
+		}
+		req.LineItems = append(req.LineItems, lineItem)
+	}
+
+	return p.CreateQuotation(organizationID, userID, req)
+}
+
+func (p *PostgresService) UpdateQuotationStatus(organizationID, quotationID, status string) error {
+	query := `UPDATE quotations SET status = $1, updated_at = $2 WHERE organization_id = $3 AND id = $4`
+	result, err := p.DB.Exec(query, status, time.Now(), organizationID, quotationID)
+	if err != nil {
+		return fmt.Errorf("failed to update quotation status: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("quotation not found")
+	}
+
+	return nil
+}
+
+// Helper function to generate quotation numbers
+func (p *PostgresService) generateQuotationNumber(tx *sql.Tx, organizationID string) (string, error) {
+	year := time.Now().Year()
+	yearStr := fmt.Sprintf("%d", year)
+
+	var nextNumber int
+	query := `
+		SELECT COALESCE(MAX(
+			CAST(SUBSTRING(quotation_number FROM '[0-9]+$') AS INT)
+		), 0) + 1
+		FROM quotations
+		WHERE organization_id = $1
+		  AND quotation_number LIKE $2
+	`
+
+	pattern := fmt.Sprintf("Q%s-%%", yearStr)
+	err := tx.QueryRow(query, organizationID, pattern).Scan(&nextNumber)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("Q%s-%04d", yearStr, nextNumber), nil
+}

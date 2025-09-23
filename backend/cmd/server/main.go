@@ -130,6 +130,26 @@ func main() {
 	api.Handle("/orgs/{orgId:[0-9a-f-]+}/activity-summary",
 		permMiddleware.RequirePermission("logs", "read")(http.HandlerFunc(h.GetActivitySummary))).Methods("GET")
 
+	// Quotation routes
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations",
+		permMiddleware.RequirePermission("quotations", "read")(http.HandlerFunc(h.GetQuotations))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations",
+		permMiddleware.RequirePermission("quotations", "create")(http.HandlerFunc(h.CreateQuotation))).Methods("POST")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}",
+		permMiddleware.RequirePermission("quotations", "read")(http.HandlerFunc(h.GetQuotation))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}",
+		permMiddleware.RequirePermission("quotations", "update")(http.HandlerFunc(h.UpdateQuotation))).Methods("PUT")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}",
+		permMiddleware.RequirePermission("quotations", "delete")(http.HandlerFunc(h.DeleteQuotation))).Methods("DELETE")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}/duplicate",
+		permMiddleware.RequirePermission("quotations", "create")(http.HandlerFunc(h.DuplicateQuotation))).Methods("POST")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}/status",
+		permMiddleware.RequirePermission("quotations", "update")(http.HandlerFunc(h.UpdateQuotationStatus))).Methods("PATCH")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}/pdf",
+		permMiddleware.RequirePermission("quotations", "read")(http.HandlerFunc(h.GenerateQuotationPDF))).Methods("GET")
+	api.Handle("/orgs/{orgId:[0-9a-f-]+}/quotations/{quotationId:[0-9a-f-]+}/convert-to-order",
+		permMiddleware.RequirePermission("quotations", "create")(http.HandlerFunc(h.ConvertQuotationToOrder))).Methods("POST")
+
 	remoteFrontendURL := os.Getenv("REMOTE_FRONTEND_URL")
 	// In production, serve static files from the "frontend/dist" directory
 	// CORS setup
