@@ -71,7 +71,19 @@ Flex ERP PoC is an inventory management system designed for multi-tenant organiz
 - **Sorting**: Sort by any column (name, quantity, cost, date, etc.)
 - **Include/Exclude Inactive**: Toggle visibility of deactivated SKUs
 
-### 10. Business Intelligence Features
+### 10. Inventory Quotations
+- **Sales Quotation Management**: Create and manage quotations for existing inventory items
+- **Flexible Pricing**: Apply unlimited pricing adjustments (discounts/markups) without restrictions
+- **Comprehensive Item Display**: Show item details including SKU, description, unit of measure, base price, category, supplier, and specifications
+- **Direct Workflow**: Send quotations directly to customers without approval requirements
+- **Quotation Actions**: Edit, duplicate, convert to sales orders, and track status (pending/accepted/rejected)
+- **PDF Generation**: Generate PDF quotations from preview/confirmation view
+- **Inventory Notifications**: Real-time alerts when inventory levels change during quotation creation
+- **Quantity Flexibility**: Quote any total amount regardless of current inventory levels
+- **Date-based Filtering**: Filter quotations by creation/applied date
+- **Status Tracking**: Monitor quotation lifecycle and customer responses
+
+### 11. Business Intelligence Features
 - **Inventory Valuation**: Real-time total inventory value calculations
 - **Cost Analysis**: Track cost changes over time through weighted averages
 - **Transaction Analytics**: View stock movement patterns and trends
