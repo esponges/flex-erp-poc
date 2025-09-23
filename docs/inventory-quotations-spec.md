@@ -29,9 +29,17 @@ A new feature for the Flex ERP PoC system that allows sales team members to crea
 - Sales person details
 - Creation date
 
-### 2. Pricing & Quantities
-- Users can apply pricing adjustments (discounts/markups)
-- No restrictions on discount amounts
+### 2. Pricing & Margins
+**Hybrid Margin System:**
+- **Default Margin**: Fixed percentage margin applied to all items in a quotation
+- **Per-Item Margin Override**: Users can edit margins for specific SKUs within the quotation
+- **Base Price Visibility**: Users can see the base/cost price during quotation creation
+- **Customer-Facing Price**: Final quotation PDF shows only the final price after margin application
+
+**Pricing Rules:**
+- Margins are applied as percentage markup on base price
+- Users can apply additional discounts/markups on top of margins
+- No restrictions on discount amounts or margin adjustments
 - Users can quote any total amount regardless of current inventory levels
 - Support for partial quantities vs available stock
 
@@ -70,19 +78,26 @@ Quotation:
 - Status (pending/accepted/rejected)
 - Delivery terms (placeholder)
 - Payment terms (placeholder)
+- Default margin percentage
 
 Quotation Line Items:
 - Item reference
 - Quantity quoted
-- Unit price
-- Discount/markup applied
+- Base/cost price
+- Item-specific margin percentage (overrides default if set)
+- Additional discount/markup applied
+- Final quoted price (calculated: base price + margin + discount/markup)
 - Line total
 ```
 
 ### User Interface Requirements
 - Quotation creation form with item search/selection
+- Default margin percentage input for the entire quotation
+- Per-line item margin override capability
+- Base price display (visible to user) vs final quoted price
+- Price calculation preview (base + margin + discount = final)
 - Real-time inventory level change notifications
-- Quotation preview before PDF generation
+- Quotation preview before PDF generation (shows only final prices)
 - Simple filtering interface by date
 - Action buttons for edit/duplicate/convert/send
 

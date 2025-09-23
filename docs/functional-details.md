@@ -73,11 +73,13 @@ Flex ERP PoC is an inventory management system designed for multi-tenant organiz
 
 ### 10. Inventory Quotations
 - **Sales Quotation Management**: Create and manage quotations for existing inventory items
-- **Flexible Pricing**: Apply unlimited pricing adjustments (discounts/markups) without restrictions
+- **Hybrid Margin System**: Default percentage margins with per-item override capability
+- **Flexible Pricing**: Apply unlimited pricing adjustments (discounts/markups) on top of margins without restrictions
+- **Price Transparency**: Users see base prices during creation; customers receive final prices only
 - **Comprehensive Item Display**: Show item details including SKU, description, unit of measure, base price, category, supplier, and specifications
 - **Direct Workflow**: Send quotations directly to customers without approval requirements
 - **Quotation Actions**: Edit, duplicate, convert to sales orders, and track status (pending/accepted/rejected)
-- **PDF Generation**: Generate PDF quotations from preview/confirmation view
+- **PDF Generation**: Generate PDF quotations from preview/confirmation view (final prices only)
 - **Inventory Notifications**: Real-time alerts when inventory levels change during quotation creation
 - **Quantity Flexibility**: Quote any total amount regardless of current inventory levels
 - **Date-based Filtering**: Filter quotations by creation/applied date
