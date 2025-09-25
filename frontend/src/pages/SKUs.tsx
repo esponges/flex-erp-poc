@@ -5,6 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { FileImportModal } from '@/components/FileImportModal';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
+// todo: move to types file
 interface SKU {
   id: number;
   organization_id: number;

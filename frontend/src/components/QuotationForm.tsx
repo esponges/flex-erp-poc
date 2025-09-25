@@ -3,28 +3,24 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
-interface SKU {
-  id: string;
-  sku_code: string;
-  product_name: string;
-  description?: string;
-  category?: string;
-  supplier?: string;
-  barcode?: string;
-  unit_of_measure?: string;
-  status: 'active' | 'inactive';
-  created_at: string;
-  updated_at: string;
-}
-
+// todo: move to types file
 interface InventoryItem {
   id: string;
   sku_id: string;
+  organization_id: string;
+  sku_code: string;
+  product_name: string;
+  description: string;
+  category: string;
+  supplier: string;
+  barcode: string | null;
   quantity: number;
   weighted_cost: number;
   total_value: number;
-  last_updated: string;
-  sku?: SKU;
+  is_active: boolean;
+  is_manual_cost: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface QuotationLineItemForm {
@@ -210,15 +206,21 @@ export function QuotationForm({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowItemSelector(false);
       }
     };
 
     if (showItemSelector) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
     }
+
+    return undefined;
   }, [showItemSelector]);
 
   const resetForm = () => {
@@ -237,16 +239,16 @@ export function QuotationForm({
   };
 
   const filteredItems = inventoryItems
-    .filter((item) => item.sku?.status === 'active')
+    .filter((item) => item.is_active)
     .filter((item) => {
       if (!searchTerm.trim()) return true;
 
       const searchLower = searchTerm.toLowerCase();
       return (
-        item.sku?.sku_code?.toLowerCase().includes(searchLower) ||
-        item.sku?.product_name?.toLowerCase().includes(searchLower) ||
-        item.sku?.category?.toLowerCase().includes(searchLower) ||
-        item.sku?.description?.toLowerCase().includes(searchLower)
+        item.sku_code?.toLowerCase().includes(searchLower) ||
+        item.product_name?.toLowerCase().includes(searchLower) ||
+        item.category?.toLowerCase().includes(searchLower) ||
+        item.description?.toLowerCase().includes(searchLower)
       );
     });
 
@@ -477,12 +479,14 @@ export function QuotationForm({
                   step='0.01'
                   min='-100'
                   max='1000'
-                  value={formData.default_margin_percentage}
+                  value={formData.default_margin_percentage || ''}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
                       default_margin_percentage:
-                        parseFloat(e.target.value) || 0,
+                        e.target.value === ''
+                          ? 0
+                          : parseFloat(e.target.value) || 0,
                     }))
                   }
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
@@ -535,8 +539,18 @@ export function QuotationForm({
                     className='inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700'
                   >
                     Add Item
-                    <svg className='ml-1 h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                    <svg
+                      className='ml-1 h-4 w-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M19 9l-7 7-7-7'
+                      />
                     </svg>
                   </button>
 
@@ -555,10 +569,14 @@ export function QuotationForm({
                       </div>
                       <div className='max-h-64 overflow-y-auto'>
                         {isLoadingInventory ? (
-                          <div className='p-4 text-center text-gray-500 text-sm'>Loading inventory...</div>
+                          <div className='p-4 text-center text-gray-500 text-sm'>
+                            Loading inventory...
+                          </div>
                         ) : filteredItems.length === 0 ? (
                           <div className='p-4 text-center text-gray-500 text-sm'>
-                            {searchTerm ? 'No items found matching your search' : 'No items available'}
+                            {searchTerm
+                              ? 'No items found matching your search'
+                              : 'No items available'}
                           </div>
                         ) : (
                           <div className='divide-y divide-gray-100'>
@@ -571,15 +589,17 @@ export function QuotationForm({
                                 <div className='flex justify-between items-start'>
                                   <div className='flex-1 min-w-0'>
                                     <div className='font-medium text-gray-900 truncate'>
-                                      {item.sku?.sku_code} - {item.sku?.product_name}
+                                      {item.sku_code} - {item.product_name}
                                     </div>
-                                    {item.sku?.description && (
+                                    {item.description && (
                                       <div className='text-xs text-gray-600 mt-1 truncate'>
-                                        {item.sku.description}
+                                        {item.description}
                                       </div>
                                     )}
                                     <div className='flex items-center space-x-3 mt-1 text-xs text-gray-500'>
-                                      {item.sku?.category && <span>Category: {item.sku.category}</span>}
+                                      {item.category && (
+                                        <span>Category: {item.category}</span>
+                                      )}
                                       <span>Qty: {item.quantity}</span>
                                     </div>
                                   </div>
@@ -620,8 +640,8 @@ export function QuotationForm({
                         <div className='flex justify-between items-start mb-3'>
                           <div>
                             <h4 className='font-medium text-gray-900'>
-                              {inventoryItem?.sku?.sku_code} -{' '}
-                              {inventoryItem?.sku?.product_name}
+                              {inventoryItem?.sku_code} -{' '}
+                              {inventoryItem?.product_name}
                             </h4>
                             <p className='text-sm text-gray-500'>
                               Base Cost: $
@@ -797,7 +817,6 @@ export function QuotationForm({
           </form>
         </div>
       </div>
-
     </div>
   );
 }
