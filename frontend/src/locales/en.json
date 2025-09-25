@@ -11,7 +11,8 @@
     "users": "Users",
     "logs": "Activity Logs",
     "settings": "Settings",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "quotations": "Quotations"
   },
   "auth": {
     "signIn": "Sign in to your account",
@@ -291,6 +292,103 @@
       "unauthorized": "You are not authorized to perform this action.",
       "notFound": "The requested item was not found.",
       "validation": "Please check your input and try again."
+    }
+  },
+  "quotations": {
+    "title": "Quotations",
+    "subtitle": "Manage customer quotations and pricing",
+    "createButton": "Create Quotation",
+    "searchPlaceholder": "Search quotations...",
+    "customerNamePlaceholder": "Customer name...",
+    "allStatuses": "All statuses",
+    "loading": "Loading quotations...",
+    "noQuotationsFound": "No quotations found",
+    "errorLoading": "Error loading quotations: {message}",
+    "pdfDownloadError": "Failed to download PDF. Please try again.",
+    "itemCount": "{count} item(s)",
+    "bySalesPerson": "by {name}",
+    "amount": "Amount",
+    "created": "Created",
+    "validUntil": "Valid Until",
+    "salesPerson": "Sales Person",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "table": {
+      "quotation": "Quotation",
+      "customer": "Customer",
+      "amount": "Amount",
+      "status": "Status",
+      "created": "Created",
+      "validUntil": "Valid Until",
+      "actions": "Actions"
+    },
+    "actions": {
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "pdf": "PDF",
+      "status": "Status",
+      "accept": "Accept",
+      "reject": "Reject",
+      "markExpired": "Mark Expired",
+      "changeStatus": "Change Status"
+    },
+    "stats": {
+      "totalQuotations": "Total Quotations",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "totalValue": "Total Value"
+    }
+  },
+  "quotationForm": {
+    "createTitle": "Create Quotation",
+    "editTitle": "Edit Quotation",
+    "fields": {
+      "customerName": "Customer Name",
+      "customerEmail": "Customer Email",
+      "customerPhone": "Customer Phone",
+      "customerAddress": "Customer Address",
+      "validityPeriod": "Validity Period (Days)",
+      "defaultMargin": "Default Margin (%)",
+      "deliveryTerms": "Delivery Terms",
+      "paymentTerms": "Payment Terms",
+      "notes": "Notes"
+    },
+    "lineItems": {
+      "title": "Line Items",
+      "addItem": "Add Item",
+      "searchPlaceholder": "Search items...",
+      "loadingInventory": "Loading inventory...",
+      "noItemsFound": "No items found matching your search",
+      "noItemsAvailable": "No items available",
+      "category": "Category",
+      "quantity": "Qty",
+      "noItemsAdded": "No items added yet. Click \"Add Item\" to get started.",
+      "baseCost": "Base Cost",
+      "available": "Available",
+      "remove": "Remove",
+      "itemMargin": "Item Margin (%)",
+      "defaultMarginPlaceholder": "Default: {margin}%",
+      "discount": "Discount ($)",
+      "markup": "Markup ($)",
+      "unitPrice": "Unit Price",
+      "lineTotal": "Line Total"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "total": "Total"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Quotation",
+      "update": "Update Quotation",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "atLeastOneItem": "Please add at least one line item"
     }
   }
 }

@@ -1,73 +1,85 @@
-import { type ReactNode, useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '@/contexts/AuthContext'
-import { useTranslation } from '@/hooks/useTranslation'
-import { LanguageSelector } from './LanguageSelector'
+import { type ReactNode, useState } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { LanguageSelector } from './LanguageSelector';
 
 interface LayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { state, logout } = useAuth()
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { state, logout } = useAuth();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
-    logout()
-    navigate({ to: '/', replace: true })
-  }
+    logout();
+    navigate({ to: '/', replace: true });
+  };
 
   const navigationItems = [
     { name: t('navigation.dashboard'), href: '/dashboard' },
     { name: t('navigation.skus'), href: '/skus' },
     { name: t('navigation.inventory'), href: '/inventory' },
     { name: t('navigation.transactions'), href: '/transactions' },
-    { name: 'Quotations', href: '/quotations' },
+    { name: t('navigation.quotations'), href: '/quotations' },
     { name: t('navigation.users'), href: '/users' },
     { name: t('navigation.logs'), href: '/logs' },
     { name: t('navigation.settings'), href: '/settings' },
-  ]
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className='min-h-screen bg-gray-50'>
+      <div className='flex'>
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
-          <div 
-            className="fixed inset-0 z-40 lg:hidden" 
+          <div
+            className='fixed inset-0 z-40 lg:hidden'
             onClick={() => setSidebarOpen(false)}
           >
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+            <div className='fixed inset-0 bg-gray-600 bg-opacity-75' />
           </div>
         )}
 
         {/* Sidebar */}
-        <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
-          <div className="flex flex-col h-full">
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className='flex flex-col h-full'>
             {/* Logo */}
-            <div className="flex items-center justify-between h-16 px-4 bg-gray-800">
-              <h1 className="text-xl font-bold text-white">{t('app.title')}</h1>
+            <div className='flex items-center justify-between h-16 px-4 bg-gray-800'>
+              <h1 className='text-xl font-bold text-white'>{t('app.title')}</h1>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="lg:hidden text-gray-400 hover:text-white"
+                className='lg:hidden text-gray-400 hover:text-white'
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className='w-6 h-6'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M6 18L18 6M6 6l12 12'
+                  />
                 </svg>
               </button>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-2 py-4 space-y-1">
+            <nav className='flex-1 px-2 py-4 space-y-1'>
               {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="block px-2 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white"
+                  className='block px-2 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white'
                   onClick={() => setSidebarOpen(false)}
                 >
                   {item.name}
@@ -76,25 +88,25 @@ export function Layout({ children }: LayoutProps) {
             </nav>
 
             {/* User info and logout */}
-            <div className="flex-shrink-0 px-4 py-4 border-t border-gray-700">
-              <div className="flex items-center mb-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+            <div className='flex-shrink-0 px-4 py-4 border-t border-gray-700'>
+              <div className='flex items-center mb-3'>
+                <div className='flex-1 min-w-0'>
+                  <p className='text-sm font-medium text-white truncate'>
                     {state.user?.name}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">
+                  <p className='text-xs text-gray-400 truncate'>
                     {state.organization?.name}
                   </p>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="ml-3 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200"
+                  className='ml-3 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200'
                 >
                   {t('navigation.signOut')}
                 </button>
               </div>
               {/* Language Selector */}
-              <div className="flex justify-center">
+              <div className='flex justify-center'>
                 <LanguageSelector />
               </div>
             </div>
@@ -102,30 +114,42 @@ export function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 lg:pl-64 min-w-0">
+        <div className='flex-1 lg:pl-64 min-w-0'>
           {/* Mobile header */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 lg:hidden">
-            <div className="flex items-center justify-between h-16 px-4">
+          <div className='sticky top-0 z-10 bg-white border-b border-gray-200 lg:hidden'>
+            <div className='flex items-center justify-between h-16 px-4'>
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="text-gray-500 hover:text-gray-600"
+                className='text-gray-500 hover:text-gray-600'
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <svg
+                  className='w-6 h-6'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M4 6h16M4 12h16M4 18h16'
+                  />
                 </svg>
               </button>
-              <h1 className="text-lg font-medium text-gray-900">{t('app.title')}</h1>
-              <div className="w-6" /> {/* Spacer for centering */}
+              <h1 className='text-lg font-medium text-gray-900'>
+                {t('app.title')}
+              </h1>
+              <div className='w-6' /> {/* Spacer for centering */}
             </div>
           </div>
 
-          <main className="py-4 lg:py-6 min-w-0">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-w-0">
+          <main className='py-4 lg:py-6 min-w-0'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-w-0'>
               {children}
             </div>
           </main>
         </div>
       </div>
     </div>
-  )
+  );
 }

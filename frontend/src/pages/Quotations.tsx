@@ -62,9 +62,15 @@ const quotationAPI = {
       queryParams.set('customer_name', params.customerName);
     if (params.search) queryParams.set('search', params.search);
     if (params.dateFrom)
-      queryParams.set('date_from', params.dateFrom.toISOString().split('T')[0]);
+      queryParams.set(
+        'date_from',
+        params.dateFrom.toISOString().split('T')[0] || ''
+      );
     if (params.dateTo)
-      queryParams.set('date_to', params.dateTo.toISOString().split('T')[0]);
+      queryParams.set(
+        'date_to',
+        params.dateTo.toISOString().split('T')[0] || ''
+      );
     if (params.page) queryParams.set('page', params.page.toString());
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
@@ -159,7 +165,7 @@ type QuotationSummary = {
 
 export function Quotations() {
   const { state: authState } = useAuth();
-  const { formatCurrency } = useTranslation();
+  const { t, formatCurrency, formatDate } = useTranslation();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<QuotationListParams>({
     page: 1,
@@ -258,7 +264,7 @@ export function Quotations() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
+      alert(t('quotations.pdfDownloadError'));
     }
   };
 
@@ -267,7 +273,7 @@ export function Quotations() {
       <div className='p-6'>
         <div className='bg-red-50 border border-red-200 rounded-md p-4'>
           <p className='text-red-600'>
-            Error loading quotations: {error.message}
+            {t('quotations.errorLoading', { message: error.message })}
           </p>
         </div>
       </div>
@@ -278,9 +284,9 @@ export function Quotations() {
     <div className='space-y-6'>
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900'>Quotations</h1>
+          <h1 className='text-2xl font-bold text-gray-900'>{t('quotations.title')}</h1>
           <p className='mt-1 text-sm text-gray-600'>
-            Manage customer quotations and pricing
+            {t('quotations.subtitle')}
           </p>
         </div>
         <div className='flex flex-col sm:flex-row gap-2'>
@@ -288,7 +294,7 @@ export function Quotations() {
             onClick={() => setShowCreateForm(true)}
             className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700'
           >
-            Create Quotation
+{t('quotations.createButton')}
           </button>
         </div>
       </div>
@@ -299,7 +305,7 @@ export function Quotations() {
           <div>
             <input
               type='text'
-              placeholder='Search quotations...'
+              placeholder={t('quotations.searchPlaceholder')}
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
               value={filters.search || ''}
               onChange={(e) =>
@@ -310,7 +316,7 @@ export function Quotations() {
           <div>
             <input
               type='text'
-              placeholder='Customer name...'
+              placeholder={t('quotations.customerNamePlaceholder')}
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
               value={filters.customerName || ''}
               onChange={(e) =>
@@ -329,11 +335,11 @@ export function Quotations() {
                 setFilters({ ...filters, status: e.target.value || undefined })
               }
             >
-              <option value=''>All statuses</option>
-              <option value='pending'>Pending</option>
-              <option value='accepted'>Accepted</option>
-              <option value='rejected'>Rejected</option>
-              <option value='expired'>Expired</option>
+              <option value=''>{t('quotations.allStatuses')}</option>
+              <option value='pending'>{t('quotations.status.pending')}</option>
+              <option value='accepted'>{t('quotations.status.accepted')}</option>
+              <option value='rejected'>{t('quotations.status.rejected')}</option>
+              <option value='expired'>{t('quotations.status.expired')}</option>
             </select>
           </div>
           <div>
@@ -365,25 +371,25 @@ export function Quotations() {
             <thead className='bg-gray-50'>
               <tr>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Quotation
+                  {t('quotations.table.quotation')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Customer
+                  {t('quotations.table.customer')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Amount
+                  {t('quotations.table.amount')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Status
+                  {t('quotations.table.status')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Created
+                  {t('quotations.table.created')}
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Valid Until
+                  {t('quotations.table.validUntil')}
                 </th>
                 <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Actions
+                  {t('quotations.table.actions')}
                 </th>
               </tr>
             </thead>
@@ -394,7 +400,7 @@ export function Quotations() {
                     colSpan={7}
                     className='px-6 py-4 text-center text-gray-500'
                   >
-                    Loading quotations...
+                    {t('quotations.loading')}
                   </td>
                 </tr>
               ) : quotations.length === 0 ? (
@@ -403,7 +409,7 @@ export function Quotations() {
                     colSpan={7}
                     className='px-6 py-4 text-center text-gray-500'
                   >
-                    No quotations found
+                    {t('quotations.noQuotationsFound')}
                   </td>
                 </tr>
               ) : (
@@ -415,7 +421,7 @@ export function Quotations() {
                           {quotation.quotation_number}
                         </div>
                         <div className='text-sm text-gray-500'>
-                          {quotation.line_item_count} item(s)
+                          {t('quotations.itemCount', { count: quotation.line_item_count })}
                         </div>
                       </div>
                     </td>
@@ -425,7 +431,7 @@ export function Quotations() {
                       </div>
                       {quotation.sales_person_name && (
                         <div className='text-sm text-gray-500'>
-                          by {quotation.sales_person_name}
+                          {t('quotations.bySalesPerson', { name: quotation.sales_person_name })}
                         </div>
                       )}
                     </td>
@@ -443,10 +449,10 @@ export function Quotations() {
                       </span>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                      {new Date(quotation.creation_date).toLocaleDateString()}
+                      {formatDate(quotation.creation_date)}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                      {new Date(quotation.valid_until).toLocaleDateString()}
+                      {formatDate(quotation.valid_until)}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
                       <div className='flex justify-end space-x-2'>
@@ -454,14 +460,14 @@ export function Quotations() {
                           onClick={() => setEditingQuotationId(quotation.id)}
                           className='text-indigo-600 hover:text-indigo-900'
                         >
-                          Edit
+                          {t('quotations.actions.edit')}
                         </button>
                         <button
                           onClick={() => handleDuplicate(quotation.id)}
                           className='text-indigo-600 hover:text-indigo-900'
                           disabled={duplicateMutation.isPending}
                         >
-                          Duplicate
+                          {t('quotations.actions.duplicate')}
                         </button>
                         <button
                           onClick={() =>
@@ -472,7 +478,7 @@ export function Quotations() {
                           }
                           className='text-green-600 hover:text-green-900'
                         >
-                          PDF
+                          {t('quotations.actions.pdf')}
                         </button>
                         {quotation.status === 'pending' && (
                           <select
@@ -488,10 +494,10 @@ export function Quotations() {
                               }
                             }}
                           >
-                            <option value=''>Status</option>
-                            <option value='accepted'>Accept</option>
-                            <option value='rejected'>Reject</option>
-                            <option value='expired'>Mark Expired</option>
+                            <option value=''>{t('quotations.actions.status')}</option>
+                            <option value='accepted'>{t('quotations.actions.accept')}</option>
+                            <option value='rejected'>{t('quotations.actions.reject')}</option>
+                            <option value='expired'>{t('quotations.actions.markExpired')}</option>
                           </select>
                         )}
                       </div>
@@ -508,11 +514,11 @@ export function Quotations() {
       <div className='lg:hidden space-y-4'>
         {isLoading ? (
           <div className='bg-white rounded-lg shadow p-6 text-center text-gray-500'>
-            Loading quotations...
+            {t('quotations.loading')}
           </div>
         ) : quotations.length === 0 ? (
           <div className='bg-white rounded-lg shadow p-6 text-center text-gray-500'>
-            No quotations found
+            {t('quotations.noQuotationsFound')}
           </div>
         ) : (
           quotations.map((quotation) => (
@@ -526,7 +532,7 @@ export function Quotations() {
                     {quotation.customer_name}
                   </p>
                   <p className='text-xs text-gray-400 mt-1'>
-                    {quotation.line_item_count} item(s)
+                    {t('quotations.itemCount', { count: quotation.line_item_count })}
                   </p>
                 </div>
                 <span
@@ -541,26 +547,26 @@ export function Quotations() {
 
               <div className='grid grid-cols-2 gap-3 text-sm mb-3'>
                 <div>
-                  <span className='text-gray-500'>Amount:</span>
+                  <span className='text-gray-500'>{t('quotations.amount')}:</span>
                   <span className='ml-1 font-medium'>
                     {formatCurrency(quotation.total_amount)}
                   </span>
                 </div>
                 <div>
-                  <span className='text-gray-500'>Created:</span>
+                  <span className='text-gray-500'>{t('quotations.created')}:</span>
                   <span className='ml-1'>
-                    {new Date(quotation.creation_date).toLocaleDateString()}
+                    {formatDate(quotation.creation_date)}
                   </span>
                 </div>
                 <div>
-                  <span className='text-gray-500'>Valid Until:</span>
+                  <span className='text-gray-500'>{t('quotations.validUntil')}:</span>
                   <span className='ml-1'>
-                    {new Date(quotation.valid_until).toLocaleDateString()}
+                    {formatDate(quotation.valid_until)}
                   </span>
                 </div>
                 {quotation.sales_person_name && (
                   <div>
-                    <span className='text-gray-500'>Sales Person:</span>
+                    <span className='text-gray-500'>{t('quotations.salesPerson')}:</span>
                     <span className='ml-1'>{quotation.sales_person_name}</span>
                   </div>
                 )}
@@ -571,14 +577,14 @@ export function Quotations() {
                   onClick={() => setEditingQuotationId(quotation.id)}
                   className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
                 >
-                  Edit
+                  {t('quotations.actions.edit')}
                 </button>
                 <button
                   onClick={() => handleDuplicate(quotation.id)}
                   className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
                   disabled={duplicateMutation.isPending}
                 >
-                  Duplicate
+                  {t('quotations.actions.duplicate')}
                 </button>
                 <button
                   onClick={() =>
@@ -586,7 +592,7 @@ export function Quotations() {
                   }
                   className='text-green-600 hover:text-green-900 text-sm font-medium'
                 >
-                  PDF
+                  {t('quotations.actions.pdf')}
                 </button>
                 {quotation.status === 'pending' && (
                   <select
@@ -599,10 +605,10 @@ export function Quotations() {
                       }
                     }}
                   >
-                    <option value=''>Change Status</option>
-                    <option value='accepted'>Accept</option>
-                    <option value='rejected'>Reject</option>
-                    <option value='expired'>Mark Expired</option>
+                    <option value=''>{t('quotations.actions.changeStatus')}</option>
+                    <option value='accepted'>{t('quotations.actions.accept')}</option>
+                    <option value='rejected'>{t('quotations.actions.reject')}</option>
+                    <option value='expired'>{t('quotations.actions.markExpired')}</option>
                   </select>
                 )}
               </div>
@@ -615,26 +621,26 @@ export function Quotations() {
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
           <div className='text-sm font-medium text-gray-500'>
-            Total Quotations
+            {t('quotations.stats.totalQuotations')}
           </div>
           <div className='text-2xl font-bold text-gray-900'>
             {quotations.length}
           </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
-          <div className='text-sm font-medium text-gray-500'>Pending</div>
+          <div className='text-sm font-medium text-gray-500'>{t('quotations.stats.pending')}</div>
           <div className='text-2xl font-bold text-yellow-600'>
             {quotations.filter((q) => q.status === 'pending').length}
           </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
-          <div className='text-sm font-medium text-gray-500'>Accepted</div>
+          <div className='text-sm font-medium text-gray-500'>{t('quotations.stats.accepted')}</div>
           <div className='text-2xl font-bold text-green-600'>
             {quotations.filter((q) => q.status === 'accepted').length}
           </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
-          <div className='text-sm font-medium text-gray-500'>Total Value</div>
+          <div className='text-sm font-medium text-gray-500'>{t('quotations.stats.totalValue')}</div>
           <div className='text-2xl font-bold text-gray-900'>
             {formatCurrency(
               quotations.reduce((sum, q) => sum + q.total_amount, 0)

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
 
 // todo: move to types file
@@ -121,6 +122,7 @@ export function QuotationForm({
   quotationId,
 }: QuotationFormProps) {
   const { state: authState } = useAuth();
+  const { t, formatCurrency } = useTranslation();
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState<CreateQuotationRequest>({
@@ -333,7 +335,7 @@ export function QuotationForm({
     e.preventDefault();
 
     if (formData.line_items.length === 0) {
-      alert('Please add at least one line item');
+      alert(t('quotationForm.validation.atLeastOneItem'));
       return;
     }
 
@@ -354,7 +356,7 @@ export function QuotationForm({
         <div className='p-6'>
           <div className='flex justify-between items-center mb-6'>
             <h2 className='text-xl font-semibold text-gray-900'>
-              {quotationId ? 'Edit Quotation' : 'Create Quotation'}
+              {quotationId ? t('quotationForm.editTitle') : t('quotationForm.createTitle')}
             </h2>
             <button
               onClick={onClose}
@@ -381,7 +383,7 @@ export function QuotationForm({
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Customer Name *
+                  {t('quotationForm.fields.customerName')} *
                 </label>
                 <input
                   type='text'
@@ -398,7 +400,7 @@ export function QuotationForm({
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Customer Email
+                  {t('quotationForm.fields.customerEmail')}
                 </label>
                 <input
                   type='email'
@@ -414,7 +416,7 @@ export function QuotationForm({
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Customer Phone
+                  {t('quotationForm.fields.customerPhone')}
                 </label>
                 <input
                   type='tel'
@@ -430,7 +432,7 @@ export function QuotationForm({
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Validity Period (Days) *
+                  {t('quotationForm.fields.validityPeriod')} *
                 </label>
                 <input
                   type='number'
@@ -452,7 +454,7 @@ export function QuotationForm({
             {/* Address */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Customer Address
+                {t('quotationForm.fields.customerAddress')}
               </label>
               <textarea
                 rows={2}
@@ -471,7 +473,7 @@ export function QuotationForm({
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Default Margin (%) *
+                  {t('quotationForm.fields.defaultMargin')} *
                 </label>
                 <input
                   type='number'
@@ -494,7 +496,7 @@ export function QuotationForm({
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Delivery Terms
+                  {t('quotationForm.fields.deliveryTerms')}
                 </label>
                 <input
                   type='text'
@@ -510,7 +512,7 @@ export function QuotationForm({
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Payment Terms
+                  {t('quotationForm.fields.paymentTerms')}
                 </label>
                 <input
                   type='text'
@@ -530,7 +532,7 @@ export function QuotationForm({
             <div>
               <div className='flex justify-between items-center mb-3'>
                 <h3 className='text-lg font-medium text-gray-900'>
-                  Line Items
+                  {t('quotationForm.lineItems.title')}
                 </h3>
                 <div className='relative' ref={dropdownRef}>
                   <button
@@ -538,7 +540,7 @@ export function QuotationForm({
                     onClick={() => setShowItemSelector(!showItemSelector)}
                     className='inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700'
                   >
-                    Add Item
+                    {t('quotationForm.lineItems.addItem')}
                     <svg
                       className='ml-1 h-4 w-4'
                       fill='none'
@@ -560,7 +562,7 @@ export function QuotationForm({
                       <div className='p-3 border-b border-gray-200'>
                         <input
                           type='text'
-                          placeholder='Search items...'
+                          placeholder={t('quotationForm.lineItems.searchPlaceholder')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm'
@@ -570,13 +572,13 @@ export function QuotationForm({
                       <div className='max-h-64 overflow-y-auto'>
                         {isLoadingInventory ? (
                           <div className='p-4 text-center text-gray-500 text-sm'>
-                            Loading inventory...
+                            {t('quotationForm.lineItems.loadingInventory')}
                           </div>
                         ) : filteredItems.length === 0 ? (
                           <div className='p-4 text-center text-gray-500 text-sm'>
                             {searchTerm
-                              ? 'No items found matching your search'
-                              : 'No items available'}
+                              ? t('quotationForm.lineItems.noItemsFound')
+                              : t('quotationForm.lineItems.noItemsAvailable')}
                           </div>
                         ) : (
                           <div className='divide-y divide-gray-100'>
@@ -598,14 +600,14 @@ export function QuotationForm({
                                     )}
                                     <div className='flex items-center space-x-3 mt-1 text-xs text-gray-500'>
                                       {item.category && (
-                                        <span>Category: {item.category}</span>
+                                        <span>{t('quotationForm.lineItems.category')}: {item.category}</span>
                                       )}
-                                      <span>Qty: {item.quantity}</span>
+                                      <span>{t('quotationForm.lineItems.quantity')}: {item.quantity}</span>
                                     </div>
                                   </div>
                                   <div className='text-right ml-2'>
                                     <div className='text-sm font-medium text-gray-900'>
-                                      ${item.weighted_cost.toFixed(2)}
+                                      {formatCurrency(item.weighted_cost)}
                                     </div>
                                   </div>
                                 </div>
@@ -621,7 +623,7 @@ export function QuotationForm({
 
               {formData.line_items.length === 0 ? (
                 <div className='text-center py-8 text-gray-500'>
-                  No items added yet. Click "Add Item" to get started.
+                  {t('quotationForm.lineItems.noItemsAdded')}
                 </div>
               ) : (
                 <div className='space-y-4'>
@@ -644,9 +646,8 @@ export function QuotationForm({
                               {inventoryItem?.product_name}
                             </h4>
                             <p className='text-sm text-gray-500'>
-                              Base Cost: $
-                              {inventoryItem?.weighted_cost.toFixed(2)} |
-                              Available: {inventoryItem?.quantity}
+                              {t('quotationForm.lineItems.baseCost')}: {formatCurrency(inventoryItem?.weighted_cost || 0)} |
+                              {t('quotationForm.lineItems.available')}: {inventoryItem?.quantity}
                             </p>
                           </div>
                           <button
@@ -654,14 +655,14 @@ export function QuotationForm({
                             onClick={() => removeLineItem(index)}
                             className='text-red-600 hover:text-red-800'
                           >
-                            Remove
+                            {t('quotationForm.lineItems.remove')}
                           </button>
                         </div>
 
                         <div className='grid grid-cols-1 md:grid-cols-5 gap-3'>
                           <div>
                             <label className='block text-xs font-medium text-gray-700 mb-1'>
-                              Quantity *
+                              {t('quotationForm.lineItems.quantity')} *
                             </label>
                             <input
                               type='number'
@@ -679,14 +680,14 @@ export function QuotationForm({
                           </div>
                           <div>
                             <label className='block text-xs font-medium text-gray-700 mb-1'>
-                              Item Margin (%)
+                              {t('quotationForm.lineItems.itemMargin')}
                             </label>
                             <input
                               type='number'
                               step='0.01'
                               min='-100'
                               max='1000'
-                              placeholder={`Default: ${formData.default_margin_percentage}%`}
+                              placeholder={t('quotationForm.lineItems.defaultMarginPlaceholder', { margin: formData.default_margin_percentage })}
                               value={lineItem.item_margin_percentage || ''}
                               onChange={(e) =>
                                 updateLineItem(index, {
@@ -700,7 +701,7 @@ export function QuotationForm({
                           </div>
                           <div>
                             <label className='block text-xs font-medium text-gray-700 mb-1'>
-                              Discount ($)
+                              {t('quotationForm.lineItems.discount')}
                             </label>
                             <input
                               type='number'
@@ -718,7 +719,7 @@ export function QuotationForm({
                           </div>
                           <div>
                             <label className='block text-xs font-medium text-gray-700 mb-1'>
-                              Markup ($)
+                              {t('quotationForm.lineItems.markup')}
                             </label>
                             <input
                               type='number'
@@ -736,19 +737,19 @@ export function QuotationForm({
                           </div>
                           <div>
                             <label className='block text-xs font-medium text-gray-700 mb-1'>
-                              Unit Price
+                              {t('quotationForm.lineItems.unitPrice')}
                             </label>
                             <div className='px-2 py-1 bg-gray-50 border border-gray-200 rounded text-sm font-medium'>
-                              ${unitPrice.toFixed(2)}
+                              {formatCurrency(unitPrice)}
                             </div>
                           </div>
                         </div>
 
                         <div className='mt-2 text-right'>
                           <span className='text-sm font-medium text-gray-700'>
-                            Line Total:{' '}
+                            {t('quotationForm.lineItems.lineTotal')}:{' '}
                             <span className='font-bold'>
-                              ${lineTotal.toFixed(2)}
+                              {formatCurrency(lineTotal)}
                             </span>
                           </span>
                         </div>
@@ -762,7 +763,7 @@ export function QuotationForm({
             {/* Notes */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Notes
+                {t('quotationForm.fields.notes')}
               </label>
               <textarea
                 rows={3}
@@ -780,13 +781,13 @@ export function QuotationForm({
                 <div className='flex justify-end space-y-2'>
                   <div className='text-right'>
                     <div className='text-sm text-gray-600'>
-                      Subtotal:{' '}
+                      {t('quotationForm.totals.subtotal')}:{' '}
                       <span className='font-medium'>
-                        ${subtotal.toFixed(2)}
+                        {formatCurrency(subtotal)}
                       </span>
                     </div>
                     <div className='text-lg font-bold text-gray-900'>
-                      Total: ${total.toFixed(2)}
+                      {t('quotationForm.totals.total')}: {formatCurrency(total)}
                     </div>
                   </div>
                 </div>
@@ -800,7 +801,7 @@ export function QuotationForm({
                 onClick={onClose}
                 className='px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200'
               >
-                Cancel
+                {t('quotationForm.actions.cancel')}
               </button>
               <button
                 type='submit'
@@ -808,10 +809,10 @@ export function QuotationForm({
                 className='px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed'
               >
                 {createMutation.isPending || updateMutation.isPending
-                  ? 'Saving...'
+                  ? t('quotationForm.actions.saving')
                   : quotationId
-                  ? 'Update Quotation'
-                  : 'Create Quotation'}
+                  ? t('quotationForm.actions.update')
+                  : t('quotationForm.actions.create')}
               </button>
             </div>
           </form>

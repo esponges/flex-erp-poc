@@ -11,7 +11,8 @@
     "users": "Usuarios",
     "logs": "Registro de Actividad",
     "settings": "Configuración",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "quotations": "Cotizaciones"
   },
   "auth": {
     "signIn": "Iniciar sesión en su cuenta",
@@ -291,6 +292,103 @@
       "unauthorized": "No está autorizado para realizar esta acción.",
       "notFound": "El elemento solicitado no fue encontrado.",
       "validation": "Por favor verifique su entrada e inténtelo de nuevo."
+    }
+  },
+  "quotations": {
+    "title": "Cotizaciones",
+    "subtitle": "Gestionar cotizaciones y precios de clientes",
+    "createButton": "Crear Cotización",
+    "searchPlaceholder": "Buscar cotizaciones...",
+    "customerNamePlaceholder": "Nombre del cliente...",
+    "allStatuses": "Todos los estados",
+    "loading": "Cargando cotizaciones...",
+    "noQuotationsFound": "No se encontraron cotizaciones",
+    "errorLoading": "Error al cargar cotizaciones: {message}",
+    "pdfDownloadError": "Error al descargar PDF. Por favor, inténtelo de nuevo.",
+    "itemCount": "{count} artículo(s)",
+    "bySalesPerson": "por {name}",
+    "amount": "Cantidad",
+    "created": "Creado",
+    "validUntil": "Válido hasta",
+    "salesPerson": "Vendedor",
+    "status": {
+      "pending": "Pendiente",
+      "accepted": "Aceptado",
+      "rejected": "Rechazado",
+      "expired": "Expirado"
+    },
+    "table": {
+      "quotation": "Cotización",
+      "customer": "Cliente",
+      "amount": "Cantidad",
+      "status": "Estado",
+      "created": "Creado",
+      "validUntil": "Válido hasta",
+      "actions": "Acciones"
+    },
+    "actions": {
+      "edit": "Editar",
+      "duplicate": "Duplicar",
+      "pdf": "PDF",
+      "status": "Estado",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "markExpired": "Marcar como Expirado",
+      "changeStatus": "Cambiar Estado"
+    },
+    "stats": {
+      "totalQuotations": "Total de Cotizaciones",
+      "pending": "Pendientes",
+      "accepted": "Aceptadas",
+      "totalValue": "Valor Total"
+    }
+  },
+  "quotationForm": {
+    "createTitle": "Crear Cotización",
+    "editTitle": "Editar Cotización",
+    "fields": {
+      "customerName": "Nombre del Cliente",
+      "customerEmail": "Email del Cliente",
+      "customerPhone": "Teléfono del Cliente",
+      "customerAddress": "Dirección del Cliente",
+      "validityPeriod": "Período de Validez (Días)",
+      "defaultMargin": "Margen Predeterminado (%)",
+      "deliveryTerms": "Términos de Entrega",
+      "paymentTerms": "Términos de Pago",
+      "notes": "Notas"
+    },
+    "lineItems": {
+      "title": "Artículos de Línea",
+      "addItem": "Agregar Artículo",
+      "searchPlaceholder": "Buscar artículos...",
+      "loadingInventory": "Cargando inventario...",
+      "noItemsFound": "No se encontraron artículos que coincidan con su búsqueda",
+      "noItemsAvailable": "No hay artículos disponibles",
+      "category": "Categoría",
+      "quantity": "Cant.",
+      "noItemsAdded": "Aún no se han agregado artículos. Haga clic en \"Agregar Artículo\" para comenzar.",
+      "baseCost": "Costo Base",
+      "available": "Disponible",
+      "remove": "Eliminar",
+      "itemMargin": "Margen del Artículo (%)",
+      "defaultMarginPlaceholder": "Predeterminado: {margin}%",
+      "discount": "Descuento ($)",
+      "markup": "Recargo ($)",
+      "unitPrice": "Precio Unitario",
+      "lineTotal": "Total de Línea"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "total": "Total"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "create": "Crear Cotización",
+      "update": "Actualizar Cotización",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "atLeastOneItem": "Por favor agregue al menos un artículo de línea"
     }
   }
 }

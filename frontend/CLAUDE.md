@@ -5,3 +5,4 @@
 - When implementing API calls to the backend use the `apiUrl` and `getAuthHeaders` utility functions from `frontend/src/utils/api.ts`.
 - the request use `react-query` for data fetching and server state management.
 - we use `pnpm` as package manager.
+- for intl you can use the existing custom hook `useIntl`.
