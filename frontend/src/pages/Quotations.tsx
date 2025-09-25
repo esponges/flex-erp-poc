@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiUrl, getAuthHeaders } from '@/utils/api';
+import { QuotationForm } from '@/components/QuotationForm';
 
 interface Quotation {
   id: string;
@@ -57,10 +58,13 @@ const quotationAPI = {
     const queryParams = new URLSearchParams();
 
     if (params.status) queryParams.set('status', params.status);
-    if (params.customerName) queryParams.set('customer_name', params.customerName);
+    if (params.customerName)
+      queryParams.set('customer_name', params.customerName);
     if (params.search) queryParams.set('search', params.search);
-    if (params.dateFrom) queryParams.set('date_from', params.dateFrom.toISOString().split('T')[0]);
-    if (params.dateTo) queryParams.set('date_to', params.dateTo.toISOString().split('T')[0]);
+    if (params.dateFrom)
+      queryParams.set('date_from', params.dateFrom.toISOString().split('T')[0]);
+    if (params.dateTo)
+      queryParams.set('date_to', params.dateTo.toISOString().split('T')[0]);
     if (params.page) queryParams.set('page', params.page.toString());
     if (params.limit) queryParams.set('limit', params.limit.toString());
 
@@ -131,7 +135,7 @@ const quotationAPI = {
   },
 };
 
-interface QuotationListParams {
+type QuotationListParams = {
   status?: string | undefined;
   customerName?: string | undefined;
   search?: string | undefined;
@@ -139,9 +143,9 @@ interface QuotationListParams {
   dateTo?: Date | undefined;
   page?: number;
   limit?: number;
-}
+};
 
-interface QuotationSummary {
+type QuotationSummary = {
   id: string;
   quotation_number: string;
   customer_name: string;
@@ -151,7 +155,7 @@ interface QuotationSummary {
   valid_until: string;
   sales_person_name?: string;
   line_item_count: number;
-}
+};
 
 export function Quotations() {
   const { state: authState } = useAuth();
@@ -162,6 +166,9 @@ export function Quotations() {
     limit: 50,
   });
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingQuotationId, setEditingQuotationId] = useState<string | null>(
+    null
+  );
 
   const {
     data: quotations = [],
@@ -174,8 +181,18 @@ export function Quotations() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ quotationId, status }: { quotationId: string; status: string }) =>
-      quotationAPI.updateStatus(quotationId, status, authState.organization?.id!),
+    mutationFn: ({
+      quotationId,
+      status,
+    }: {
+      quotationId: string;
+      status: string;
+    }) =>
+      quotationAPI.updateStatus(
+        quotationId,
+        status,
+        authState.organization?.id!
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
     },
@@ -210,6 +227,39 @@ export function Quotations() {
 
   const handleDuplicate = (quotationId: string) => {
     duplicateMutation.mutate(quotationId);
+  };
+
+  const handleDownloadPDF = async (
+    quotationId: string,
+    quotationNumber: string
+  ) => {
+    try {
+      const response = await fetch(
+        apiUrl(
+          `/api/v1/orgs/${authState.organization?.id}/quotations/${quotationId}/pdf`
+        ),
+        {
+          headers: getAuthHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `quotation-${quotationNumber}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
+    }
   };
 
   if (error) {
@@ -252,7 +302,9 @@ export function Quotations() {
               placeholder='Search quotations...'
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
               value={filters.search || ''}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value || undefined })
+              }
             />
           </div>
           <div>
@@ -261,14 +313,21 @@ export function Quotations() {
               placeholder='Customer name...'
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
               value={filters.customerName || ''}
-              onChange={(e) => setFilters({ ...filters, customerName: e.target.value || undefined })}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  customerName: e.target.value || undefined,
+                })
+              }
             />
           </div>
           <div>
             <select
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
               value={filters.status || ''}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value || undefined })}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value || undefined })
+              }
             >
               <option value=''>All statuses</option>
               <option value='pending'>Pending</option>
@@ -281,8 +340,19 @@ export function Quotations() {
             <input
               type='date'
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
-              value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
-              onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value ? new Date(e.target.value) : undefined })}
+              value={
+                filters.dateFrom
+                  ? filters.dateFrom.toISOString().split('T')[0]
+                  : ''
+              }
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  dateFrom: e.target.value
+                    ? new Date(e.target.value)
+                    : undefined,
+                })
+              }
             />
           </div>
         </div>
@@ -320,13 +390,19 @@ export function Quotations() {
             <tbody className='bg-white divide-y divide-gray-200'>
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className='px-6 py-4 text-center text-gray-500'>
+                  <td
+                    colSpan={7}
+                    className='px-6 py-4 text-center text-gray-500'
+                  >
                     Loading quotations...
                   </td>
                 </tr>
               ) : quotations.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className='px-6 py-4 text-center text-gray-500'>
+                  <td
+                    colSpan={7}
+                    className='px-6 py-4 text-center text-gray-500'
+                  >
                     No quotations found
                   </td>
                 </tr>
@@ -344,17 +420,26 @@ export function Quotations() {
                       </div>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <div className='text-sm text-gray-900'>{quotation.customer_name}</div>
+                      <div className='text-sm text-gray-900'>
+                        {quotation.customer_name}
+                      </div>
                       {quotation.sales_person_name && (
-                        <div className='text-sm text-gray-500'>by {quotation.sales_person_name}</div>
+                        <div className='text-sm text-gray-500'>
+                          by {quotation.sales_person_name}
+                        </div>
                       )}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
                       {formatCurrency(quotation.total_amount)}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(quotation.status)}`}>
-                        {quotation.status.charAt(0).toUpperCase() + quotation.status.slice(1)}
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                          quotation.status
+                        )}`}
+                      >
+                        {quotation.status.charAt(0).toUpperCase() +
+                          quotation.status.slice(1)}
                       </span>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
@@ -366,11 +451,28 @@ export function Quotations() {
                     <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
                       <div className='flex justify-end space-x-2'>
                         <button
+                          onClick={() => setEditingQuotationId(quotation.id)}
+                          className='text-indigo-600 hover:text-indigo-900'
+                        >
+                          Edit
+                        </button>
+                        <button
                           onClick={() => handleDuplicate(quotation.id)}
                           className='text-indigo-600 hover:text-indigo-900'
                           disabled={duplicateMutation.isPending}
                         >
                           Duplicate
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDownloadPDF(
+                              quotation.id,
+                              quotation.quotation_number
+                            )
+                          }
+                          className='text-green-600 hover:text-green-900'
+                        >
+                          PDF
                         </button>
                         {quotation.status === 'pending' && (
                           <select
@@ -378,7 +480,10 @@ export function Quotations() {
                             defaultValue=''
                             onChange={(e) => {
                               if (e.target.value) {
-                                handleStatusUpdate(quotation.id, e.target.value);
+                                handleStatusUpdate(
+                                  quotation.id,
+                                  e.target.value
+                                );
                                 e.target.value = '';
                               }
                             }}
@@ -424,23 +529,34 @@ export function Quotations() {
                     {quotation.line_item_count} item(s)
                   </p>
                 </div>
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(quotation.status)} ml-2`}>
-                  {quotation.status.charAt(0).toUpperCase() + quotation.status.slice(1)}
+                <span
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                    quotation.status
+                  )} ml-2`}
+                >
+                  {quotation.status.charAt(0).toUpperCase() +
+                    quotation.status.slice(1)}
                 </span>
               </div>
 
               <div className='grid grid-cols-2 gap-3 text-sm mb-3'>
                 <div>
                   <span className='text-gray-500'>Amount:</span>
-                  <span className='ml-1 font-medium'>{formatCurrency(quotation.total_amount)}</span>
+                  <span className='ml-1 font-medium'>
+                    {formatCurrency(quotation.total_amount)}
+                  </span>
                 </div>
                 <div>
                   <span className='text-gray-500'>Created:</span>
-                  <span className='ml-1'>{new Date(quotation.creation_date).toLocaleDateString()}</span>
+                  <span className='ml-1'>
+                    {new Date(quotation.creation_date).toLocaleDateString()}
+                  </span>
                 </div>
                 <div>
                   <span className='text-gray-500'>Valid Until:</span>
-                  <span className='ml-1'>{new Date(quotation.valid_until).toLocaleDateString()}</span>
+                  <span className='ml-1'>
+                    {new Date(quotation.valid_until).toLocaleDateString()}
+                  </span>
                 </div>
                 {quotation.sales_person_name && (
                   <div>
@@ -452,11 +568,25 @@ export function Quotations() {
 
               <div className='flex justify-end space-x-2'>
                 <button
+                  onClick={() => setEditingQuotationId(quotation.id)}
+                  className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
+                >
+                  Edit
+                </button>
+                <button
                   onClick={() => handleDuplicate(quotation.id)}
                   className='text-indigo-600 hover:text-indigo-900 text-sm font-medium'
                   disabled={duplicateMutation.isPending}
                 >
                   Duplicate
+                </button>
+                <button
+                  onClick={() =>
+                    handleDownloadPDF(quotation.id, quotation.quotation_number)
+                  }
+                  className='text-green-600 hover:text-green-900 text-sm font-medium'
+                >
+                  PDF
                 </button>
                 {quotation.status === 'pending' && (
                   <select
@@ -484,45 +614,47 @@ export function Quotations() {
       {/* Summary Stats */}
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
-          <div className='text-sm font-medium text-gray-500'>Total Quotations</div>
-          <div className='text-2xl font-bold text-gray-900'>{quotations.length}</div>
+          <div className='text-sm font-medium text-gray-500'>
+            Total Quotations
+          </div>
+          <div className='text-2xl font-bold text-gray-900'>
+            {quotations.length}
+          </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
           <div className='text-sm font-medium text-gray-500'>Pending</div>
           <div className='text-2xl font-bold text-yellow-600'>
-            {quotations.filter(q => q.status === 'pending').length}
+            {quotations.filter((q) => q.status === 'pending').length}
           </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
           <div className='text-sm font-medium text-gray-500'>Accepted</div>
           <div className='text-2xl font-bold text-green-600'>
-            {quotations.filter(q => q.status === 'accepted').length}
+            {quotations.filter((q) => q.status === 'accepted').length}
           </div>
         </div>
         <div className='bg-white p-4 rounded-lg border border-gray-200'>
           <div className='text-sm font-medium text-gray-500'>Total Value</div>
           <div className='text-2xl font-bold text-gray-900'>
-            {formatCurrency(quotations.reduce((sum, q) => sum + q.total_amount, 0))}
+            {formatCurrency(
+              quotations.reduce((sum, q) => sum + q.total_amount, 0)
+            )}
           </div>
         </div>
       </div>
 
-      {/* Create Form Modal - Placeholder */}
-      {showCreateForm && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-          <div className='bg-white p-6 rounded-lg max-w-md w-full mx-4'>
-            <h3 className='text-lg font-medium text-gray-900 mb-4'>Create Quotation</h3>
-            <p className='text-gray-600 mb-4'>Quotation creation form will be implemented next.</p>
-            <div className='flex justify-end space-x-2'>
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className='px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200'
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Quotation Form Modals */}
+      <QuotationForm
+        isOpen={showCreateForm}
+        onClose={() => setShowCreateForm(false)}
+      />
+
+      {editingQuotationId && (
+        <QuotationForm
+          isOpen={!!editingQuotationId}
+          onClose={() => setEditingQuotationId(null)}
+          quotationId={editingQuotationId}
+        />
       )}
     </div>
   );

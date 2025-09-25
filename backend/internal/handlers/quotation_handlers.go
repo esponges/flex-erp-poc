@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"time"
@@ -281,18 +283,35 @@ func (h *Handler) GenerateQuotationPDF(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	quotationID := vars["quotationId"]
 
-	_, ok := middleware.GetOrganizationIDFromContext(r.Context())
+	orgID, ok := middleware.GetOrganizationIDFromContext(r.Context())
 	if !ok {
 		h.respondWithError(w, http.StatusUnauthorized, "Organization not found in context")
 		return
 	}
 
-	// For now, return a placeholder response
-	// This will be implemented when PDF generation functionality is added
-	h.respondWithJSON(w, http.StatusNotImplemented, map[string]string{
-		"message": "PDF generation not yet implemented",
-		"quotation_id": quotationID,
-	})
+	// Get quotation with full details
+	quotation, err := h.DB.GetQuotationByID(orgID, quotationID)
+	if err != nil {
+		h.respondWithError(w, http.StatusNotFound, "Quotation not found")
+		return
+	}
+
+	// Generate PDF content
+	pdfContent, err := h.generateQuotationPDFContent(quotation)
+	if err != nil {
+		h.respondWithError(w, http.StatusInternalServerError, "Failed to generate PDF")
+		return
+	}
+
+	// Set headers for PDF download
+	filename := fmt.Sprintf("quotation-%s.html", quotation.QuotationNumber)
+	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(pdfContent)))
+
+	// Write PDF content
+	w.WriteHeader(http.StatusOK)
+	w.Write(pdfContent)
 }
 
 // Helper functions for validation
@@ -337,4 +356,243 @@ func (h *Handler) validateUpdateQuotationRequest(req models.UpdateQuotationReque
 		}
 	}
 	return nil
+}
+
+// generateQuotationPDFContent generates HTML content for quotation PDF
+func (h *Handler) generateQuotationPDFContent(quotation *models.Quotation) ([]byte, error) {
+	const quotationTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Quotation {{.QuotationNumber}}</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 20px;
+			line-height: 1.4;
+		}
+		.header {
+			text-align: center;
+			margin-bottom: 30px;
+			border-bottom: 2px solid #333;
+			padding-bottom: 20px;
+		}
+		.company-name {
+			font-size: 28px;
+			font-weight: bold;
+			color: #333;
+		}
+		.quotation-info {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 30px;
+		}
+		.quotation-details, .customer-details {
+			width: 48%;
+		}
+		.section-title {
+			font-size: 18px;
+			font-weight: bold;
+			margin-bottom: 10px;
+			color: #333;
+			border-bottom: 1px solid #ccc;
+			padding-bottom: 5px;
+		}
+		.detail-row {
+			margin-bottom: 8px;
+		}
+		.label {
+			font-weight: bold;
+			color: #555;
+		}
+		.line-items {
+			margin-top: 30px;
+		}
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 20px;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 12px;
+			text-align: left;
+		}
+		th {
+			background-color: #f5f5f5;
+			font-weight: bold;
+		}
+		.number {
+			text-align: right;
+		}
+		.totals {
+			float: right;
+			width: 300px;
+			margin-top: 20px;
+		}
+		.total-row {
+			display: flex;
+			justify-content: space-between;
+			padding: 8px 0;
+		}
+		.grand-total {
+			font-weight: bold;
+			font-size: 18px;
+			border-top: 2px solid #333;
+			margin-top: 10px;
+			padding-top: 10px;
+		}
+		.terms {
+			clear: both;
+			margin-top: 50px;
+		}
+		.terms h3 {
+			color: #333;
+			margin-bottom: 10px;
+		}
+		.footer {
+			margin-top: 50px;
+			text-align: center;
+			color: #666;
+			font-size: 12px;
+		}
+		@media print {
+			body { margin: 0; padding: 15px; }
+		}
+	</style>
+</head>
+<body>
+	<div class="header">
+		<div class="company-name">Flex ERP PoC</div>
+		<h2>QUOTATION</h2>
+	</div>
+
+	<div class="quotation-info">
+		<div class="quotation-details">
+			<div class="section-title">Quotation Details</div>
+			<div class="detail-row">
+				<span class="label">Quotation Number:</span> {{.QuotationNumber}}
+			</div>
+			<div class="detail-row">
+				<span class="label">Date:</span> {{.CreationDate.Format "January 2, 2006"}}
+			</div>
+			<div class="detail-row">
+				<span class="label">Valid Until:</span> {{.ValidUntil.Format "January 2, 2006"}}
+			</div>
+			<div class="detail-row">
+				<span class="label">Status:</span> {{title .Status}}
+			</div>
+			{{if .SalesPersonName}}
+			<div class="detail-row">
+				<span class="label">Sales Person:</span> {{.SalesPersonName}}
+			</div>
+			{{end}}
+		</div>
+
+		<div class="customer-details">
+			<div class="section-title">Customer Information</div>
+			<div class="detail-row">
+				<span class="label">Name:</span> {{.CustomerName}}
+			</div>
+			{{if .CustomerEmail}}
+			<div class="detail-row">
+				<span class="label">Email:</span> {{.CustomerEmail}}
+			</div>
+			{{end}}
+			{{if .CustomerPhone}}
+			<div class="detail-row">
+				<span class="label">Phone:</span> {{.CustomerPhone}}
+			</div>
+			{{end}}
+			{{if .CustomerAddress}}
+			<div class="detail-row">
+				<span class="label">Address:</span> {{.CustomerAddress}}
+			</div>
+			{{end}}
+		</div>
+	</div>
+
+	<div class="line-items">
+		<div class="section-title">Items</div>
+		<table>
+			<thead>
+				<tr>
+					<th>Item</th>
+					<th>Description</th>
+					<th class="number">Quantity</th>
+					<th class="number">Unit Price</th>
+					<th class="number">Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{range .LineItems}}
+				<tr>
+					<td>{{if .SKU}}{{.SKU.SKUCode}}{{end}}</td>
+					<td>{{if .SKU}}{{.SKU.ProductName}}{{if .SKU.Description}}<br><small>{{.SKU.Description}}</small>{{end}}{{end}}</td>
+					<td class="number">{{printf "%.2f" .Quantity}}</td>
+					<td class="number">${{printf "%.2f" .FinalUnitPrice}}</td>
+					<td class="number">${{printf "%.2f" .LineTotal}}</td>
+				</tr>
+				{{end}}
+			</tbody>
+		</table>
+	</div>
+
+	<div class="totals">
+		<div class="total-row">
+			<span class="label">Subtotal:</span>
+			<span>${{printf "%.2f" .Subtotal}}</span>
+		</div>
+		<div class="total-row grand-total">
+			<span class="label">Total:</span>
+			<span>${{printf "%.2f" .TotalAmount}}</span>
+		</div>
+	</div>
+
+	<div class="terms">
+		{{if .DeliveryTerms}}
+		<h3>Delivery Terms</h3>
+		<p>{{.DeliveryTerms}}</p>
+		{{end}}
+
+		{{if .PaymentTerms}}
+		<h3>Payment Terms</h3>
+		<p>{{.PaymentTerms}}</p>
+		{{end}}
+
+		{{if .Notes}}
+		<h3>Notes</h3>
+		<p>{{.Notes}}</p>
+		{{end}}
+	</div>
+
+	<div class="footer">
+		<p>Thank you for your business!</p>
+		<p>This quotation is valid until {{.ValidUntil.Format "January 2, 2006"}}</p>
+	</div>
+</body>
+</html>`
+
+	// Create template with custom functions
+	tmpl, err := template.New("quotation").Funcs(template.FuncMap{
+		"title": func(s string) string {
+			if len(s) == 0 {
+				return s
+			}
+			return string(s[0]-32) + s[1:] // Simple title case for first letter
+		},
+	}).Parse(quotationTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse template: %w", err)
+	}
+
+	// Execute template
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, quotation); err != nil {
+		return nil, fmt.Errorf("failed to execute template: %w", err)
+	}
+
+	return buf.Bytes(), nil
 }
